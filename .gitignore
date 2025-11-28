@@ -65,3 +65,6 @@ coverage/
 *.orig
 .cache/
 
+# Nested git repository in docs folder
+docs/.git/
+

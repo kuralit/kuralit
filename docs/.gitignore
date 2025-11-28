@@ -1,0 +1,30 @@
+# Mintlify build artifacts
+.mint/
+.mint-cache/
+.next/
+build/
+.cache/
+node_modules/
+.turbo/
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
