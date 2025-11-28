@@ -1,0 +1,63 @@
+---
+title: "Turn Detection"
+---
+
+
+Turn detection determines when a user has finished speaking and it's the agent's turn to respond.
+
+## What is Turn Detection?
+
+Turn detection analyzes conversation context to predict:
+
+- **End-of-turn probability** - Likelihood that the user has finished speaking
+- **Dynamic endpointing** - Adjusts delay based on probability
+  - High probability → Shorter delay (0.5s)
+  - Low probability → Longer delay (3.0s)
+
+## How Turn Detection Works
+
+Turn detection processes conversation context:
+
+```
+Conversation History
+    ↓
+Current Transcript
+    ↓
+Turn Detector
+    ↓
+End-of-Turn Probability
+    ↓
+Dynamic Endpointing Delay
+    ↓
+Turn Committed
+```
+
+## Configuration
+
+### Basic Configuration
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+
+# Using Multilingual Turn Detector
+agent = AgentSession(
+    turn_detection="multilingual/v1",  # Multilingual turn detector
+    # ...
+)
+```
+</CodeGroup>
+
+## Available Providers
+
+- **Multilingual** - Supports multiple languages, no API keys needed
+
+[View turn detection providers →](/integrations/turn-detection-providers)
+
+## Next Steps
+
+- [Turn Detection Providers →](/integrations/turn-detection-providers) - Choose and configure
+- [STT →](/basics/voice/stt) - Speech-to-Text
+- [VAD →](/basics/voice/vad) - Voice Activity Detection
+- [Audio Streaming →](/basics/voice/audio-streaming) - Real-time streaming
+

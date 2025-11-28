@@ -1,0 +1,177 @@
+---
+title: "Toolkits"
+---
+
+
+Toolkits group related tools together and provide instructions for your AI Voice Agent on when and how to use them.
+
+## What are Toolkits?
+
+Toolkits are collections of related tools that:
+
+- **Group related functionality** - Keep similar tools together
+- **Provide instructions** - Help the agent understand when to use tools
+- **Organize capabilities** - Make it easier to manage multiple tools
+
+## Creating Toolkits
+
+### Basic Toolkit
+
+<CodeGroup>
+```python
+from kuralit.tools import Toolkit
+
+# Define related tools
+def get_weather(location: str) -> str:
+    """Get weather for a location."""
+    return f"Weather in {location}: sunny, 22°C"
+
+def get_forecast(location: str, days: int) -> str:
+    """Get weather forecast."""
+    return f"Forecast for {location}: {days} days of sunny weather"
+
+# Create toolkit
+weather_tools = Toolkit(
+    name="weather",
+    tools=[get_weather, get_forecast],
+    instructions="Weather tools for getting current conditions and forecasts"
+)
+```
+</CodeGroup>
+
+### Toolkit with Instructions
+
+<CodeGroup>
+```python
+calendar_tools = Toolkit(
+    name="calendar",
+    tools=[add_event, list_events, delete_event],
+    instructions="""Calendar tools for managing events.
+    
+Use these tools when users want to:
+- Add new events to their calendar
+- View upcoming events
+- Delete or modify existing events
+
+Always confirm before deleting events."""
+)
+```
+</CodeGroup>
+
+## Using Multiple Toolkits
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+
+# Create multiple toolkits
+weather_tools = Toolkit(name="weather", tools=[...])
+calendar_tools = Toolkit(name="calendar", tools=[...])
+reminder_tools = Toolkit(name="reminders", tools=[...])
+
+# Use all toolkits with agent
+agent = AgentSession(
+    tools=[weather_tools, calendar_tools, reminder_tools],
+    instructions="You are a comprehensive voice assistant with multiple capabilities."
+)
+```
+</CodeGroup>
+
+## Toolkit Organization
+
+### By Functionality
+
+<CodeGroup>
+```python
+# Weather-related tools
+weather_tools = Toolkit(
+    name="weather",
+    tools=[get_weather, get_forecast, get_weather_alerts]
+)
+
+# Calendar-related tools
+calendar_tools = Toolkit(
+    name="calendar",
+    tools=[add_event, list_events, delete_event, update_event]
+)
+```
+</CodeGroup>
+
+### By Domain
+
+<CodeGroup>
+```python
+# Customer support tools
+support_tools = Toolkit(
+    name="support",
+    tools=[search_faq, create_ticket, get_ticket_status]
+)
+
+# E-commerce tools
+ecommerce_tools = Toolkit(
+    name="ecommerce",
+    tools=[get_product, add_to_cart, checkout]
+)
+```
+</CodeGroup>
+
+## Best Practices
+
+### Clear Naming
+
+- ✅ **Descriptive names** - "weather" not "wt"
+- ✅ **Consistent style** - Use lowercase with underscores
+- ✅ **Domain-specific** - Name after the domain (calendar, weather, etc.)
+
+### Good Instructions
+
+- ✅ **Explain purpose** - What the toolkit does
+- ✅ **When to use** - When the agent should use these tools
+- ✅ **Important notes** - Any special considerations
+
+### Logical Grouping
+
+- ✅ **Related functionality** - Group tools that work together
+- ✅ **Not too large** - Keep toolkits focused
+- ✅ **Not too small** - Don't create a toolkit for one tool
+
+## Examples
+
+### Voice Assistant Toolkit
+
+<CodeGroup>
+```python
+# Multiple toolkits for a voice assistant
+calendar_tools = Toolkit(
+    name="calendar",
+    tools=[add_event, list_events, delete_event],
+    instructions="Calendar management tools"
+)
+
+weather_tools = Toolkit(
+    name="weather",
+    tools=[get_weather, get_forecast],
+    instructions="Weather information tools"
+)
+
+reminder_tools = Toolkit(
+    name="reminders",
+    tools=[create_reminder, list_reminders, complete_reminder],
+    instructions="Reminder management tools"
+)
+
+# Use all together
+agent = AgentSession(
+    tools=[calendar_tools, weather_tools, reminder_tools],
+    # ...
+)
+```
+</CodeGroup>
+
+## Next Steps
+
+- [Function Calling →](/basics/tools/function-calling) - Understand how it works
+- [Custom Functions →](/basics/tools/custom-functions) - Create your own tools
+- [REST API Tools →](/basics/tools/rest-api-tools) - Connect to APIs
+- [Python SDK →](/sdks/python) - Implementation details
+

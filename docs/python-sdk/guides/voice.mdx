@@ -1,0 +1,207 @@
+---
+title: "Voice (Python SDK)"
+description: "Python SDK implementation guide for configuring real-time voice streaming"
+---
+This guide covers how to configure real-time voice streaming using the Python SDK. For conceptual information about voice, see [Basics: Voice →](/basics/voice).
+
+## Configuring Voice in AgentSession
+
+Enable voice by configuring STT, VAD, and turn detection:
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+
+# Voice-enabled agent
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",        # Speech-to-Text
+    vad="silero/v3",                     # Voice Activity Detection
+    turn_detection="multilingual/v1",     # Turn Detection
+    llm="gemini/gemini-2.0-flash-001",  # Large Language Model
+)
+```
+</CodeGroup>
+
+## STT Configuration
+
+### String-Based Configuration
+
+<CodeGroup>
+```python
+# Using Deepgram
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    # ...
+)
+
+# Using Google Cloud STT
+agent = AgentSession(
+    stt="google/en-US",
+    # ...
+)
+```
+</CodeGroup>
+
+### Environment Variables
+
+<CodeGroup>
+```bash
+# Deepgram
+DEEPGRAM_API_KEY=your-deepgram-api-key
+
+# Google Cloud STT
+GOOGLE_STT_API_KEY=your-google-stt-key
+# OR
+GOOGLE_STT_CREDENTIALS=/path/to/credentials.json
+```
+</CodeGroup>
+
+[Learn more about STT →](/basics/voice/stt)
+[View STT providers →](/integrations/stt-providers)
+
+## VAD Configuration
+
+### Basic Configuration
+
+<CodeGroup>
+```python
+agent = AgentSession(
+    vad="silero/v3",  # Silero VAD v3
+    # ...
+)
+```
+</CodeGroup>
+
+### Sample Rate Requirements
+
+VAD requires specific sample rates:
+- **8000 Hz** - Telephone quality
+- **16000 Hz** - Standard quality (recommended)
+
+[Learn more about VAD →](/basics/voice/vad)
+[View VAD providers →](/integrations/vad-providers)
+
+## Turn Detection Configuration
+
+### Basic Configuration
+
+<CodeGroup>
+```python
+agent = AgentSession(
+    turn_detection="multilingual/v1",  # Multilingual turn detector
+    # ...
+)
+```
+</CodeGroup>
+
+[Learn more about turn detection →](/basics/voice/turn-detection)
+[View turn detection providers →](/integrations/turn-detection-providers)
+
+## Complete Voice Configuration
+
+<CodeGroup>
+```python
+import os
+from kuralit.server.agent_session import AgentSession
+from kuralit.server.websocket_server import create_app
+import uvicorn
+
+# Complete voice-enabled agent
+agent = AgentSession(
+    # Voice configuration
+    stt="deepgram/nova-2:en-US",
+    vad="silero/v3",
+    turn_detection="multilingual/v1",
+    
+    # Agent configuration
+    llm="gemini/gemini-2.0-flash-001",
+    instructions="You are a helpful voice assistant.",
+)
+
+# Create server
+app = create_app(
+    api_key_validator=lambda key: key == os.getenv("KURALIT_API_KEY", "demo-api-key"),
+    agent_session=agent,
+)
+
+# Run
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+```
+</CodeGroup>
+
+## Python SDK-Specific Features
+
+### Audio Format Configuration
+
+The server automatically handles audio format based on client messages:
+
+<CodeGroup>
+```python
+# Client sends audio format in client_audio_start message
+# Server automatically configures based on:
+# - sample_rate from message
+# - encoding from message (PCM16, PCM8, etc.)
+```
+</CodeGroup>
+
+### Audio Processing
+
+Audio processing is handled automatically:
+
+1. **Client sends audio** - Via WebSocket `client_audio_chunk` messages
+2. **Server processes** - VAD → STT → Turn Detection
+3. **Agent responds** - LLM generates response
+4. **Server streams** - Response sent back via WebSocket
+
+No additional Python code needed - it's all automatic!
+
+## Configuration Best Practices
+
+### Python SDK Best Practices
+
+- **Use consistent sample rates** - Match across VAD, STT, and client (16000 Hz recommended)
+- **Set API keys in environment** - Keep credentials out of code
+- **Test audio format** - Ensure client sends correct format
+- **Monitor logs** - Check for audio processing errors
+
+### Sample Rate Configuration
+
+<CodeGroup>
+```python
+# Ensure client sends audio at correct sample rate
+# Server expects sample rate from client_audio_start message
+# Common sample rates:
+# - 8000 Hz (telephone quality)
+# - 16000 Hz (standard quality, recommended)
+```
+</CodeGroup>
+
+## Troubleshooting
+
+### Common Issues
+
+**STT not working:**
+- Verify API key is set correctly
+- Check network connectivity
+- Ensure audio format matches
+
+**VAD issues:**
+- Verify sample rate matches (8000 or 16000 Hz)
+- Check audio quality and volume
+
+**Turn detection issues:**
+- Verify conversation context is maintained
+- Check VAD configuration
+
+[More troubleshooting →](/help/troubleshooting)
+
+## Next Steps
+
+- [Voice Concepts →](/basics/voice) - Understand what voice streaming is
+- [STT →](/basics/voice/stt) - Speech-to-Text concepts
+- [VAD →](/basics/voice/vad) - Voice Activity Detection concepts
+- [Turn Detection →](/basics/voice/turn-detection) - Turn detection concepts
+- [Audio Streaming →](/basics/voice/audio-streaming) - Real-time streaming concepts
+- [STT Providers →](/integrations/stt-providers) - Choose and configure STT
+- [Examples →](/python-sdk/examples/minimal-server) - See complete voice examples

@@ -1,0 +1,227 @@
+---
+title: "ServerConfig"
+description: "API reference for ServerConfig class - WebSocket server configuration"
+---
+Configuration class for WebSocket server settings.
+
+## Class
+
+<ParamField path="class" type="ServerConfig">
+  Configuration for WebSocket server.
+</ParamField>
+
+## Constructor
+
+<ParamField path="constructor" type="ServerConfig()">
+  Create a new ServerConfig instance. All parameters have defaults loaded from environment variables.
+</ParamField>
+
+## Parameters
+
+### Server Settings
+
+<ParamField path="host" type="str" default="0.0.0.0">
+  Server host address. Loaded from `KURALIT_HOST` environment variable.
+</ParamField>
+
+<ParamField path="port" type="int" default="8000">
+  Server port number. Loaded from `KURALIT_PORT` environment variable.
+</ParamField>
+
+<ParamField path="debug" type="bool" default="false">
+  Enable debug mode. Loaded from `KURALIT_DEBUG` environment variable.
+</ParamField>
+
+<ParamField path="log_level" type="str" default="INFO">
+  Logging level (DEBUG, INFO, WARNING, ERROR). Loaded from `KURALIT_LOG_LEVEL` environment variable.
+</ParamField>
+
+### Security
+
+<ParamField path="api_key_validator" type="Callable[[str], bool] | None" default="None">
+  Function to validate API keys from client connections. Must be provided programmatically.
+</ParamField>
+
+<ParamField path="require_wss" type="bool" default="true">
+  Require secure WebSocket (WSS) connections. Loaded from `KURALIT_REQUIRE_WSS` environment variable.
+</ParamField>
+
+### STT Settings
+
+<ParamField path="stt_enabled" type="bool" default="true">
+  Enable Speech-to-Text. Loaded from `KURALIT_STT_ENABLED` environment variable.
+</ParamField>
+
+<ParamField path="stt_provider" type="str" default="deepgram">
+  STT provider name ("deepgram" or "google"). Loaded from `KURALIT_STT_PROVIDER` environment variable.
+</ParamField>
+
+<ParamField path="deepgram_api_key" type="str | None" default="None">
+  Deepgram API key. Loaded from `DEEPGRAM_API_KEY` environment variable.
+</ParamField>
+
+<ParamField path="stt_api_key" type="str | None" default="None">
+  Google STT API key. Loaded from `GOOGLE_STT_API_KEY` environment variable.
+</ParamField>
+
+<ParamField path="stt_credentials_path" type="str | None" default="None">
+  Path to Google STT credentials JSON file. Loaded from `GOOGLE_STT_CREDENTIALS` environment variable.
+</ParamField>
+
+<ParamField path="stt_language_code" type="str" default="en-US">
+  STT language code. Loaded from `KURALIT_STT_LANGUAGE` environment variable.
+</ParamField>
+
+<ParamField path="sample_rate" type="int" default="16000">
+  Audio sample rate in Hz. Loaded from `KURALIT_SAMPLE_RATE` environment variable.
+</ParamField>
+
+### VAD Settings
+
+<ParamField path="vad_enabled" type="bool" default="true">
+  Enable Voice Activity Detection. Loaded from `KURALIT_VAD_ENABLED` environment variable.
+</ParamField>
+
+<ParamField path="vad_activation_threshold" type="float" default="0.5">
+  VAD activation threshold (0.0-1.0). Loaded from `KURALIT_VAD_ACTIVATION_THRESHOLD` environment variable.
+</ParamField>
+
+<ParamField path="vad_model_path" type="str | None" default="None">
+  Path to VAD model file. Loaded from `KURALIT_VAD_MODEL_PATH` environment variable.
+</ParamField>
+
+### Turn Detector Settings
+
+<ParamField path="turn_detector_enabled" type="bool" default="true">
+  Enable turn detection. Loaded from `KURALIT_TURN_DETECTOR_ENABLED` environment variable.
+</ParamField>
+
+<ParamField path="turn_detector_threshold" type="float" default="0.5">
+  Turn detector threshold (0.0-1.0). Loaded from `KURALIT_TURN_DETECTOR_THRESHOLD` environment variable.
+</ParamField>
+
+<ParamField path="turn_detector_model_path" type="str | None" default="None">
+  Path to turn detector model. Loaded from `KURALIT_TURN_DETECTOR_MODEL_PATH` environment variable.
+</ParamField>
+
+<ParamField path="min_endpointing_delay" type="float" default="0.5">
+  Minimum endpointing delay in seconds. Loaded from `KURALIT_MIN_ENDPOINTING_DELAY` environment variable.
+</ParamField>
+
+<ParamField path="max_endpointing_delay" type="float" default="3.0">
+  Maximum endpointing delay in seconds. Loaded from `KURALIT_MAX_ENDPOINTING_DELAY` environment variable.
+</ParamField>
+
+### Agent Settings
+
+<ParamField path="agent_api_key" type="str | None" default="None">
+  Agent API key (Gemini/Google). Loaded from `GOOGLE_API_KEY` environment variable.
+</ParamField>
+
+<ParamField path="agent_model_id" type="str" default="gemini-2.0-flash-001">
+  Agent model ID. Loaded from `KURALIT_MODEL_ID` environment variable.
+</ParamField>
+
+### Limits
+
+<ParamField path="max_text_size_bytes" type="int" default="4096">
+  Maximum text message size in bytes. Loaded from `KURALIT_MAX_TEXT_SIZE` environment variable.
+</ParamField>
+
+<ParamField path="max_audio_chunk_size_bytes" type="int" default="16384">
+  Maximum audio chunk size in bytes (16KB). Loaded from `KURALIT_MAX_AUDIO_CHUNK_SIZE` environment variable.
+</ParamField>
+
+<ParamField path="max_concurrent_connections" type="int" default="1000">
+  Maximum concurrent WebSocket connections. Loaded from `KURALIT_MAX_CONNECTIONS` environment variable.
+</ParamField>
+
+<ParamField path="connection_timeout_seconds" type="int" default="300">
+  Connection timeout in seconds. Loaded from `KURALIT_CONNECTION_TIMEOUT` environment variable.
+</ParamField>
+
+## Methods
+
+### validate()
+
+<ParamField path="validate" type="None">
+  Validate configuration. Raises `ValueError` if configuration is invalid.
+  
+  **Raises:**
+  - `ValueError`: If required fields are missing or invalid
+  
+  **Example:**
+  ```python
+  config = ServerConfig()
+  config.api_key_validator = lambda key: key == "demo-key"
+  config.validate()  # Raises ValueError if invalid
+  ```
+</ParamField>
+
+## Usage Examples
+
+### Basic Configuration
+
+<CodeGroup>
+```python
+from kuralit.server.config import ServerConfig
+
+# Create config with defaults
+config = ServerConfig()
+
+# Set API key validator
+config.api_key_validator = lambda key: key == "my-secret-key"
+
+# Validate
+config.validate()
+```
+</CodeGroup>
+
+### Custom Configuration
+
+<CodeGroup>
+```python
+from kuralit.server.config import ServerConfig
+
+# Create custom config
+config = ServerConfig(
+    host="0.0.0.0",
+    port=8080,
+    debug=True,
+    log_level="DEBUG",
+    api_key_validator=lambda key: key == "my-key",
+    require_wss=False,
+)
+
+config.validate()
+```
+</CodeGroup>
+
+### Environment Variable Configuration
+
+<CodeGroup>
+```bash
+# .env file
+KURALIT_HOST=0.0.0.0
+KURALIT_PORT=8000
+KURALIT_DEBUG=false
+KURALIT_LOG_LEVEL=INFO
+DEEPGRAM_API_KEY=your-key
+GOOGLE_API_KEY=your-key
+```
+
+```python
+from kuralit.server.config import ServerConfig
+
+# Config automatically loads from .env
+config = ServerConfig()
+config.api_key_validator = lambda key: key == "demo-key"
+```
+</CodeGroup>
+
+## Related
+
+- [WebSocketServer →](/python-sdk/api-reference/websocket-server) - Create WebSocket server
+- [AgentSession →](/python-sdk/api-reference/agent-session) - Agent configuration
+- [Configuration Guide →](/getting-started/configuration) - Complete configuration guide
+

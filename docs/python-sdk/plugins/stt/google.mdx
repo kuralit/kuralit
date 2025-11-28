@@ -1,0 +1,183 @@
+---
+title: "Google Cloud STT Plugin"
+description: "Google Cloud Speech-to-Text plugin for Google ecosystem integration"
+---
+Google Cloud Speech-to-Text provides high-accuracy transcription with Google Cloud ecosystem integration.
+
+## Overview
+
+Google Cloud STT offers:
+
+- **High accuracy** - Google's advanced speech recognition
+- **Google ecosystem** - Seamless integration with Google Cloud services
+- **Multiple languages** - Extensive language support
+- **Enterprise features** - Advanced features for enterprise use
+
+## Setup and Installation
+
+Google Cloud STT is included with Kuralit. No additional installation required.
+
+### Get API Key or Credentials
+
+**Option 1: API Key**
+1. Go to [Google Cloud Console](https://console.cloud.google.com)
+2. Enable Speech-to-Text API
+3. Create an API key
+
+**Option 2: Service Account Credentials (Recommended)**
+1. Create a service account in Google Cloud Console
+2. Download credentials JSON file
+3. Set path to credentials file
+
+### Set Environment Variable
+
+**Option 1: API Key**
+```bash
+GOOGLE_STT_API_KEY=your-google-stt-api-key
+```
+
+**Option 2: Credentials File**
+```bash
+GOOGLE_STT_CREDENTIALS=/path/to/credentials.json
+```
+
+## Environment Variables
+
+### Required (One of)
+
+- `GOOGLE_STT_API_KEY` - Your Google Cloud STT API key
+- `GOOGLE_STT_CREDENTIALS` - Path to service account credentials JSON file
+
+## Configuration
+
+### Basic Usage
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+
+# Using Google Cloud STT
+agent = AgentSession(
+    stt="google/en-US",  # Google Cloud STT, English (US)
+    # ...
+)
+```
+</CodeGroup>
+
+### String Format
+
+The string format is: `google/{language}`
+
+- `google` - Plugin name
+- `{language}` - Language code (e.g., `en-US`, `en-GB`)
+
+## Supported Models
+
+Google Cloud STT uses various models based on your configuration:
+
+- **Standard models** - General-purpose transcription
+- **Enhanced models** - Higher accuracy for specific use cases
+- **Phone call models** - Optimized for telephone audio
+
+## Language Codes
+
+Common language codes:
+
+- `en-US` - English (United States)
+- `en-GB` - English (United Kingdom)
+- `es-ES` - Spanish (Spain)
+- `fr-FR` - French (France)
+- `de-DE` - German (Germany)
+- `it-IT` - Italian (Italy)
+- `pt-BR` - Portuguese (Brazil)
+- `ja-JP` - Japanese (Japan)
+- `zh-CN` - Chinese (Simplified)
+- `zh-TW` - Chinese (Traditional)
+
+[View all supported languages →](https://cloud.google.com/speech-to-text/docs/languages)
+
+## Configuration Options
+
+### Sample Rate
+
+Google Cloud STT supports:
+
+- **8000 Hz** - Telephone quality
+- **16000 Hz** - Standard quality (recommended)
+- **44100 Hz** - High quality
+
+### Encoding
+
+- **linear16** - PCM 16-bit (default)
+- **mulaw** - μ-law encoding
+- **alaw** - A-law encoding
+
+## Usage Examples
+
+### Basic Setup
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+
+agent = AgentSession(
+    stt="google/en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    vad="silero/v3",
+    turn_detection="multilingual/v1",
+    instructions="You are a helpful assistant."
+)
+```
+</CodeGroup>
+
+### Using Credentials File
+
+<CodeGroup>
+```python
+# Set environment variable
+# GOOGLE_STT_CREDENTIALS=/path/to/credentials.json
+
+agent = AgentSession(
+    stt="google/en-US",
+    # Credentials loaded from environment
+    # ...
+)
+```
+</CodeGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="API key or credentials not found">
+    - Verify `GOOGLE_STT_API_KEY` or `GOOGLE_STT_CREDENTIALS` is set
+    - Check credentials file path is correct
+    - Ensure API key is valid and has Speech-to-Text API enabled
+  </Accordion>
+  
+  <Accordion title="Authentication errors">
+    - Verify service account has Speech-to-Text permissions
+    - Check credentials file is valid JSON
+    - Ensure API is enabled in Google Cloud Console
+  </Accordion>
+  
+  <Accordion title="Transcription not working">
+    - Check network connectivity
+    - Verify billing is enabled in Google Cloud
+    - Ensure audio format matches requirements
+    - Check Google Cloud service status
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+- **Use service account credentials** - More secure than API keys
+- **Enable billing** - Required for Google Cloud STT
+- **Monitor usage** - Track API usage in Google Cloud Console
+- **Set up quotas** - Configure usage quotas to manage costs
+
+## Next Steps
+
+- [STT Providers →](/integrations/stt-providers) - Compare STT providers
+- [Voice →](/basics/voice) - Learn about voice streaming
+- [Configuration →](/getting-started/configuration) - Complete configuration guide
+

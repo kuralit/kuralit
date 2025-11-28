@@ -1,0 +1,182 @@
+---
+title: "KuralitConfig"
+description: "API reference for KuralitConfig class - SDK configuration"
+---
+Configuration class for initializing the Kuralit Flutter SDK.
+
+## Class
+
+<ParamField path="class" type="KuralitConfig">
+  Configuration for the Kuralit SDK.
+</ParamField>
+
+## Constructor
+
+<ParamField path="constructor" type="KuralitConfig()">
+  Create a new KuralitConfig instance.
+</ParamField>
+
+## Parameters
+
+<ParamField path="serverUrl" type="String" required>
+  WebSocket server URL (e.g., "wss://api.kuralit.com/ws").
+</ParamField>
+
+<ParamField path="apiKey" type="String" required>
+  API key for authentication.
+</ParamField>
+
+<ParamField path="appId" type="String" required>
+  Application identifier.
+</ParamField>
+
+<ParamField path="debug" type="bool" default="false">
+  Enable debug logging.
+</ParamField>
+
+<ParamField path="reconnectEnabled" type="bool" default="true">
+  Enable automatic reconnection.
+</ParamField>
+
+<ParamField path="maxReconnectAttempts" type="int" default="10">
+  Maximum number of reconnection attempts.
+</ParamField>
+
+<ParamField path="reconnectDelayMs" type="int" default="1000">
+  Initial reconnect delay in milliseconds.
+</ParamField>
+
+<ParamField path="heartbeatIntervalMs" type="int" default="30000">
+  Heartbeat interval in milliseconds (0 to disable).
+</ParamField>
+
+## Factory Constructors
+
+### defaults()
+
+<ParamField path="defaults" type="KuralitConfig">
+  Create a config with default settings.
+  
+  **Parameters:**
+  - `serverUrl` (String, required)
+  - `apiKey` (String, required)
+  - `appId` (String, required)
+  - `debug` (bool, default: false)
+  
+  **Example:**
+  ```dart
+  final config = KuralitConfig.defaults(
+    serverUrl: 'ws://localhost:8000/ws',
+    apiKey: 'demo-key',
+    appId: 'my-app',
+  );
+  ```
+</ParamField>
+
+### production()
+
+<ParamField path="production" type="KuralitConfig">
+  Create a config optimized for production.
+  
+  **Parameters:**
+  - `serverUrl` (String, required)
+  - `apiKey` (String, required)
+  - `appId` (String, required)
+  
+  **Settings:**
+  - `debug: false`
+  - `reconnectEnabled: true`
+  - `maxReconnectAttempts: 10`
+  - `heartbeatIntervalMs: 30000`
+  
+  **Example:**
+  ```dart
+  final config = KuralitConfig.production(
+    serverUrl: 'wss://api.example.com/ws',
+    apiKey: 'prod-key',
+    appId: 'my-app',
+  );
+  ```
+</ParamField>
+
+### development()
+
+<ParamField path="development" type="KuralitConfig">
+  Create a config optimized for development.
+  
+  **Parameters:**
+  - `serverUrl` (String, required)
+  - `apiKey` (String, required)
+  - `appId` (String, required)
+  
+  **Settings:**
+  - `debug: true`
+  - `reconnectEnabled: true`
+  - `maxReconnectAttempts: 5`
+  - `heartbeatIntervalMs: 15000`
+  
+  **Example:**
+  ```dart
+  final config = KuralitConfig.development(
+    serverUrl: 'ws://localhost:8000/ws',
+    apiKey: 'dev-key',
+    appId: 'my-app',
+  );
+  ```
+</ParamField>
+
+## Usage Examples
+
+### Basic Configuration
+
+<CodeGroup>
+```dart
+final config = KuralitConfig(
+  serverUrl: 'ws://localhost:8000/ws',
+  apiKey: 'demo-api-key',
+  appId: 'my-app',
+  debug: true,
+);
+
+Kuralit.init(config);
+```
+</CodeGroup>
+
+### Production Configuration
+
+<CodeGroup>
+```dart
+final config = KuralitConfig.production(
+  serverUrl: 'wss://api.example.com/ws',
+  apiKey: 'prod-api-key',
+  appId: 'my-app',
+);
+
+Kuralit.init(config);
+```
+</CodeGroup>
+
+### Custom Reconnection Settings
+
+<CodeGroup>
+```dart
+final config = KuralitConfig(
+  serverUrl: 'ws://localhost:8000/ws',
+  apiKey: 'demo-api-key',
+  appId: 'my-app',
+  reconnectEnabled: true,
+  maxReconnectAttempts: 5,
+  reconnectDelayMs: 2000,
+  heartbeatIntervalMs: 30000,
+);
+
+Kuralit.init(config);
+```
+</CodeGroup>
+
+## Related
+
+- [KuralitClient →](/flutter-sdk/api-reference/kuralit-client) - Main SDK class
+- [Basic Usage →](/flutter-sdk/guides/basic-usage) - Usage guide
+- [Configuration →](/getting-started/configuration) - Complete configuration guide
+

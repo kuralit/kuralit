@@ -1,0 +1,91 @@
+---
+title: "STT Providers"
+description: "Speech-to-Text providers for converting speech to text"
+---
+Choose the best Speech-to-Text (STT) provider for your AI Voice Agents.
+
+## What are STT Providers?
+
+STT providers convert spoken audio into text:
+
+- **Real-time transcription** - Convert speech as it happens
+- **Multiple languages** - Support for various languages
+- **High accuracy** - State-of-the-art transcription models
+- **Streaming support** - Low-latency processing
+
+## Available Providers
+
+<CardGroup cols={2}>
+  <Card
+    title="Deepgram"
+    icon="microphone"
+    href="/integrations/stt-providers/deepgram"
+  >
+    High accuracy, real-time streaming, multiple languages
+  </Card>
+  <Card
+    title="Google Cloud STT"
+    icon="cloud"
+    href="/integrations/stt-providers/google"
+  >
+    Google ecosystem integration, high accuracy
+  </Card>
+</CardGroup>
+
+## Choosing a Provider
+
+### Deepgram
+
+**Best for:**
+- High accuracy requirements
+- Real-time streaming
+- Multiple language support
+- Fast response times
+
+**Requirements:**
+- `DEEPGRAM_API_KEY` environment variable
+
+[Learn more →](/integrations/stt-providers/deepgram)
+
+### Google Cloud STT
+
+**Best for:**
+- Google Cloud ecosystem integration
+- High accuracy
+- Enterprise deployments
+- Vertex AI integration
+
+**Requirements:**
+- `GOOGLE_STT_API_KEY` OR `GOOGLE_STT_CREDENTIALS` environment variable
+
+[Learn more →](/integrations/stt-providers/google)
+
+## Configuration
+
+### Basic Configuration
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+
+# Using Deepgram
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    # ...
+)
+
+# Using Google Cloud STT
+agent = AgentSession(
+    stt="google/en-US",
+    # ...
+)
+```
+</CodeGroup>
+
+## Next Steps
+
+- [Deepgram →](/integrations/stt-providers/deepgram) - Deepgram provider documentation
+- [Google Cloud STT →](/integrations/stt-providers/google) - Google Cloud STT documentation
+- [Voice →](/basics/voice) - Learn about voice streaming
+- [STT →](/basics/voice/stt) - Understand Speech-to-Text
+

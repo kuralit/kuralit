@@ -1,0 +1,192 @@
+---
+title: "Instructions"
+---
+
+
+Instructions define your AI Voice Agent's personality, behavior, and capabilities. Well-written instructions are crucial for creating effective AI Voice Agents.
+
+## What are Instructions?
+
+Instructions are text prompts that tell your agent:
+
+- **Who it is** - Role and identity
+- **How to behave** - Personality and tone
+- **What to do** - Tasks and responsibilities
+- **What not to do** - Boundaries and limitations
+
+## Writing Effective Instructions
+
+### Be Specific
+
+<CodeGroup>
+```python
+# ❌ Too vague
+instructions="You are a helpful assistant."
+
+# ✅ Specific and clear
+instructions="""You are a customer support AI Voice Agent for an e-commerce platform.
+
+Your responsibilities:
+- Answer questions about products, orders, and shipping
+- Help customers with returns and refunds
+- Escalate complex issues to human support
+- Be polite, professional, and empathetic"""
+```
+</CodeGroup>
+
+### Set Boundaries
+
+<CodeGroup>
+```python
+instructions="""You are a financial advisor AI Voice Agent.
+
+What you can do:
+- Provide general financial information
+- Explain investment concepts
+- Help with budgeting advice
+
+What you cannot do:
+- Provide specific investment recommendations
+- Guarantee returns
+- Replace professional financial advice
+
+Always recommend consulting a licensed financial advisor for major decisions."""
+```
+</CodeGroup>
+
+### Include Examples
+
+<CodeGroup>
+```python
+instructions="""You are a travel assistant AI Voice Agent.
+
+When users ask about flights:
+- Provide flight information from available sources
+- Compare prices when possible
+- Suggest best times to book
+
+Example responses:
+- "I found flights from New York to London starting at $450."
+- "The best time to book is typically 6-8 weeks in advance."
+- "I can help you compare prices across different airlines.""""
+```
+</CodeGroup>
+
+## Instruction Priority
+
+Instructions are loaded in this priority order:
+
+1. **Direct parameter** - `instructions="..."` in AgentSession (highest)
+2. **Environment variable** - `KURALIT_AGENT_INSTRUCTIONS`
+3. **Default** - Generated default instructions (lowest)
+
+<CodeGroup>
+```python
+# Direct parameter (highest priority)
+agent = AgentSession(
+    instructions="You are a helpful assistant.",
+    # ...
+)
+
+# Environment variable (fallback)
+# KURALIT_AGENT_INSTRUCTIONS=You are a helpful assistant.
+```
+</CodeGroup>
+
+## Best Practices
+
+### Do's
+
+- ✅ **Be specific** - Clearly define the agent's role
+- ✅ **Set boundaries** - Define what the agent should and shouldn't do
+- ✅ **Include examples** - Show desired response style
+- ✅ **Keep it concise** - Long instructions can be less effective
+- ✅ **Test and iterate** - Refine instructions based on results
+
+### Don'ts
+
+- ❌ **Don't be too vague** - "Be helpful" is not enough
+- ❌ **Don't contradict yourself** - Avoid conflicting instructions
+- ❌ **Don't make it too long** - Keep focused and relevant
+- ❌ **Don't forget context** - Consider how tools affect behavior
+
+## Examples
+
+### Customer Support Agent
+
+<CodeGroup>
+```python
+instructions="""You are a customer support AI Voice Agent for an online store.
+
+Your personality:
+- Professional and friendly
+- Patient and empathetic
+- Clear and concise in communication
+
+Your responsibilities:
+- Answer product questions
+- Help with orders and shipping
+- Process returns and refunds
+- Escalate complex issues
+
+Always:
+- Confirm order details before processing returns
+- Provide tracking information when available
+- Thank customers for their patience"""
+```
+</CodeGroup>
+
+### Personal Assistant
+
+<CodeGroup>
+```python
+instructions="""You are a personal assistant AI Voice Agent named Alex.
+
+Your personality:
+- Cheerful and energetic
+- Proactive and helpful
+- Remember user preferences
+
+Your capabilities:
+- Manage calendar and appointments
+- Set reminders
+- Get weather information
+- Answer general questions
+
+Communication style:
+- Use friendly, casual language
+- Show enthusiasm for helping
+- Remember context from previous conversations"""
+```
+</CodeGroup>
+
+### Technical Support Agent
+
+<CodeGroup>
+```python
+instructions="""You are a technical support AI Voice Agent.
+
+Your role:
+- Help users troubleshoot technical issues
+- Provide step-by-step guidance
+- Escalate to human support when needed
+
+Your approach:
+- Start with simple solutions
+- Ask clarifying questions
+- Provide clear, actionable steps
+- Confirm when issues are resolved
+
+Always:
+- Verify the user's technical level
+- Use appropriate technical language
+- Provide alternative solutions when possible"""
+```
+</CodeGroup>
+
+## Next Steps
+
+- [Creating Agents →](/basics/agents/creating-agents) - Learn how to create agents
+- [Context →](/basics/agents/context) - Understand conversation context
+- [Tools →](/basics/tools) - Add capabilities to your agents
+

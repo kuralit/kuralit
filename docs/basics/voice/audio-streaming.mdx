@@ -1,0 +1,123 @@
+---
+title: "Audio Streaming"
+---
+
+
+Real-time audio streaming enables natural voice conversations with your AI Voice Agents.
+
+## What is Audio Streaming?
+
+Audio streaming allows your AI Voice Agent to:
+
+- **Receive audio continuously** - Process audio in real-time
+- **Low latency** - Immediate processing
+- **Interim results** - See transcription as user speaks
+- **Natural flow** - No artificial delays
+
+## How Audio Streaming Works
+
+### Continuous Streaming
+
+Audio is processed continuously, not in buffered chunks:
+
+```
+Audio Input (WebSocket)
+    ↓
+Continuous Stream
+    ↓
+VAD + STT (parallel)
+    ↓
+Turn Detection
+    ↓
+Agent Response
+```
+
+### WebSocket Protocol
+
+Audio is sent via WebSocket messages:
+
+1. **client_audio_start** - Begin audio stream
+2. **client_audio_chunk** - Audio data chunks (continuous)
+3. **client_audio_end** - End audio stream
+
+## Configuration
+
+### Sample Rate
+
+Use consistent sample rates:
+
+- **16000 Hz** - Recommended for most use cases
+- **8000 Hz** - For telephone-quality audio
+
+### Encoding
+
+Supported encodings:
+
+- **PCM16** - 16-bit PCM (recommended)
+- **PCM8** - 8-bit PCM
+
+## Audio Pipeline
+
+The complete audio processing pipeline:
+
+```
+┌─────────────────────────────────────┐
+│ Audio Input (WebSocket)             │
+│ - client_audio_start               │
+│ - client_audio_chunk (continuous)   │
+│ - client_audio_end                  │
+└──────────────┬──────────────────────┘
+               │
+               v
+┌─────────────────────────────────────┐
+│ VAD (Voice Activity Detection)      │
+│ - START_OF_SPEECH                   │
+│ - END_OF_SPEECH                     │
+│ - CONTINUING                        │
+└──────────────┬──────────────────────┘
+               │
+               v (parallel processing)
+┌─────────────────────────────────────┐
+│ STT (Speech-to-Text)                │
+│ - Streams audio continuously         │
+│ - Provides interim transcripts       │
+│ - Provides final transcripts        │
+└──────────────┬──────────────────────┘
+               │
+               v
+┌─────────────────────────────────────┐
+│ Turn Detection                      │
+│ - Analyzes conversation context     │
+│ - Predicts end-of-turn probability  │
+│ - Applies dynamic endpointing       │
+└──────────────┬──────────────────────┘
+               │
+               v
+┌─────────────────────────────────────┐
+│ AI Agent (LLM)                      │
+│ - Processes transcript               │
+│ - Generates response                │
+└─────────────────────────────────────┘
+```
+
+## Best Practices
+
+### Sample Rate Consistency
+
+- Match sample rate across VAD, STT, and client
+- Use 16000 Hz for standard quality
+- Ensure client sends audio at correct sample rate
+
+### Audio Quality
+
+- **Good microphone** - Better input = better results
+- **Quiet environment** - Reduce background noise
+- **Proper volume** - Not too quiet, not too loud
+
+## Next Steps
+
+- [STT →](/basics/voice/stt) - Speech-to-Text
+- [VAD →](/basics/voice/vad) - Voice Activity Detection
+- [Turn Detection →](/basics/voice/turn-detection) - Turn detection
+- [Protocol →](/additional-features/protocol) - WebSocket protocol details
+

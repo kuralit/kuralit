@@ -1,0 +1,87 @@
+---
+title: "Conversation History"
+---
+
+
+Conversation history enables your AI Voice Agent to maintain context across multiple conversation turns.
+
+## What is Conversation History?
+
+Conversation history is the record of all messages in a session:
+
+- **User messages** - All user inputs (text and voice)
+- **Agent responses** - All agent responses
+- **Tool calls** - Tool execution records
+- **Tool results** - Results from tool calls
+
+## How It Works
+
+### Automatic Management
+
+History is automatically managed:
+
+<CodeGroup>
+```python
+# Server side - automatic
+session.add_message(user_message)  # Add user message
+session.add_message(agent_response)  # Add agent response
+session.get_conversation_history()  # Get full history
+```
+</CodeGroup>
+
+### Context for LLM
+
+The agent uses conversation history as context:
+
+```
+Conversation History
+    ↓
+LLM Processing
+    ↓
+Response Generation
+```
+
+## History Contents
+
+### Message Types
+
+History includes:
+
+- **User messages** - Text and voice transcripts
+- **Agent responses** - Text responses
+- **Tool calls** - When agent calls tools
+- **Tool results** - Results from tool execution
+
+### Example History
+
+<CodeGroup>
+```python
+[
+    {"role": "user", "content": "What's the weather in London?"},
+    {"role": "assistant", "content": "The weather in London is cloudy, 15°C."},
+    {"role": "user", "content": "What about tomorrow?"},
+    {"role": "assistant", "content": "Tomorrow in London will be sunny, 18°C."}
+]
+```
+</CodeGroup>
+
+## Best Practices
+
+### History Length
+
+- **Keep focused** - Long conversations may exceed context limits
+- **Use tools** - Tools can help manage context
+- **Clear when needed** - Start new session for new topics
+
+### History Quality
+
+- **Clear messages** - Help the agent understand intent
+- **Relevant tool results** - Tools should return useful information
+- **Consistent terminology** - Use consistent terms
+
+## Next Steps
+
+- [Session Management →](/basics/sessions/session-management) - Learn about sessions
+- [Multi-turn Conversations →](/basics/sessions/multi-turn) - Learn about multi-turn
+- [Context →](/basics/agents/context) - Understand conversation context
+

@@ -1,0 +1,61 @@
+---
+title: "VAD Providers"
+description: "Voice Activity Detection providers for detecting when users are speaking"
+---
+Choose Voice Activity Detection (VAD) providers for your AI Voice Agents.
+
+## What are VAD Providers?
+
+VAD providers detect when speech starts and ends:
+
+- **START_OF_SPEECH** - User has started speaking
+- **END_OF_SPEECH** - User has stopped speaking
+- **CONTINUING** - Speech is ongoing
+
+## Available Providers
+
+<Card
+  title="Silero"
+  icon="waveform"
+  href="/integrations/vad-providers/silero"
+>
+  On-device VAD, no API keys needed, works offline
+</Card>
+
+## Choosing a Provider
+
+### Silero
+
+**Best for:**
+- On-device processing
+- No API keys required
+- Offline operation
+- Low latency
+
+**Requirements:**
+- No API keys needed (on-device model)
+
+[Learn more →](/integrations/vad-providers/silero)
+
+## Configuration
+
+### Basic Configuration
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+
+# Using Silero VAD
+agent = AgentSession(
+    vad="silero/v3",  # Silero VAD v3
+    # ...
+)
+```
+</CodeGroup>
+
+## Next Steps
+
+- [Silero →](/integrations/vad-providers/silero) - Silero provider documentation
+- [Voice →](/basics/voice) - Learn about voice streaming
+- [VAD →](/basics/voice/vad) - Understand Voice Activity Detection
+

@@ -1,0 +1,158 @@
+---
+title: "What is Kuralit?"
+description: "Kuralit - Connect AI Voice Agents to your mobile apps"
+---
+
+**Kuralit** enables you to connect AI Voice Agents to your mobile applications. Build conversational AI that your users can interact with through voice and text in real-time.
+
+## How It Works
+
+Kuralit connects your mobile app to AI Voice Agents:
+
+```
+Mobile App (Flutter)
+    ↓ WebSocket
+AI Voice Agent Server (Python)
+    ↓
+AI Voice Agent (Agents + Tools + Voice)
+```
+
+**Your mobile app** ↔ **AI Voice Agent Server** ↔ **AI Voice Agent**
+
+## What are AI Voice Agents?
+
+AI Voice Agents combine three powerful capabilities:
+
+**AI Voice Agents** = 🤖 **Agents** + 🛠️ **Tools** + 🎤 **Voice**
+
+<CardGroup cols={3}>
+  <Card
+    title="🤖 AI Agents"
+    icon="robot"
+    href="/getting-started/features#agents"
+  >
+    Conversational AI with context and personality
+  </Card>
+  <Card
+    title="🛠️ Tools & Function Calling"
+    icon="wrench"
+    href="/getting-started/features#tools"
+  >
+    Agents can perform actions, not just talk
+  </Card>
+  <Card
+    title="🎤 Real-Time Voice"
+    icon="microphone"
+    href="/getting-started/features#voice"
+  >
+    Natural spoken conversations with speech-to-text
+  </Card>
+</CardGroup>
+
+## Quick Start
+
+Get your mobile app connected to an AI Voice Agent in 10 minutes:
+
+<Card
+  title="Quickstart: Connect AI Voice Agent to Mobile App"
+  icon="rocket"
+  href="/getting-started/quickstart"
+>
+  Complete guide: Python server + Flutter mobile app
+</Card>
+
+## Complete Example
+
+Here's how to connect an AI Voice Agent to your mobile app:
+
+<CodeGroup>
+```python
+# Python Server (Backend)
+from kuralit.server.agent_session import AgentSession
+from kuralit.server.websocket_server import create_app
+
+# Create AI Voice Agent
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    vad="silero/v3",
+    turn_detection="multilingual/v1",
+    instructions="You are a helpful assistant."
+)
+
+# Create WebSocket server
+app = create_app(
+    api_key_validator=lambda key: key == "demo-api-key",
+    agent_session=agent,
+)
+```
+
+```dart
+// Flutter Mobile App (Frontend)
+import 'package:kuralit_sdk/kuralit.dart';
+
+// Initialize SDK
+Kuralit.init(KuralitConfig(
+  serverUrl: 'ws://localhost:8000/ws',
+  apiKey: 'demo-api-key',
+  appId: 'my-mobile-app',
+));
+
+// Connect to AI Voice Agent
+await Kuralit.connect();
+
+// Send message from mobile app
+final sessionId = Kuralit.generateSessionId();
+Kuralit.sendText(sessionId, 'Hello from my mobile app!');
+```
+</CodeGroup>
+
+## What You Can Build
+
+Connect AI Voice Agents to your mobile apps for:
+
+- **Voice Assistants** - Add voice AI to your mobile app
+- **Customer Support** - In-app support with AI Voice Agents
+- **Voice-Enabled Features** - Voice commands and interactions
+- **Conversational Interfaces** - Natural voice and text conversations
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card
+    title="Mobile App Integration"
+    icon="mobile-screen"
+    href="/flutter-sdk"
+  >
+    Flutter SDK for connecting mobile apps to AI Voice Agents
+  </Card>
+  <Card
+    title="AI Voice Agent Server"
+    icon="server"
+    href="/python-sdk"
+  >
+    Python SDK for building AI Voice Agent servers
+  </Card>
+  <Card
+    title="Real-Time Voice"
+    icon="microphone"
+    href="/basics/voice"
+  >
+    Speech-to-text, voice activity detection, and natural turn-taking
+  </Card>
+  <Card
+    title="Function Calling"
+    icon="wrench"
+    href="/basics/tools"
+  >
+    Agents can use tools to perform actions, not just talk
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+1. **[Quickstart →](/getting-started/quickstart)** - Connect AI Voice Agent to mobile app in 10 minutes
+2. **[What are AI Voice Agents? →](/getting-started/features)** - Understand the three pillars
+3. **[Basics →](/basics/agents)** - Learn core concepts
+4. **[SDKs →](/python-sdk)** - Implementation guides
+

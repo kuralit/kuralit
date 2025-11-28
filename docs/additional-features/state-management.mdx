@@ -1,0 +1,66 @@
+---
+title: "State Management"
+description: "Learn about state management in AI Voice Agents"
+---
+Learn how Kuralit manages state across sessions and conversations.
+
+## Session State
+
+### Per-Session State
+
+Each session maintains:
+
+- **Conversation History** - All messages in the session
+- **Audio Buffer** - Current audio stream data
+- **User Metadata** - User information
+- **Activity Tracking** - Last activity timestamp
+
+### State Isolation
+
+- **Separate sessions** - Each session has isolated state
+- **No cross-session** - Sessions don't share state
+- **Session cleanup** - State cleared when session ends
+
+## Conversation State
+
+### Message History
+
+<CodeGroup>
+```python
+# Server side - automatic
+session.conversation_history  # List of all messages
+session.add_message(message)  # Add message
+session.get_conversation_history()  # Get history
+```
+</CodeGroup>
+
+### Tool Call State
+
+<CodeGroup>
+```python
+# Tool calls and results are included in state
+# Agent uses this state for context
+session.conversation_history  # Includes tool calls and results
+```
+</CodeGroup>
+
+## Best Practices
+
+### State Management
+
+- **Use sessions** - Each conversation = one session
+- **Clear when needed** - Start new session for new topics
+- **Store user preferences** - Use session metadata
+
+### State Size
+
+- **Keep focused** - Long conversations may exceed limits
+- **Use tools** - Tools can help manage state
+- **Clear boundaries** - Clear session for new topics
+
+## Next Steps
+
+- [Sessions →](/basics/sessions) - Learn about sessions
+- [Conversation History →](/basics/sessions/conversation-history) - Understand history
+- [Context →](/basics/agents/context) - Understand conversation context
+

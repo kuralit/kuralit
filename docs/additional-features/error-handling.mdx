@@ -1,0 +1,81 @@
+---
+title: "Error Handling"
+description: "Learn how to handle errors in your AI Voice Agents"
+---
+Learn how to handle errors and exceptions in your AI Voice Agents.
+
+## Error Types
+
+### Connection Errors
+
+- **Connection failed** - Unable to connect to server
+- **Connection lost** - Connection dropped during use
+- **Authentication failed** - Invalid API key
+
+### Message Errors
+
+- **Invalid message format** - Malformed message
+- **Message too large** - Exceeds size limits
+- **Session not found** - Invalid session ID
+
+### Processing Errors
+
+- **STT error** - Speech-to-text processing failed
+- **LLM error** - Language model processing failed
+- **Tool error** - Tool execution failed
+
+## Error Handling
+
+### Client Side (Flutter)
+
+<CodeGroup>
+```dart
+Kuralit.events.listen((event) {
+  if (event is KuralitErrorEvent) {
+    print('Error [${event.code}]: ${event.message}');
+    if (event.retriable) {
+      // Retry logic
+    } else {
+      // Show error to user
+    }
+  }
+});
+```
+</CodeGroup>
+
+### Server Side (Python)
+
+<CodeGroup>
+```python
+# Errors are automatically handled and sent to client
+# Custom error handling in tools:
+
+def get_weather(location: str) -> str:
+    """Get weather for a location."""
+    try:
+        result = weather_api.get(location)
+        return f"Weather in {location}: {result}"
+    except Exception as e:
+        return f"Sorry, I couldn't get weather: {str(e)}"
+```
+</CodeGroup>
+
+## Best Practices
+
+### Tool Error Handling
+
+- **Return helpful errors** - Don't crash, return error message
+- **Log errors** - Log for debugging
+- **User-friendly messages** - Translate technical errors
+
+### Connection Error Handling
+
+- **Automatic reconnection** - SDK handles reconnection
+- **Show user feedback** - Inform user of connection status
+- **Retry logic** - Implement retry for critical operations
+
+## Next Steps
+
+- [Connection Management →](/additional-features/connection-management) - Connection handling
+- [Troubleshooting →](/help/troubleshooting) - Common issues and solutions
+

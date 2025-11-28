@@ -1,0 +1,230 @@
+---
+title: "WebSocketServer"
+description: "API reference for create_app function - Create FastAPI WebSocket server"
+---
+Create a FastAPI application with WebSocket support for AI Voice Agents.
+
+## Function
+
+<ParamField path="function" type="create_app()">
+  Create FastAPI app with WebSocket endpoint for AI Voice Agent communication.
+</ParamField>
+
+## create_app()
+
+<ParamField path="create_app" type="FastAPI">
+  Create FastAPI application with WebSocket support.
+  
+  **Parameters:**
+  - `api_key_validator` (Callable[[str], bool]): Function to validate API keys
+  - `agent_session` (AgentSession | None): Optional AgentSession configuration (recommended)
+  - `config` (ServerConfig | None): Optional server configuration (fallback)
+  
+  **Returns:**
+  - `FastAPI`: FastAPI application with WebSocket endpoint at `/ws`
+  
+  **Example:**
+  ```python
+  from kuralit.server.websocket_server import create_app
+  from kuralit.server.agent_session import AgentSession
+  
+  agent = AgentSession(
+      stt="deepgram/nova-2:en-US",
+      llm="gemini/gemini-2.0-flash-001",
+      # ...
+  )
+  
+  app = create_app(
+      api_key_validator=lambda key: key == "demo-key",
+      agent_session=agent,
+  )
+  ```
+</ParamField>
+
+## Parameters
+
+### api_key_validator
+
+<ParamField path="api_key_validator" type="Callable[[str], bool]" required>
+  Function to validate API keys from client connections.
+  
+  **Parameters:**
+  - `api_key` (str): API key provided by client
+  
+  **Returns:**
+  - `bool`: True if API key is valid, False otherwise
+  
+  **Example:**
+  ```python
+  def validate_api_key(api_key: str) -> bool:
+      expected_key = os.getenv("KURALIT_API_KEY", "demo-key")
+      return api_key == expected_key
+  ```
+</ParamField>
+
+### agent_session
+
+<ParamField path="agent_session" type="AgentSession | None" default="None">
+  AgentSession configuration. If provided, takes precedence over `config` parameter.
+  
+  **Recommended:** Use AgentSession for configuring your AI Voice Agent.
+  
+  **Example:**
+  ```python
+  agent = AgentSession(
+      stt="deepgram/nova-2:en-US",
+      llm="gemini/gemini-2.0-flash-001",
+      vad="silero/v3",
+      turn_detection="multilingual/v1",
+      instructions="You are a helpful assistant.",
+  )
+  ```
+</ParamField>
+
+### config
+
+<ParamField path="config" type="ServerConfig | None" default="None">
+  Server configuration. Used as fallback if `agent_session` is not provided.
+  
+  **Note:** Prefer using `agent_session` for new code.
+</ParamField>
+
+## WebSocket Endpoint
+
+The server exposes a WebSocket endpoint at `/ws` that accepts:
+
+- **Client Messages:**
+  - `client_text` - Text messages
+  - `client_audio_start` - Start audio streaming
+  - `client_audio_chunk` - Audio data chunks
+  - `client_audio_end` - End audio streaming
+
+- **Server Messages:**
+  - `server_connected` - Connection confirmed
+  - `server_text` - Text responses
+  - `server_partial` - Streaming text responses
+  - `server_stt` - Speech-to-text transcripts
+  - `server_tool_call` - Tool execution notifications
+  - `server_tool_result` - Tool execution results
+  - `server_error` - Error messages
+
+[Learn more about the protocol →](/protocol)
+
+## Usage Examples
+
+### Basic Server Setup
+
+<CodeGroup>
+```python
+from kuralit.server.websocket_server import create_app
+from kuralit.server.agent_session import AgentSession
+import uvicorn
+
+# Create AI Voice Agent
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    vad="silero/v3",
+    turn_detection="multilingual/v1",
+    instructions="You are a helpful assistant.",
+)
+
+# Create FastAPI app
+app = create_app(
+    api_key_validator=lambda key: key == "demo-key",
+    agent_session=agent,
+)
+
+# Run server
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+```
+</CodeGroup>
+
+### Server with Custom API Key Validation
+
+<CodeGroup>
+```python
+import os
+from kuralit.server.websocket_server import create_app
+from kuralit.server.agent_session import AgentSession
+
+def validate_api_key(api_key: str) -> bool:
+    """Validate API key from client."""
+    expected_key = os.getenv("KURALIT_API_KEY", "demo-key")
+    return api_key == expected_key
+
+# Create agent
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    # ...
+)
+
+# Create app with custom validator
+app = create_app(
+    api_key_validator=validate_api_key,
+    agent_session=agent,
+)
+```
+</CodeGroup>
+
+### Server with Tools
+
+<CodeGroup>
+```python
+from kuralit.server.websocket_server import create_app
+from kuralit.server.agent_session import AgentSession
+from kuralit.tools import Toolkit
+
+# Define tools
+def get_weather(location: str) -> str:
+    """Get weather for a location."""
+    return f"Weather in {location}: sunny, 22°C"
+
+# Create agent with tools
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    tools=[Toolkit(tools=[get_weather])],
+    instructions="You are a helpful assistant with weather tools.",
+)
+
+# Create app
+app = create_app(
+    api_key_validator=lambda key: key == "demo-key",
+    agent_session=agent,
+)
+```
+</CodeGroup>
+
+## Running the Server
+
+### Using uvicorn
+
+<CodeGroup>
+```python
+import uvicorn
+
+app = create_app(
+    api_key_validator=lambda key: key == "demo-key",
+    agent_session=agent,
+)
+
+uvicorn.run(app, host="0.0.0.0", port=8000)
+```
+</CodeGroup>
+
+### Command Line
+
+```bash
+uvicorn main:app --host 0.0.0.0 --port 8000
+```
+
+## Related
+
+- [AgentSession →](/python-sdk/api-reference/agent-session) - Agent configuration
+- [ServerConfig →](/python-sdk/api-reference/server-config) - Server configuration
+- [Protocol →](/protocol) - WebSocket protocol reference
+- [Quickstart →](/getting-started/quickstart) - Complete guide: Python server + Flutter mobile app
+

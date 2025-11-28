@@ -1,0 +1,185 @@
+---
+title: "Build Your First AI Voice Agent (Python)"
+description: "Create your first AI Voice Agent server in 5 minutes"
+---
+
+Create a Python server with an AI Voice Agent that can listen, think, and respond in real-time.
+
+## Prerequisites
+
+- Python 3.8 or higher
+- API keys for:
+  - **Deepgram STT**: Get from [Deepgram](https://deepgram.com)
+  - **Gemini LLM**: Get from [Google AI Studio](https://makersuite.google.com/app/apikey)
+
+## Step 1: Install Kuralit
+
+```bash
+pip install kuralit
+```
+
+## Step 2: Set Up Environment Variables
+
+Create a `.env` file in your project directory:
+
+```bash
+# STT (Speech-to-Text)
+DEEPGRAM_API_KEY=your-deepgram-api-key-here
+
+# LLM (Large Language Model)
+GEMINI_API_KEY=your-gemini-api-key-here
+
+# Server Authentication (optional, defaults to "demo-api-key")
+KURALIT_API_KEY=demo-api-key
+```
+
+## Step 3: Create Your AI Voice Agent Server
+
+Create a file `server.py`:
+
+<CodeGroup>
+```python
+import os
+from kuralit.server.agent_session import AgentSession
+from kuralit.server.websocket_server import create_app
+
+# Step 1: Define API key validator
+def validate_api_key(api_key: str) -> bool:
+    """Validate API key from client."""
+    expected_key = os.getenv("KURALIT_API_KEY", "demo-api-key")
+    return api_key == expected_key
+
+# Step 2: Create your AI Voice Agent
+agent_session = AgentSession(
+    # 🎤 Real-Time Voice - Speech-to-Text
+    stt="deepgram/nova-2:en-US",
+    
+    # 🤖 AI Agent - Large Language Model
+    llm="gemini/gemini-2.0-flash-001",
+    
+    # Voice Activity Detection
+    vad="silero/v3",
+    
+    # Turn Detection
+    turn_detection="multilingual/v1",
+    
+    # Agent instructions
+    instructions="You are a helpful AI Voice Agent assistant. Provide clear, concise responses.",
+    
+    # Agent name
+    name="My First AI Voice Agent",
+)
+
+# Step 3: Create FastAPI app with WebSocket support
+app = create_app(
+    api_key_validator=validate_api_key,
+    agent_session=agent_session,
+)
+
+# Step 4: Run the server
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+```
+</CodeGroup>
+
+## Step 4: Run Your Server
+
+```bash
+python server.py
+```
+
+You should see:
+
+```
+🚀 Starting WebSocket server...
+   Host: 0.0.0.0
+   Port: 8000
+   Connect at: ws://0.0.0.0:8000/ws
+```
+
+## Step 5: Test Your AI Voice Agent
+
+Your AI Voice Agent server is now running! You can:
+
+1. **Connect with a Flutter client** - Use the Flutter SDK to connect
+2. **Use a WebSocket client** - Connect with any WebSocket client
+3. **Test with Postman** - Use Postman's WebSocket support
+
+[Learn how to connect with Flutter →](/getting-started/quickstart-flutter)
+
+## What You've Built
+
+Your AI Voice Agent can now:
+
+- ✅ **Listen** - Receive voice input via WebSocket
+- ✅ **Think** - Process with Gemini LLM
+- ✅ **Respond** - Send text responses back
+
+## Next Steps
+
+### Add Tools to Your AI Voice Agent
+
+Make your AI Voice Agent capable by adding tools:
+
+<CodeGroup>
+```python
+from kuralit.tools import Toolkit
+
+# Define a tool function
+def get_weather(location: str) -> str:
+    """Get weather for a location."""
+    return f"Weather in {location}: sunny, 22°C"
+
+# Create toolkit
+weather_tools = Toolkit(
+    name="weather",
+    tools=[get_weather],
+    instructions="Weather tools for getting current conditions"
+)
+
+# Add tools to your agent
+agent_session = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    tools=[weather_tools],  # 🛠️ Add tools here
+    # ...
+)
+```
+</CodeGroup>
+
+[Learn more about tools →](/basics/tools)
+
+### Configure Your AI Voice Agent
+
+Learn about all configuration options:
+
+[Configuration guide →](/getting-started/configuration)
+
+### Explore Examples
+
+See complete examples:
+
+- [Minimal Server](/python-sdk/examples/minimal-server) - Simplest setup
+- [Voice Assistant](/python-sdk/examples/voice-assistant) - Complete with tools
+- [Customer Support](/python-sdk/examples/customer-support) - Real-world use case
+
+---
+
+<CardGroup cols={2}>
+  <Card
+    title="Learn About Agents"
+    icon="robot"
+    href="/basics/agents"
+  >
+    Deep dive into building AI Voice Agents
+  </Card>
+  <Card
+    title="Add Tools"
+    icon="wrench"
+    href="/basics/tools"
+  >
+    Make your agent capable with function calling
+  </Card>
+</CardGroup>
+

@@ -1,0 +1,187 @@
+---
+title: "Agent Overlay"
+description: "Use the KuralitAgentOverlay template for voice-first interaction"
+---
+Demonstrates how to use the `KuralitAgentOverlay` template for voice-first interaction with AI Voice Agents.
+
+## What It Demonstrates
+
+This example shows:
+
+- ✅ Using KuralitAgentOverlay template
+- ✅ Full-screen animated overlay
+- ✅ Voice-first interaction
+- ✅ Beautiful animations
+- ✅ Real-time transcription
+
+## Prerequisites
+
+- Flutter SDK 3.0.0 or higher
+- Kuralit Flutter SDK installed
+- A running AI Voice Agent server
+- Microphone permissions configured
+
+## Step-by-Step Explanation
+
+### Step 1: Initialize SDK
+
+```dart
+Kuralit.init(KuralitConfig(
+  serverUrl: 'ws://localhost:8000/ws',
+  apiKey: 'demo-api-key',
+  appId: 'my-app',
+));
+```
+
+### Step 2: Generate Session ID
+
+```dart
+_sessionId = Kuralit.generateSessionId();
+```
+
+### Step 3: Connect to Server
+
+```dart
+await Kuralit.connect();
+```
+
+### Step 4: Open Agent Overlay
+
+```dart
+KuralitAgentOverlay.show(
+  context,
+  sessionId: _sessionId!,
+);
+```
+
+## Full Code
+
+<CodeGroup>
+```dart
+import 'package:flutter/material.dart';
+import 'package:kuralit_sdk/kuralit.dart';
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  String? _sessionId;
+  bool _isInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeSDK();
+  }
+
+  void _initializeSDK() {
+    Kuralit.init(KuralitConfig(
+      serverUrl: 'ws://localhost:8000/ws',
+      apiKey: 'demo-api-key',
+      appId: 'my-app',
+      debug: true,
+    ));
+
+    _sessionId = Kuralit.generateSessionId();
+    _connect();
+
+    setState(() => _isInitialized = true);
+  }
+
+  Future<void> _connect() async {
+    try {
+      await Kuralit.connect();
+    } catch (e) {
+      print('Connection failed: $e');
+    }
+  }
+
+  void _openOverlay() {
+    if (_sessionId == null) return;
+
+    // Open agent overlay - just one line!
+    KuralitAgentOverlay.show(
+      context,
+      sessionId: _sessionId!,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Agent Overlay Example')),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: _isInitialized ? _openOverlay : null,
+          child: const Text('Open Agent Overlay'),
+        ),
+      ),
+    );
+  }
+}
+```
+</CodeGroup>
+
+## How to Run
+
+### Step 1: Update Configuration
+
+Edit `main.dart`:
+
+```dart
+const serverUrl = 'ws://localhost:8000/ws';
+const apiKey = 'demo-api-key';
+const appId = 'my-app';
+```
+
+### Step 2: Run
+
+```bash
+cd example/agent_overlay
+flutter pub get
+flutter run
+```
+
+## Expected Behavior
+
+1. **App starts** - SDK initializes
+2. **Tap "Open Agent Overlay"** - Full-screen overlay opens
+3. **Animated UI appears** - Golden borders and animations
+4. **Voice input ready** - Tap microphone to speak
+5. **Real-time transcription** - See STT as you speak
+6. **Agent responses** - Responses appear in conversation
+
+## Template Features
+
+The `KuralitAgentOverlay` template provides:
+
+- ✅ **Full-screen overlay** - Immersive experience
+- ✅ **Voice-first** - Optimized for voice interaction
+- ✅ **Animated UI** - Golden borders and particles
+- ✅ **Real-time STT** - See transcription as you speak
+- ✅ **Conversation history** - View past messages
+- ✅ **Text input option** - Fallback to text
+- ✅ **Beautiful animations** - Premium UI experience
+
+## When to Use
+
+- **Voice-first apps** - When voice is the primary interaction
+- **Immersive experience** - Full-screen focus on conversation
+- **Premium UI** - Beautiful animated interface
+- **Quick integration** - No custom UI needed
+
+## Next Steps
+
+- [Popup Chat →](/flutter-sdk/examples/popup-chat) - Dialog-based chat
+- [Using Templates →](/flutter-sdk/guides/using-templates) - Templates guide
+- [Templates API →](/flutter-sdk/api-reference/templates) - API reference
+
+## Related
+
+- [Using Templates →](/flutter-sdk/guides/using-templates) - Complete templates guide
+- [Templates API →](/flutter-sdk/api-reference/templates) - API reference
+

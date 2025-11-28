@@ -1,0 +1,275 @@
+---
+title: "Tools (Python SDK)"
+description: "Python SDK implementation guide for adding tools to AI Voice Agents"
+---
+This guide covers how to add tools to your AI Voice Agents using the Python SDK. For conceptual information about tools, see [Basics: Tools →](/basics/tools).
+
+## Adding Tools to AgentSession
+
+Add tools when creating your agent:
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+from kuralit.tools import Toolkit
+
+# Define tools
+def get_weather(location: str) -> str:
+    """Get weather for a location."""
+    return f"Weather in {location}: sunny, 22°C"
+
+# Create toolkit
+weather_tools = Toolkit(tools=[get_weather])
+
+# Add to agent
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    tools=[weather_tools],  # Add tools here
+    # ...
+)
+```
+</CodeGroup>
+
+## Creating Tools
+
+### From Python Functions
+
+<CodeGroup>
+```python
+from kuralit.tools.function import Function
+
+def calculate(expression: str) -> str:
+    """Calculate a mathematical expression."""
+    try:
+        result = eval(expression)
+        return str(result)
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+# Convert to tool
+tool = Function.from_callable(calculate)
+```
+</CodeGroup>
+
+### Function Requirements
+
+Functions must have:
+- **Type hints** - For all parameters and return type
+- **Docstrings** - Description of what the function does
+
+<CodeGroup>
+```python
+def convert_currency(amount: float, from_currency: str, to_currency: str) -> str:
+    """Convert currency from one type to another.
+    
+    Args:
+        amount: The amount to convert
+        from_currency: Source currency code (e.g., "USD")
+        to_currency: Target currency code (e.g., "EUR")
+    
+    Returns:
+        Converted amount as formatted string
+    """
+    # Implementation
+    return f"{amount} {from_currency} = {converted:.2f} {to_currency}"
+```
+</CodeGroup>
+
+[Learn more about creating custom functions →](/basics/tools/custom-functions)
+
+## Using Toolkits
+
+### Creating Toolkits
+
+<CodeGroup>
+```python
+from kuralit.tools.toolkit import Toolkit
+
+# Multiple related tools
+def get_weather(location: str) -> str:
+    """Get weather for a location."""
+    return f"Weather in {location}: sunny, 22°C"
+
+def get_forecast(location: str, days: int) -> str:
+    """Get weather forecast."""
+    return f"Forecast for {location}: {days} days of sunny weather"
+
+# Create toolkit
+weather_tools = Toolkit(
+    name="weather",
+    tools=[get_weather, get_forecast],
+    instructions="Weather tools for getting current conditions and forecasts"
+)
+```
+</CodeGroup>
+
+### Adding Multiple Toolkits
+
+<CodeGroup>
+```python
+calendar_tools = Toolkit(name="calendar", tools=[...])
+weather_tools = Toolkit(name="weather", tools=[...])
+reminder_tools = Toolkit(name="reminders", tools=[...])
+
+agent = AgentSession(
+    tools=[calendar_tools, weather_tools, reminder_tools],
+    # ...
+)
+```
+</CodeGroup>
+
+[Learn more about toolkits →](/basics/tools/toolkits)
+
+## REST API Tools
+
+### Loading from Postman Collections
+
+<CodeGroup>
+```python
+from kuralit.tools.api import RESTAPIToolkit
+
+# Load from Postman collection
+api_tools = RESTAPIToolkit.from_postman_collection(
+    collection_path="postman_collection.json",
+    base_url="https://api.example.com",
+    headers={
+        "Authorization": "Bearer your-token",
+        "Content-Type": "application/json"
+    }
+)
+
+# Add to agent
+agent = AgentSession(
+    tools=[api_tools],
+    # ...
+)
+```
+</CodeGroup>
+
+[Learn more about REST API tools →](/basics/tools/rest-api-tools)
+
+## Complete Example
+
+<CodeGroup>
+```python
+import os
+from kuralit.server.agent_session import AgentSession
+from kuralit.server.websocket_server import create_app
+from kuralit.tools import Toolkit
+import uvicorn
+
+# Define tools
+def get_weather(location: str) -> str:
+    """Get weather for a location."""
+    return f"Weather in {location}: sunny, 22°C"
+
+def calculate(expression: str) -> str:
+    """Calculate a mathematical expression."""
+    try:
+        result = eval(expression)
+        return str(result)
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+# Create toolkit
+utility_tools = Toolkit(
+    name="utilities",
+    tools=[get_weather, calculate],
+    instructions="Utility tools for weather and calculations"
+)
+
+# Create agent with tools
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    vad="silero/v3",
+    turn_detection="multilingual/v1",
+    tools=[utility_tools],
+    instructions="You are a helpful assistant with utility tools.",
+)
+
+# Create server
+app = create_app(
+    api_key_validator=lambda key: key == os.getenv("KURALIT_API_KEY", "demo-api-key"),
+    agent_session=agent,
+)
+
+# Run
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+```
+</CodeGroup>
+
+## Python SDK-Specific Features
+
+### Function Registration
+
+<CodeGroup>
+```python
+from kuralit.tools.function import Function
+
+# Manual function creation
+tool = Function(
+    name="my_function",
+    description="Does something useful",
+    parameters={
+        "type": "object",
+        "properties": {
+            "param": {"type": "string"}
+        },
+        "required": ["param"]
+    },
+    entrypoint=my_function
+)
+```
+</CodeGroup>
+
+### Toolkit Options
+
+<CodeGroup>
+```python
+toolkit = Toolkit(
+    name="my_tools",
+    tools=[...],
+    instructions="...",
+    requires_confirmation_tools=["dangerous_action"],
+    stop_after_tool_call_tools=["exit"],
+    show_result_tools=["display_result"]
+)
+```
+</CodeGroup>
+
+## Best Practices
+
+### Python SDK Best Practices
+
+- **Use type hints** - Required for automatic tool generation
+- **Write clear docstrings** - Help the agent understand your tools
+- **Handle errors** - Return helpful error messages from tools
+- **Group related tools** - Use toolkits to organize functionality
+
+### Import Organization
+
+<CodeGroup>
+```python
+# Standard library
+import os
+from datetime import datetime
+
+# Kuralit imports
+from kuralit.server.agent_session import AgentSession
+from kuralit.tools import Toolkit
+from kuralit.tools.function import Function
+from kuralit.tools.api import RESTAPIToolkit
+```
+</CodeGroup>
+
+## Next Steps
+
+- [Tools Concepts →](/basics/tools) - Understand what tools are
+- [Function Calling →](/basics/tools/function-calling) - How function calling works
+- [Custom Functions →](/basics/tools/custom-functions) - Create your own tools
+- [REST API Tools →](/basics/tools/rest-api-tools) - Connect to external APIs
+- [API Reference →](/python-sdk/api-reference/tools) - Complete tools API
+- [Examples →](/python-sdk/examples/simple-tools) - See complete examples

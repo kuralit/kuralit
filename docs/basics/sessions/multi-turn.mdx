@@ -1,0 +1,74 @@
+---
+title: "Multi-turn Conversations"
+---
+
+
+Multi-turn conversations enable natural, context-aware interactions with your AI Voice Agents.
+
+## What are Multi-turn Conversations?
+
+Multi-turn conversations are conversations where:
+
+- **Context is maintained** - Agent remembers previous turns
+- **References work** - "What about tomorrow?" refers to previous context
+- **Natural flow** - Feels like talking to a person
+
+## Example
+
+<CodeGroup>
+```python
+# Turn 1
+User: "What's the weather in London?"
+Agent: "The weather in London is cloudy, 15°C."
+
+# Turn 2 (agent remembers London from previous turn)
+User: "What about tomorrow?"
+Agent: "Tomorrow in London will be sunny, 18°C."
+
+# Turn 3 (agent remembers the conversation)
+User: "And the day after?"
+Agent: "The day after tomorrow in London will be partly cloudy, 16°C."
+```
+</CodeGroup>
+
+## How It Works
+
+### Context Maintenance
+
+The agent automatically maintains context:
+
+1. **Stores messages** - All user and agent messages
+2. **Includes tool results** - Tool execution results in context
+3. **Uses history** - Full conversation history available to LLM
+4. **Maintains session** - Each session has isolated context
+
+### Turn Flow
+
+```
+Turn 1: User → Agent
+    ↓ (context stored)
+Turn 2: User → Agent (with context from Turn 1)
+    ↓ (context updated)
+Turn 3: User → Agent (with context from Turns 1 & 2)
+```
+
+## Best Practices
+
+### Clear References
+
+- ✅ **Be specific** - "What about tomorrow?" works if context is clear
+- ✅ **Provide context** - "What's the weather in London tomorrow?" is clearer
+- ✅ **Use consistent terms** - Use same terminology throughout
+
+### Context Management
+
+- **Keep conversations focused** - Long conversations may exceed limits
+- **Use tools effectively** - Tools help maintain context
+- **Clear session boundaries** - Start new sessions for new topics
+
+## Next Steps
+
+- [Session Management →](/basics/sessions/session-management) - Learn about sessions
+- [Conversation History →](/basics/sessions/conversation-history) - Understand history
+- [Context →](/basics/agents/context) - Understand conversation context
+

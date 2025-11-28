@@ -1,0 +1,190 @@
+---
+title: "Minimal Server"
+description: "Simplest AI Voice Agent server setup - no tools, just basic configuration"
+---
+The simplest possible AI Voice Agent server setup. This example demonstrates the absolute minimum configuration required to run a Kuralit WebSocket server.
+
+## What It Demonstrates
+
+This example shows:
+
+- ✅ Basic AgentSession configuration
+- ✅ String-based plugin specifications (recommended approach)
+- ✅ STT, LLM, VAD, and turn detection setup
+- ✅ WebSocket server creation
+- ✅ API key authentication
+
+**No tools** - This is the minimal setup to understand the basics.
+
+## Prerequisites
+
+- Python 3.8 or higher
+- Kuralit SDK installed: `pip install kuralit`
+- API keys:
+  - `DEEPGRAM_API_KEY` - Deepgram STT API key
+  - `GEMINI_API_KEY` - Google Gemini LLM API key
+  - `KURALIT_API_KEY` - Server API key (defaults to "demo-api-key")
+
+## Step-by-Step Explanation
+
+### Step 1: Import Required Modules
+
+```python
+from kuralit.server.agent_session import AgentSession
+from kuralit.server.config import ServerConfig
+from kuralit.server.websocket_server import create_app
+```
+
+### Step 2: Define API Key Validator
+
+```python
+def validate_api_key(api_key: str) -> bool:
+    """Validate API key from client connection."""
+    expected_key = os.getenv("KURALIT_API_KEY", "demo-api-key")
+    return api_key == expected_key
+```
+
+### Step 3: Create AgentSession
+
+This is the simplest possible configuration:
+
+```python
+agent_session = AgentSession(
+    stt="deepgram/nova-2:en-US",      # 🎤 Speech-to-Text
+    llm="gemini/gemini-2.0-flash-001", # 🤖 AI Agent
+    vad="silero/v3",                    # Voice Activity Detection
+    turn_detection="multilingual/v1",   # Turn Detection
+    instructions="You are a helpful assistant.",
+    name="Minimal Server Agent",
+    tools=None,  # No tools - minimal setup
+)
+```
+
+### Step 4: Create FastAPI Application
+
+```python
+app = create_app(
+    api_key_validator=validate_api_key,
+    agent_session=agent_session,
+)
+```
+
+### Step 5: Start the Server
+
+```python
+import uvicorn
+uvicorn.run(app, host="0.0.0.0", port=8000)
+```
+
+## Full Code
+
+<CodeGroup>
+```python
+"""Minimal Server Example - Simplest KuralIt WebSocket Server Setup"""
+
+import os
+from kuralit.server.agent_session import AgentSession
+from kuralit.server.config import ServerConfig
+from kuralit.server.websocket_server import create_app
+
+# Step 1: Define API key validator
+def validate_api_key(api_key: str) -> bool:
+    """Validate API key from client connection."""
+    expected_key = os.getenv("KURALIT_API_KEY", "demo-api-key")
+    return api_key == expected_key
+
+if __name__ == "__main__":
+    import uvicorn
+    
+    # Step 2: Create AgentSession with minimal configuration
+    agent_session = AgentSession(
+        # 🎤 Real-Time Voice
+        stt="deepgram/nova-2:en-US",
+        vad="silero/v3",
+        turn_detection="multilingual/v1",
+        
+        # 🤖 AI Agent
+        llm="gemini/gemini-2.0-flash-001",
+        
+        # Basic instructions
+        instructions="You are a helpful assistant. Provide clear, concise, and helpful responses.",
+        name="Minimal Server Agent",
+        
+        # No tools - minimal setup
+        tools=None,
+    )
+    
+    # Step 3: Create FastAPI application
+    app = create_app(
+        api_key_validator=validate_api_key,
+        agent_session=agent_session,
+    )
+    
+    # Step 4: Get server configuration
+    config = agent_session._config.server if agent_session._config else ServerConfig()
+    
+    # Step 5: Start the server
+    print("🚀 Starting minimal WebSocket server...")
+    print(f"   Host: {config.host}")
+    print(f"   Port: {config.port}")
+    print(f"   Connect at: ws://{config.host}:{config.port}/ws")
+    
+    uvicorn.run(
+        app,
+        host=config.host,
+        port=config.port,
+        log_level=config.log_level.lower(),
+    )
+```
+</CodeGroup>
+
+## How to Run
+
+### Option 1: Run Directly
+
+```bash
+python examples/minimal_server.py
+```
+
+### Option 2: Run with uvicorn
+
+```bash
+uvicorn examples.minimal_server:app --host 0.0.0.0 --port 8000
+```
+
+## Expected Output
+
+```
+🚀 Starting minimal WebSocket server...
+   Host: 0.0.0.0
+   Port: 8000
+   API Key: demo-api-key
+   Connect at: ws://0.0.0.0:8000/ws
+
+   Press Ctrl+C to stop the server
+```
+
+## What Your AI Voice Agent Can Do
+
+With this minimal setup, your AI Voice Agent can:
+
+- ✅ **Listen** - Receive voice input via WebSocket
+- ✅ **Think** - Process with Gemini LLM
+- ✅ **Respond** - Send text responses back
+
+**Cannot:**
+- ❌ Use tools (no tools configured)
+- ❌ Perform actions (no function calling)
+
+## Next Steps
+
+- [Add Tools →](/python-sdk/examples/simple-tools) - Add custom Python functions as tools
+- [Voice Assistant →](/python-sdk/examples/voice-assistant) - Complete example with multiple toolkits
+- [Tools →](/basics/tools) - Learn about adding capabilities
+
+## Related
+
+- [Quickstart →](/getting-started/quickstart) - Complete guide: Python server + Flutter mobile app
+- [Agents →](/basics/agents) - Building AI Voice Agents
+- [Configuration →](/getting-started/configuration) - Complete configuration guide
+

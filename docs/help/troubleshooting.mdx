@@ -1,0 +1,158 @@
+---
+title: "Troubleshooting"
+description: "Common issues and solutions for AI Voice Agents"
+---
+Common issues and solutions when building AI Voice Agents.
+
+## Connection Issues
+
+### Cannot Connect to Server
+
+**Symptoms:**
+- Connection fails immediately
+- "Connection refused" error
+- Timeout errors
+
+**Solutions:**
+- Verify server is running
+- Check server URL is correct
+- Verify API key matches server configuration
+- Check network connectivity
+- Ensure firewall allows WebSocket connections
+
+### Connection Drops Frequently
+
+**Symptoms:**
+- Connection works but drops often
+- Intermittent disconnections
+
+**Solutions:**
+- Check network stability
+- Verify server is not overloaded
+- Increase reconnection attempts
+- Check server logs for errors
+
+## Configuration Issues
+
+### API Keys Not Working
+
+**Symptoms:**
+- Authentication errors
+- "Invalid API key" messages
+
+**Solutions:**
+- Verify API key is set correctly
+- Check for extra spaces or quotes
+- Ensure key matches server configuration
+- Verify environment variables are loaded
+
+### Environment Variables Not Loading
+
+**Symptoms:**
+- Configuration not applied
+- Default values used instead
+
+**Solutions:**
+- Ensure `.env` file is in project root
+- Install `python-dotenv`: `pip install python-dotenv`
+- Check file permissions
+- Verify variable names are correct
+
+## Audio Issues
+
+### STT Not Working
+
+**Symptoms:**
+- No transcription received
+- STT errors in logs
+
+**Solutions:**
+- Verify STT API key is set
+- Check network connectivity to STT provider
+- Ensure audio format matches (sample rate, encoding)
+- Check STT provider status
+- Verify language code is correct
+
+### VAD Issues
+
+**Symptoms:**
+- Speech not detected
+- False positives
+
+**Solutions:**
+- Verify sample rate matches (8000 or 16000 Hz)
+- Adjust activation threshold
+- Check audio quality and volume
+- Ensure microphone permissions
+
+### Turn Detection Too Fast/Slow
+
+**Symptoms:**
+- Agent responds before user finishes
+- Long delays before response
+
+**Solutions:**
+- Adjust turn detection threshold
+- Check VAD configuration
+- Verify conversation context is maintained
+- Adjust endpointing delays
+
+## Tool Issues
+
+### Tools Not Being Called
+
+**Symptoms:**
+- Agent doesn't use tools
+- Tool calls not happening
+
+**Solutions:**
+- Verify tools are registered correctly
+- Check tool function signatures
+- Ensure docstrings are clear
+- Verify toolkit is passed to agent
+
+### Tool Execution Errors
+
+**Symptoms:**
+- Tool calls fail
+- Error messages from tools
+
+**Solutions:**
+- Check tool implementation
+- Verify tool parameters
+- Handle errors in tool functions
+- Check tool return values
+
+## General Issues
+
+### Slow Responses
+
+**Symptoms:**
+- Long delays before responses
+- Slow transcription
+
+**Solutions:**
+- Check network latency
+- Verify LLM provider status
+- Check server resources
+- Optimize tool execution
+
+### Memory Issues
+
+**Symptoms:**
+- Server crashes
+- Out of memory errors
+
+**Solutions:**
+- Limit conversation history length
+- Clear old sessions
+- Optimize tool implementations
+- Increase server resources
+
+## Getting Help
+
+- [Configuration Guide →](/help/configuration) - Complete configuration reference
+- [FAQ →](/help/faq) - Frequently asked questions
+- [GitHub Issues](https://github.com/kuralit/kuralit/issues) - Report issues
+- [Discord](https://discord.gg/xjv54fex) - Get community support
+

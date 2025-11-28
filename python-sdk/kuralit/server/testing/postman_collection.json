@@ -1,0 +1,252 @@
+{
+  "info": {
+    "name": "KuralIt WebSocket Server",
+    "description": "Postman collection for testing KuralIt WebSocket server",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "WebSocket Connection",
+      "item": [
+        {
+          "name": "Connect to WebSocket",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Set WebSocket URL",
+                  "const wsUrl = pm.environment.get('ws_url') || 'ws://localhost:8000/ws';",
+                  "pm.environment.set('ws_url', wsUrl);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{ws_url}}",
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{api_key}}",
+                "type": "text"
+              },
+              {
+                "key": "x-app-id",
+                "value": "{{app_id}}",
+                "type": "text"
+              }
+            ],
+            "description": "Connect to WebSocket server with authentication headers"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Text Messages",
+      "item": [
+        {
+          "name": "Send Text Message",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Generate session ID if not set",
+                  "if (!pm.environment.get('session_id')) {",
+                  "    pm.environment.set('session_id', 'test-session-' + Date.now());",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"client_text\",\n  \"session_id\": \"{{session_id}}\",\n  \"data\": {\n    \"text\": \"Hello, how are you?\",\n    \"metadata\": {}\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ws_url}}",
+              "protocol": "ws",
+              "host": ["{{ws_url}}"]
+            },
+            "description": "Send a text message to the server"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Audio Messages",
+      "item": [
+        {
+          "name": "Start Audio Stream",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"client_audio_start\",\n  \"session_id\": \"{{session_id}}\",\n  \"data\": {\n    \"sample_rate\": 16000,\n    \"encoding\": \"PCM16\",\n    \"metadata\": {}\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ws_url}}",
+              "protocol": "ws",
+              "host": ["{{ws_url}}"]
+            },
+            "description": "Start an audio stream"
+          }
+        },
+        {
+          "name": "Send Audio Chunk",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"client_audio_chunk\",\n  \"session_id\": \"{{session_id}}\",\n  \"data\": {\n    \"chunk\": \"base64_encoded_pcm16_audio_data\",\n    \"timestamp\": 1234567890\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ws_url}}",
+              "protocol": "ws",
+              "host": ["{{ws_url}}"]
+            },
+            "description": "Send an audio chunk (base64 encoded PCM16). Repeat multiple times to simulate streaming."
+          }
+        },
+        {
+          "name": "End Audio Stream",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"client_audio_end\",\n  \"session_id\": \"{{session_id}}\",\n  \"data\": {}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ws_url}}",
+              "protocol": "ws",
+              "host": ["{{ws_url}}"]
+            },
+            "description": "End the audio stream"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Error Scenarios",
+      "item": [
+        {
+          "name": "Invalid Message Format",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"invalid\": \"message\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ws_url}}",
+              "protocol": "ws",
+              "host": ["{{ws_url}}"]
+            },
+            "description": "Send an invalid message to test error handling"
+          }
+        },
+        {
+          "name": "Missing Session ID",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"client_text\",\n  \"data\": {\n    \"text\": \"Hello\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ws_url}}",
+              "protocol": "ws",
+              "host": ["{{ws_url}}"]
+            },
+            "description": "Send message without session_id"
+          }
+        },
+        {
+          "name": "Oversized Text",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"client_text\",\n  \"session_id\": \"{{session_id}}\",\n  \"data\": {\n    \"text\": \"{{large_text}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ws_url}}",
+              "protocol": "ws",
+              "host": ["{{ws_url}}"]
+            },
+            "description": "Send text message exceeding 4KB limit"
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "ws_url",
+      "value": "ws://localhost:8000/ws",
+      "type": "string"
+    },
+    {
+      "key": "api_key",
+      "value": "test-api-key",
+      "type": "string"
+    },
+    {
+      "key": "app_id",
+      "value": "test-app-id",
+      "type": "string"
+    },
+    {
+      "key": "session_id",
+      "value": "test-session-123",
+      "type": "string"
+    }
+  ]
+}
+

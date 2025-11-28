@@ -1,0 +1,213 @@
+---
+title: "Audio Client"
+description: "Python client for streaming audio to AI Voice Agent servers"
+---
+A Python client that connects to a Kuralit WebSocket server and streams audio from your microphone. Useful for testing your AI Voice Agent servers.
+
+## What It Demonstrates
+
+This example shows:
+
+- ✅ Connecting to WebSocket server
+- ✅ Capturing audio from microphone
+- ✅ Streaming audio chunks to server
+- ✅ Receiving STT transcriptions
+- ✅ Receiving agent responses
+- ✅ Complete client-side protocol implementation
+
+## Prerequisites
+
+- Python 3.8 or higher
+- Kuralit SDK installed: `pip install kuralit`
+- Additional dependencies:
+  ```bash
+  pip install websockets pyaudio
+  ```
+- A running Kuralit WebSocket server (use one of the server examples)
+
+## Step-by-Step Explanation
+
+### Step 1: Start a Server
+
+First, start a server in another terminal:
+
+```bash
+python examples/minimal_server.py
+```
+
+### Step 2: Connect to Server
+
+```python
+import websockets
+
+async with websockets.connect(
+    "ws://localhost:8000/ws",
+    extra_headers={"X-API-Key": "demo-api-key"}
+) as websocket:
+    # Connection established
+```
+
+### Step 3: Send Audio Start
+
+```python
+start_msg = {
+    "type": "client_audio_start",
+    "session_id": session_id,
+    "data": {
+        "sample_rate": 16000,
+        "encoding": "PCM16"
+    }
+}
+await websocket.send(json.dumps(start_msg))
+```
+
+### Step 4: Stream Audio Chunks
+
+```python
+# Capture audio from microphone
+audio_data = capture_audio_chunk()
+
+# Base64 encode
+b64_audio = base64.b64encode(audio_data).decode('utf-8')
+
+# Send chunk
+chunk_msg = {
+    "type": "client_audio_chunk",
+    "session_id": session_id,
+    "data": b64_audio
+}
+await websocket.send(json.dumps(chunk_msg))
+```
+
+### Step 5: Receive Responses
+
+```python
+response = await websocket.recv()
+message = json.loads(response)
+
+if message["type"] == "server_stt":
+    print(f"STT: {message['data']['text']}")
+elif message["type"] == "server_text":
+    print(f"Agent: {message['data']['text']}")
+```
+
+## Full Code Structure
+
+The client includes:
+
+1. **Audio Capture** - PyAudio for microphone input
+2. **WebSocket Connection** - Connect to server
+3. **Audio Streaming** - Send audio chunks
+4. **Response Handling** - Receive and display responses
+5. **Protocol Implementation** - Complete client-side protocol
+
+## How to Run
+
+### Step 1: Start Server
+
+In one terminal:
+
+```bash
+python examples/minimal_server.py
+```
+
+### Step 2: Run Client
+
+In another terminal:
+
+```bash
+python examples/clients/send_audio_client.py
+```
+
+### With Custom Server URL
+
+```bash
+python examples/clients/send_audio_client.py \
+    --server ws://localhost:8000/ws \
+    --api-key demo-api-key
+```
+
+## Expected Output
+
+```
+🎤 Recording started (16000Hz, Mono)...
+📤 Sent audio start message
+📤 Streaming audio... (Press Ctrl+C to stop)
+
+STT: Hello, how are you?
+Agent: I'm doing well, thank you! How can I help you today?
+
+🛑 Recording stopped.
+```
+
+## Audio Configuration
+
+The client uses:
+
+- **Sample Rate**: 16000 Hz
+- **Channels**: Mono (1 channel)
+- **Format**: PCM16 (16-bit)
+- **Chunk Size**: 1024 frames
+
+## Protocol Flow
+
+```
+1. Connect to WebSocket
+   ↓
+2. Send client_audio_start
+   ↓
+3. Stream client_audio_chunk (continuous)
+   ↓
+4. Receive server_stt (transcriptions)
+   ↓
+5. Receive server_text (agent responses)
+   ↓
+6. Send client_audio_end (when done)
+```
+
+## Use Cases
+
+This client is useful for:
+
+- **Testing servers** - Test your AI Voice Agent servers
+- **Debugging** - See what the server receives
+- **Development** - Quick testing without Flutter app
+- **Protocol understanding** - Learn the WebSocket protocol
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Microphone not working">
+    - Check microphone permissions
+    - Verify PyAudio installation: `pip install pyaudio`
+    - Test microphone with other applications
+    - Check audio device settings
+  </Accordion>
+  
+  <Accordion title="Connection failed">
+    - Verify server is running
+    - Check server URL is correct
+    - Verify API key matches server configuration
+    - Check network connectivity
+  </Accordion>
+  
+  <Accordion title="No audio received">
+    - Check server STT configuration
+    - Verify API keys are set correctly
+    - Check server logs for errors
+    - Ensure audio format matches (16000 Hz, PCM16)
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+- [Protocol Reference →](/protocol) - Complete WebSocket protocol documentation
+- [Quickstart →](/getting-started/quickstart) - Complete guide: Python server + Flutter mobile app
+- [Server Examples →](/python-sdk/examples/minimal-server) - Test with different servers
+
+## Related
+
+- [Protocol →](/protocol) - WebSocket protocol reference
+- [Voice →](/basics/voice) - Real-time voice streaming
+- [Quickstart →](/getting-started/quickstart) - Complete guide: Python server + Flutter mobile app
+

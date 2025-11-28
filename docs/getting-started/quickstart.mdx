@@ -1,0 +1,328 @@
+---
+title: "Quickstart"
+description: "Connect an AI Voice Agent to your mobile app in 10 minutes"
+---
+
+This guide shows you how to connect an AI Voice Agent to your mobile app. You'll build:
+- **Python Server** - AI Voice Agent backend
+- **Flutter Mobile App** - Mobile app frontend
+- **Connection** - How they communicate
+
+## Overview
+
+```
+┌─────────────────────┐
+│  Flutter Mobile App │
+│  (Your App)         │
+└──────────┬──────────┘
+           │ WebSocket
+           │ (Real-time)
+           ↓
+┌─────────────────────┐
+│  Python Server      │
+│  (AI Voice Agent)   │
+└─────────────────────┘
+```
+
+## Prerequisites
+
+- Python 3.8+ installed
+- Flutter SDK 3.0+ installed
+- API keys:
+  - **Deepgram STT**: [Get from Deepgram](https://deepgram.com)
+  - **Gemini LLM**: [Get from Google AI Studio](https://makersuite.google.com/app/apikey)
+
+## Part 1: Python Server (Backend)
+
+### Step 1: Install Python SDK
+
+```bash
+pip install kuralit
+```
+
+### Step 2: Set Up Environment Variables
+
+Create a `.env` file:
+
+```bash
+# STT (Speech-to-Text)
+DEEPGRAM_API_KEY=your-deepgram-api-key-here
+
+# LLM (Large Language Model)
+GEMINI_API_KEY=your-gemini-api-key-here
+
+# Server Authentication
+KURALIT_API_KEY=demo-api-key
+```
+
+### Step 3: Create Server
+
+Create `server.py`:
+
+<CodeGroup>
+```python
+import os
+import uvicorn
+from kuralit.server.agent_session import AgentSession
+from kuralit.server.websocket_server import create_app
+
+# Validate API key from mobile app
+def validate_api_key(api_key: str) -> bool:
+    expected_key = os.getenv("KURALIT_API_KEY", "demo-api-key")
+    return api_key == expected_key
+
+# Create AI Voice Agent
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",        # Speech-to-Text
+    llm="gemini/gemini-2.0-flash-001",  # Large Language Model
+    vad="silero/v3",                     # Voice Activity Detection
+    turn_detection="multilingual/v1",     # Turn Detection
+    instructions="You are a helpful assistant for mobile app users.",
+    name="Mobile App AI Voice Agent",
+)
+
+# Create WebSocket server
+app = create_app(
+    api_key_validator=validate_api_key,
+    agent_session=agent,
+)
+
+# Run server
+if __name__ == "__main__":
+    print("🚀 Starting AI Voice Agent server...")
+    print(f"   Server: ws://localhost:8000/ws")
+    print(f"   API Key: {os.getenv('KURALIT_API_KEY', 'demo-api-key')}")
+    print("\n   Your mobile app can now connect to this server!")
+    print("   Press Ctrl+C to stop\n")
+    
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+```
+</CodeGroup>
+
+### Step 4: Run Server
+
+```bash
+python server.py
+```
+
+Your server is now running at `ws://localhost:8000/ws`
+
+## Part 2: Flutter Mobile App (Frontend)
+
+### Step 1: Add Flutter SDK
+
+Add to `pubspec.yaml`:
+
+```yaml
+dependencies:
+  kuralit_sdk: ^1.0.0
+```
+
+Install:
+
+```bash
+flutter pub get
+```
+
+### Step 2: Configure Permissions
+
+**Android** (`android/app/src/main/AndroidManifest.xml`):
+
+```xml
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
+<uses-permission android:name="android.permission.INTERNET" />
+```
+
+**iOS** (`ios/Runner/Info.plist`):
+
+```xml
+<key>NSMicrophoneUsageDescription</key>
+<string>This app needs microphone access for voice chat with AI Voice Agents</string>
+```
+
+### Step 3: Connect to AI Voice Agent
+
+<CodeGroup>
+```dart
+import 'package:flutter/material.dart';
+import 'package:kuralit_sdk/kuralit.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'My Mobile App',
+      home: const ChatScreen(),
+    );
+  }
+}
+
+class ChatScreen extends StatefulWidget {
+  const ChatScreen({super.key});
+
+  @override
+  State<ChatScreen> createState() => _ChatScreenState();
+}
+
+class _ChatScreenState extends State<ChatScreen> {
+  final TextEditingController _textController = TextEditingController();
+  final List<String> _messages = [];
+  bool _isConnected = false;
+  String? _sessionId;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeSDK();
+  }
+
+  void _initializeSDK() {
+    // Initialize SDK
+    Kuralit.init(KuralitConfig(
+      serverUrl: 'ws://localhost:8000/ws',  // Your Python server
+      apiKey: 'demo-api-key',               // Match server API key
+      appId: 'my-mobile-app',
+      debug: true,
+    ));
+
+    // Generate session ID
+    _sessionId = Kuralit.generateSessionId();
+
+    // Listen to events
+    Kuralit.events.listen((event) {
+      if (event is KuralitConnectedEvent) {
+        setState(() => _isConnected = true);
+        _addMessage('✅ Connected to AI Voice Agent');
+      } else if (event is KuralitServerTextEvent) {
+        _addMessage('Agent: ${event.text}');
+      } else if (event is KuralitErrorEvent) {
+        _addMessage('❌ Error: ${event.message}');
+      }
+    });
+
+    // Connect to server
+    _connect();
+  }
+
+  Future<void> _connect() async {
+    try {
+      await Kuralit.connect();
+    } catch (e) {
+      _addMessage('❌ Connection failed: $e');
+    }
+  }
+
+  void _sendMessage() {
+    final text = _textController.text.trim();
+    if (text.isEmpty || !_isConnected || _sessionId == null) return;
+
+    _addMessage('You: $text');
+    Kuralit.sendText(_sessionId!, text);
+    _textController.clear();
+  }
+
+  void _addMessage(String message) {
+    setState(() {
+      _messages.add(message);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('My Mobile App'),
+        actions: [
+          Icon(
+            _isConnected ? Icons.check_circle : Icons.error,
+            color: _isConnected ? Colors.green : Colors.red,
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: _messages.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text(_messages[index]),
+                );
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _textController,
+                    decoration: const InputDecoration(
+                      hintText: 'Type a message...',
+                      border: OutlineInputBorder(),
+                    ),
+                    onSubmitted: (_) => _sendMessage(),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.send),
+                  onPressed: _sendMessage,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+</CodeGroup>
+
+### Step 4: Run Mobile App
+
+```bash
+flutter run
+```
+
+## Testing the Connection
+
+1. **Start Python server** - Run `python server.py`
+2. **Run Flutter app** - Run `flutter run`
+3. **Send a message** - Type a message in the mobile app
+4. **See response** - AI Voice Agent responds in real-time!
+
+## What's Happening?
+
+1. **Mobile app connects** - Flutter app connects to Python server via WebSocket
+2. **User sends message** - Message sent from mobile app to server
+3. **AI Voice Agent processes** - Server processes with AI (LLM)
+4. **Response sent back** - AI response sent back to mobile app
+5. **User sees response** - Response displayed in mobile app
+
+## Next Steps
+
+- **[What are AI Voice Agents? →](/getting-started/features)** - Understand the three pillars
+- **[Basics: Agents →](/basics/agents)** - Learn about agents
+- **[Basics: Tools →](/basics/tools)** - Add capabilities
+- **[Basics: Voice →](/basics/voice)** - Enable voice conversations
+- **[Python SDK →](/sdks/python)** - Server implementation details
+- **[Flutter SDK →](/sdks/flutter)** - Mobile app implementation details
+
+## Need Help?
+
+- **[Installation & Setup →](/help/installation-setup)** - Detailed installation guide
+- **[Configuration →](/help/configuration)** - Complete configuration reference
+- **[Troubleshooting →](/help/troubleshooting)** - Common issues and solutions
+- **[FAQ →](/help/faq)** - Frequently asked questions
+

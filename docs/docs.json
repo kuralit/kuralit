@@ -1,0 +1,221 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Kuralit",
+  "colors": {
+    "primary": "#6366F1",
+    "light": "#818CF8",
+    "dark": "#4F46E5"
+  },
+  "favicon": "/favicon.svg",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/kuralit/kuralit"
+      }
+    ]
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "getting-started/what-is-kuralit",
+              "getting-started/quickstart",
+              "getting-started/features"
+            ]
+          },
+          {
+            "group": "Basics",
+            "pages": [
+              {
+                "group": "Agents",
+                "pages": [
+                  "basics/agents/index",
+                  "basics/agents/creating-agents",
+                  "basics/agents/instructions",
+                  "basics/agents/context"
+                ]
+              },
+              {
+                "group": "Tools",
+                "pages": [
+                  "basics/tools/index",
+                  "basics/tools/function-calling",
+                  "basics/tools/custom-functions",
+                  "basics/tools/rest-api-tools",
+                  "basics/tools/toolkits"
+                ]
+              },
+              {
+                "group": "Voice",
+                "pages": [
+                  "basics/voice/index",
+                  "basics/voice/stt",
+                  "basics/voice/vad",
+                  "basics/voice/turn-detection",
+                  "basics/voice/audio-streaming"
+                ]
+              },
+              {
+                "group": "Sessions",
+                "pages": [
+                  "basics/sessions/index",
+                  "basics/sessions/session-management",
+                  "basics/sessions/conversation-history",
+                  "basics/sessions/multi-turn"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Additional Features",
+            "pages": [
+              "additional-features/protocol",
+              "additional-features/streaming",
+              "additional-features/error-handling",
+              "additional-features/connection-management",
+              "additional-features/state-management"
+            ]
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              {
+                "group": "Model Providers",
+                "pages": [
+                  "integrations/model-providers/index",
+                  "integrations/model-providers/gemini"
+                ]
+              },
+              {
+                "group": "STT Providers",
+                "pages": [
+                  "integrations/stt-providers/index",
+                  "integrations/stt-providers/deepgram",
+                  "integrations/stt-providers/google"
+                ]
+              },
+              {
+                "group": "VAD Providers",
+                "pages": [
+                  "integrations/vad-providers/index",
+                  "integrations/vad-providers/silero"
+                ]
+              },
+              {
+                "group": "Turn Detection Providers",
+                "pages": [
+                  "integrations/turn-detection-providers/index",
+                  "integrations/turn-detection-providers/multilingual"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "SDKs",
+            "pages": [
+              {
+                "group": "Python SDK",
+                "pages": [
+                  "python-sdk/index",
+                  "python-sdk/api-reference/server-config",
+                  "python-sdk/api-reference/websocket-server",
+                  "python-sdk/api-reference/agent-session",
+                  "python-sdk/api-reference/tools",
+                  {
+                    "group": "Examples",
+                    "pages": [
+                      "python-sdk/examples/minimal-server",
+                      "python-sdk/examples/websocket-demo",
+                      "python-sdk/examples/simple-tools",
+                      "python-sdk/examples/voice-assistant",
+                      "python-sdk/examples/customer-support",
+                      "python-sdk/examples/postman-api",
+                      "python-sdk/examples/audio-client"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Flutter SDK",
+                "pages": [
+                  "flutter-sdk/index",
+                  "flutter-sdk/guides/basic-usage",
+                  "flutter-sdk/guides/using-templates",
+                  "flutter-sdk/api-reference/kuralit-config",
+                  "flutter-sdk/api-reference/kuralit-client",
+                  "flutter-sdk/api-reference/events",
+                  "flutter-sdk/api-reference/templates",
+                  {
+                    "group": "Examples",
+                    "pages": [
+                      "flutter-sdk/examples/basic-chat",
+                      "flutter-sdk/examples/popup-chat",
+                      "flutter-sdk/examples/agent-overlay",
+                      "flutter-sdk/examples/protocol-demo"
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Help",
+            "pages": [
+              "help/installation-setup",
+              "help/configuration",
+              "help/troubleshooting",
+              "help/faq"
+            ]
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Documentation",
+          "href": "https://docs.kuralit.com",
+          "icon": "book-open-cover"
+        },
+        {
+          "anchor": "GitHub",
+          "href": "https://github.com/kuralit/kuralit",
+          "icon": "github"
+        },
+        {
+          "anchor": "Discord",
+          "href": "https://discord.gg/xjv54fex",
+          "icon": "discord"
+        }
+      ]
+    }
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/kuralit/kuralit",
+      "discord": "https://discord.gg/xjv54fex"
+    }
+  }
+}

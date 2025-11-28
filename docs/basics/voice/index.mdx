@@ -1,0 +1,92 @@
+---
+title: "Voice"
+---
+
+
+Real-time voice enables natural spoken conversations with your AI Voice Agents. It processes audio input through Speech-to-Text (STT), Voice Activity Detection (VAD), and turn detection.
+
+## What is Voice Streaming?
+
+Voice streaming enables your AI Voice Agent to:
+
+- **Receive voice input** - Process audio in real-time
+- **Convert speech to text** - Use STT to transcribe audio
+- **Detect speech activity** - Use VAD to know when users are speaking
+- **Detect conversation turns** - Know when users have finished speaking
+- **Respond naturally** - Enable natural turn-taking in conversations
+
+## Core Components
+
+<CardGroup cols={3}>
+  <Card
+    title="Speech-to-Text (STT)"
+    icon="microphone"
+    href="/basics/voice/stt"
+  >
+    Convert speech to text in real-time
+  </Card>
+  <Card
+    title="Voice Activity Detection (VAD)"
+    icon="waveform"
+    href="/basics/voice/vad"
+  >
+    Detect when users are speaking
+  </Card>
+  <Card
+    title="Turn Detection"
+    icon="arrows-rotate"
+    href="/basics/voice/turn-detection"
+  >
+    Determine when users finish speaking
+  </Card>
+  <Card
+    title="Audio Streaming"
+    icon="stream"
+    href="/basics/voice/audio-streaming"
+  >
+    Stream audio in real-time
+  </Card>
+</CardGroup>
+
+## Audio Pipeline
+
+The complete audio processing flow:
+
+```
+Audio Input
+    ↓
+VAD (Voice Activity Detection)
+    ↓ (detects speech start/end)
+STT (Speech-to-Text)
+    ↓ (converts audio to text)
+Turn Detection
+    ↓ (determines end of turn)
+AI Agent (LLM)
+    ↓ (processes text and generates response)
+Response to User
+```
+
+## Quick Example
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+
+# Voice-enabled agent
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",        # Speech-to-Text
+    vad="silero/v3",                     # Voice Activity Detection
+    turn_detection="multilingual/v1",     # Turn Detection
+    llm="gemini/gemini-2.0-flash-001",  # AI Agent
+)
+```
+</CodeGroup>
+
+## Next Steps
+
+- [STT →](/basics/voice/stt) - Speech-to-Text
+- [VAD →](/basics/voice/vad) - Voice Activity Detection
+- [Turn Detection →](/basics/voice/turn-detection) - Turn detection
+- [Audio Streaming →](/basics/voice/audio-streaming) - Real-time streaming
+- [Integrations →](/integrations) - Choose providers
+

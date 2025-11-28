@@ -1,0 +1,196 @@
+---
+title: "Customer Support"
+description: "Customer support AI Voice Agent with FAQ, tickets, and account management"
+---
+A customer support AI Voice Agent with FAQ search, ticket management, and account management capabilities.
+
+## What It Demonstrates
+
+This example shows:
+
+- ✅ Real-world use case implementation
+- ✅ FAQ search tools
+- ✅ Ticket management tools
+- ✅ Account management tools
+- ✅ Structured responses and confirmations
+- ✅ Production-like patterns
+
+## Prerequisites
+
+- Python 3.8 or higher
+- Kuralit SDK installed: `pip install kuralit`
+- API keys:
+  - `DEEPGRAM_API_KEY` - Deepgram STT API key
+  - `GEMINI_API_KEY` - Google Gemini LLM API key
+  - `KURALIT_API_KEY` - Server API key (defaults to "demo-api-key")
+
+## Features
+
+Your customer support AI Voice Agent can:
+
+- **🔍 FAQ Search** - Search knowledge base for common questions
+- **🎫 Ticket Management** - Create, view, update, and list support tickets
+- **👤 Account Management** - Get account and order information
+- **💰 Actions** - Process refunds (with confirmation), escalate tickets
+
+## Step-by-Step Explanation
+
+### Step 1: Define Support Tools
+
+Create tools for customer support operations:
+
+```python
+def search_faq(query: str) -> str:
+    """Search FAQ database for answers."""
+    # Search implementation...
+
+def create_ticket(subject: str, description: str, priority: str = "normal") -> str:
+    """Create a support ticket."""
+    # Ticket creation...
+
+def get_ticket_status(ticket_id: str) -> str:
+    """Get status of a support ticket."""
+    # Status lookup...
+
+def process_refund(order_id: str, amount: Optional[float] = None) -> str:
+    """Process a refund for an order."""
+    # Refund processing...
+```
+
+### Step 2: Create Support Toolkits
+
+```python
+from kuralit.tools import Toolkit
+
+faq_tools = Toolkit(
+    name="faq",
+    tools=[search_faq],
+    instructions="FAQ search tools for answering common questions."
+)
+
+ticket_tools = Toolkit(
+    name="tickets",
+    tools=[create_ticket, get_ticket_status, update_ticket, list_tickets],
+    instructions="Ticket management tools for creating and managing support tickets."
+)
+
+account_tools = Toolkit(
+    name="account",
+    tools=[get_account_info, get_order_info],
+    instructions="Account management tools for viewing customer and order information."
+)
+```
+
+### Step 3: Configure Agent for Support
+
+```python
+agent_session = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    vad="silero/v3",
+    turn_detection="multilingual/v1",
+    tools=[faq_tools, ticket_tools, account_tools],
+    instructions="""You are a customer support AI Voice Agent.
+    
+Help customers by:
+- Answering questions from the FAQ
+- Creating support tickets when needed
+- Providing account and order information
+- Processing refunds (with confirmation)
+
+Always be polite, professional, and helpful.""",
+)
+```
+
+## Full Code Structure
+
+The example includes:
+
+1. **FAQ Database** - In-memory knowledge base
+2. **Ticket System** - Create, view, update tickets
+3. **Account System** - Customer and order information
+4. **Support Tools** - FAQ search, ticket management, account lookup
+5. **Agent Configuration** - Customer support personality and instructions
+
+## How to Run
+
+```bash
+python examples/customer_support_agent.py
+```
+
+## Expected Output
+
+```
+🚀 Starting Customer Support Agent server...
+   Host: 0.0.0.0
+   Port: 8000
+   Connect at: ws://0.0.0.0:8000/ws
+
+   Available features:
+   🔍 FAQ Search: Answer common questions
+   🎫 Tickets: Create and manage support tickets
+   👤 Accounts: View account and order information
+```
+
+## Example Interactions
+
+- **"How do I reset my password?"** → Uses `search_faq` tool
+- **"I want to return my order"** → Uses `search_faq` or `create_ticket` tool
+- **"What's the status of ticket 12345?"** → Uses `get_ticket_status` tool
+- **"I need a refund for order ABC123"** → Uses `process_refund` tool (with confirmation)
+
+## Key Concepts
+
+### Structured Responses
+
+Customer support agents need structured responses:
+
+```python
+def search_faq(query: str) -> str:
+    """Search FAQ and return formatted answer."""
+    # Search logic...
+    return f"Answer: {answer}\n\nSource: FAQ Database"
+```
+
+### Confirmation Patterns
+
+For destructive actions, require confirmation:
+
+```python
+def process_refund(order_id: str, amount: Optional[float] = None) -> str:
+    """Process refund - requires confirmation."""
+    # In production, this would require user confirmation
+    return f"Refund processed for order {order_id}"
+```
+
+### Professional Instructions
+
+Agent instructions set the tone:
+
+```python
+instructions="""You are a customer support AI Voice Agent.
+Always be polite, professional, and helpful.
+Escalate complex issues when needed."""
+```
+
+## Production Considerations
+
+In production, you would:
+
+- **Connect to real databases** - Replace in-memory storage
+- **Integrate with ticketing systems** - Use actual ticket APIs
+- **Add authentication** - Verify customer identity
+- **Implement confirmation flows** - For refunds and other actions
+- **Add logging and monitoring** - Track support interactions
+
+## Next Steps
+
+- [Voice Assistant →](/python-sdk/examples/voice-assistant) - Multiple toolkits example
+- [Tools →](/basics/tools) - Learn about tools
+- [Agents →](/basics/agents) - Building AI Voice Agents
+
+## Related
+
+- [Tools →](/basics/tools) - Complete tools documentation
+- [Agents →](/basics/agents) - Building AI Voice Agents
+

@@ -1,0 +1,270 @@
+---
+title: "What are AI Voice Agents?"
+description: "Learn about the three core pillars that make AI Voice Agents: Agents, Tools, and Real-Time Voice"
+---
+
+AI Voice Agents are conversational AI systems that can listen, think, and act. They combine three powerful capabilities:
+
+1. **🤖 AI Agents** - The intelligence that understands and responds
+2. **🛠️ Tools & Function Calling** - The capabilities that let them perform actions
+3. **🎤 Real-Time Voice** - The interface that makes conversations natural
+
+## Overview
+
+AI Voice Agents work by combining these three components:
+
+- **Agents** provide the conversational intelligence with context and personality
+- **Tools** give agents capabilities through function calling (not just talking, but doing)
+- **Voice** enables real-time spoken interaction with speech-to-text and turn detection
+
+Together, they create AI Voice Agents that can have natural voice conversations and perform actions.
+
+---
+
+## 🤖 AI Agents
+
+**The intelligence behind AI Voice Agents**
+
+AI Agents are the conversational intelligence that powers your AI Voice Agent. They understand context, maintain conversation history, and respond naturally.
+
+### What They Do
+
+- Understand natural language input
+- Maintain conversation context across multiple turns
+- Generate natural, contextual responses
+- Follow instructions and personality guidelines
+
+### How They Work
+
+AI Agents use Large Language Models (LLMs) to process conversations. You configure them with:
+
+- **Instructions**: Define the agent's personality and behavior
+- **Context**: Conversation history and session management
+- **Tools**: Functions the agent can call to perform actions
+
+<CodeGroup>
+```python
+# Creating an AI Voice Agent
+from kuralit.server.agent_session import AgentSession
+
+agent = AgentSession(
+    llm="gemini/gemini-2.0-flash-001",  # The AI brain
+    instructions="You are a helpful AI Voice Agent assistant",
+    tools=[...],  # Tools the agent can use
+    # ... voice configuration
+)
+```
+</CodeGroup>
+
+### Why It Matters
+
+**This is what makes your AI Voice Agent intelligent.** Without AI Agents, you'd just have a voice-to-text system. With AI Agents, you have a conversational partner that understands context and responds naturally.
+
+[Learn more about building AI Voice Agents →](/basics/agents)
+
+---
+
+## 🛠️ Tools & Function Calling
+
+**What makes AI Voice Agents capable**
+
+Tools are functions that your AI Voice Agent can call to perform actions. They transform your agent from a conversational system into a capable assistant that can actually do things.
+
+### What They Do
+
+- Enable agents to perform actions (not just talk)
+- Connect to APIs, databases, and external services
+- Execute Python functions
+- Return results that agents can use in responses
+
+### How They Work
+
+Tools are created from Python functions and organized into Toolkits:
+
+<CodeGroup>
+```python
+# Define a tool function
+def get_weather(location: str) -> str:
+    """Get weather for a location."""
+    # Implementation here
+    return f"Weather in {location}: sunny, 22°C"
+
+# Create a toolkit
+from kuralit.tools import Toolkit
+
+weather_tools = Toolkit(
+    name="weather",
+    tools=[get_weather],
+    instructions="Weather tools for getting current conditions"
+)
+
+# Use with your AI Voice Agent
+agent = AgentSession(
+    tools=[weather_tools],
+    # ...
+)
+```
+</CodeGroup>
+
+### Types of Tools
+
+1. **Custom Python Functions** - Write your own functions
+2. **REST API Tools** - Load from Postman collections
+3. **Toolkits** - Group related tools together
+
+### Why It Matters
+
+**This is what makes your AI Voice Agent useful.** Tools enable your agent to:
+- Search the web
+- Access databases
+- Call APIs
+- Perform calculations
+- Execute any action you can code
+
+[Learn more about adding capabilities →](/basics/tools)
+
+---
+
+## 🎤 Real-Time Voice
+
+**What makes AI Voice Agents conversational**
+
+Real-Time Voice enables natural spoken conversations with your AI Voice Agent. It handles speech-to-text, voice activity detection, and turn-taking.
+
+### What It Does
+
+- Converts speech to text in real-time
+- Detects when the user is speaking
+- Determines when the user has finished speaking
+- Enables natural turn-taking in conversations
+
+### How It Works
+
+The voice pipeline processes audio through multiple stages:
+
+```
+Audio Input → VAD → STT → Turn Detection → AI Agent → Response
+```
+
+1. **VAD (Voice Activity Detection)** - Detects when speech starts and ends
+2. **STT (Speech-to-Text)** - Converts audio to text
+3. **Turn Detection** - Determines when the user has finished speaking
+4. **AI Agent** - Processes the text and generates a response
+
+<CodeGroup>
+```python
+# Configuring voice for your AI Voice Agent
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",        # Speech-to-Text
+    vad="silero/v3",                     # Voice Activity Detection
+    turn_detection="multilingual/v1",     # Turn Detection
+    llm="gemini/gemini-2.0-flash-001",  # AI Agent
+    # ...
+)
+```
+</CodeGroup>
+
+### Components
+
+- **STT Plugins**: Deepgram, Google Cloud STT
+- **VAD Plugins**: Silero (on-device, no API needed)
+- **Turn Detection**: Multilingual turn detector
+
+### Why It Matters
+
+**This is what makes your AI Voice Agent conversational.** Without voice, you'd have a text chat system. With voice, you have natural spoken conversations that feel like talking to a person.
+
+[Learn more about real-time voice →](/basics/voice)
+
+---
+
+## How They Work Together to Create AI Voice Agents
+
+Here's the complete flow of how all three components work together:
+
+```
+User speaks → VAD detects speech → STT converts to text → 
+Turn Detection determines end of turn → AI Agent processes → 
+Agent uses Tools if needed → Agent generates response → 
+Response sent back to user
+```
+
+### Complete Example
+
+<CodeGroup>
+```python
+# Building a complete AI Voice Agent
+from kuralit.server.agent_session import AgentSession
+from kuralit.tools import Toolkit
+
+# Define tools
+def get_weather(location: str) -> str:
+    """Get weather for a location."""
+    return f"Weather in {location}: sunny, 22°C"
+
+# Create your complete AI Voice Agent
+agent = AgentSession(
+    # 🎤 Real-Time Voice
+    stt="deepgram/nova-2:en-US",
+    vad="silero/v3",
+    turn_detection="multilingual/v1",
+    
+    # 🤖 AI Agent
+    llm="gemini/gemini-2.0-flash-001",
+    instructions="You are a helpful AI Voice Agent with weather tools",
+    
+    # 🛠️ Tools
+    tools=[Toolkit(tools=[get_weather])]
+)
+
+# Your AI Voice Agent can now:
+# - Listen to voice input
+# - Understand what the user wants
+# - Use tools to get information
+# - Respond naturally
+```
+</CodeGroup>
+
+### Real-World Use Cases
+
+- **Customer Support AI Voice Agents** - Handle support calls with FAQ and ticket management
+- **Voice Assistant AI Voice Agents** - Personal assistants with calendar, weather, and reminders
+- **Enterprise AI Voice Agents** - Business applications with API integrations
+
+---
+
+## Next Steps
+
+Ready to build your first AI Voice Agent?
+
+<CardGroup cols={2}>
+  <Card
+    title="Quickstart"
+    icon="rocket"
+    href="/getting-started/quickstart"
+  >
+    Python Server + Flutter Mobile App
+  </Card>
+  <Card
+    title="Learn More About Agents"
+    icon="robot"
+    href="/basics/agents"
+  >
+    Deep dive into building AI Voice Agents
+  </Card>
+  <Card
+    title="Add Tools to Your Agent"
+    icon="wrench"
+    href="/basics/tools"
+  >
+    Learn about function calling
+  </Card>
+  <Card
+    title="Configure Voice"
+    icon="microphone"
+    href="/basics/voice"
+  >
+    Set up real-time voice streaming
+  </Card>
+</CardGroup>
+

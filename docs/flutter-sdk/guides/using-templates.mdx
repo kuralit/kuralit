@@ -1,0 +1,304 @@
+---
+title: "Using Templates"
+description: "Use ready-made UI templates for quick integration with AI Voice Agents"
+---
+The Flutter SDK provides ready-made UI templates that you can use to quickly integrate AI Voice Agents into your app without building custom UI.
+
+## Available Templates
+
+<CardGroup cols={2}>
+  <Card
+    title="Popup Chat"
+    icon="chat-bubble"
+    href="/flutter-sdk/examples/popup-chat"
+  >
+    Ready-made chat dialog with text and voice input
+  </Card>
+  <Card
+    title="Agent Overlay"
+    icon="record-voice-over"
+    href="/flutter-sdk/examples/agent-overlay"
+  >
+    Full-screen animated overlay for voice-first interaction
+  </Card>
+</CardGroup>
+
+## KuralitPopupChat
+
+A ready-to-use chat dialog template that can be opened on any page.
+
+### Features
+
+- ✅ **Text messaging** - Send and receive text messages
+- ✅ **Voice input** - Stream audio from microphone
+- ✅ **Real-time responses** - Receive streaming and final responses
+- ✅ **Tool calls display** - Show when agent uses tools
+- ✅ **Connection status** - Visual connection indicator
+- ✅ **Customizable** - Theme colors and widget composition
+
+### Basic Usage
+
+<CodeGroup>
+```dart
+import 'package:kuralit_sdk/kuralit.dart';
+
+// Initialize SDK
+Kuralit.init(KuralitConfig(
+  serverUrl: 'ws://localhost:8000/ws',
+  apiKey: 'demo-api-key',
+  appId: 'my-app',
+));
+
+// Generate session ID
+final sessionId = Kuralit.generateSessionId();
+
+// Connect
+await Kuralit.connect();
+
+// Open popup chat
+KuralitPopupChat.show(
+  context,
+  sessionId: sessionId,
+);
+```
+</CodeGroup>
+
+### With Configuration
+
+<CodeGroup>
+```dart
+KuralitPopupChat.show(
+  context,
+  sessionId: sessionId,
+  config: KuralitPopupChatConfig(
+    // Theme colors
+    primaryColor: Colors.blue,
+    backgroundColor: Colors.white,
+    
+    // Features
+    enableAudioMode: true,  // Enable voice input
+    enableToolCalls: true,   // Show tool calls
+    
+    // Callbacks
+    onClose: () {
+      print('Chat closed');
+    },
+  ),
+);
+```
+</CodeGroup>
+
+### Configuration Options
+
+- **Theme**: `primaryColor`, `backgroundColor`, `messageBubbleColor`
+- **Features**: `enableAudioMode`, `enableToolCalls`
+- **Customization**: `messageBuilder`, `textInputBuilder`, `audioInputBuilder`
+- **Dialog**: `width`, `height`, `borderRadius`
+
+[Learn more →](/flutter-sdk/examples/popup-chat)
+
+---
+
+## KuralitAgentOverlay
+
+A full-screen animated overlay with voice-first interaction.
+
+### Features
+
+- ✅ **Full-screen overlay** - Immersive experience
+- ✅ **Voice-first** - Optimized for voice interaction
+- ✅ **Animated UI** - Golden borders and animations
+- ✅ **Real-time transcription** - See STT as you speak
+- ✅ **Conversation history** - View past messages
+- ✅ **Text input option** - Fallback to text input
+
+### Basic Usage
+
+<CodeGroup>
+```dart
+import 'package:kuralit_sdk/kuralit.dart';
+
+// Initialize SDK
+Kuralit.init(KuralitConfig(
+  serverUrl: 'ws://localhost:8000/ws',
+  apiKey: 'demo-api-key',
+  appId: 'my-app',
+));
+
+// Generate session ID
+final sessionId = Kuralit.generateSessionId();
+
+// Connect
+await Kuralit.connect();
+
+// Open agent overlay
+KuralitAgentOverlay.show(
+  context,
+  sessionId: sessionId,
+);
+```
+</CodeGroup>
+
+### When to Use
+
+- **Voice-first apps** - When voice is the primary interaction
+- **Immersive experience** - Full-screen focus on conversation
+- **Beautiful animations** - Premium UI with golden borders
+- **Quick integration** - No custom UI needed
+
+[Learn more →](/flutter-sdk/examples/agent-overlay)
+
+---
+
+## Template Comparison
+
+| Feature | Popup Chat | Agent Overlay |
+|---------|-----------|---------------|
+| **UI Style** | Dialog | Full-screen overlay |
+| **Best For** | Quick chat integration | Voice-first interaction |
+| **Text Input** | ✅ Yes | ✅ Yes (optional) |
+| **Voice Input** | ✅ Yes | ✅ Yes (primary) |
+| **Animations** | Standard | Premium (golden borders) |
+| **Customization** | High | Medium |
+| **Use Case** | General chat | Voice assistants |
+
+## Customization
+
+### Custom Message Builder
+
+<CodeGroup>
+```dart
+KuralitPopupChat.show(
+  context,
+  sessionId: sessionId,
+  config: KuralitPopupChatConfig(
+    messageBuilder: (message) {
+      // Custom message widget
+      return MyCustomMessageWidget(message: message);
+    },
+  ),
+);
+```
+</CodeGroup>
+
+### Custom Input Builder
+
+<CodeGroup>
+```dart
+KuralitPopupChat.show(
+  context,
+  sessionId: sessionId,
+  config: KuralitPopupChatConfig(
+    textInputBuilder: (controller, isConnected, isLoading, onSend) {
+      // Custom text input widget
+      return MyCustomInputWidget(
+        controller: controller,
+        onSend: onSend,
+      );
+    },
+  ),
+);
+```
+</CodeGroup>
+
+## Complete Example
+
+<CodeGroup>
+```dart
+import 'package:flutter/material.dart';
+import 'package:kuralit_sdk/kuralit.dart';
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  String? _sessionId;
+  bool _isInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeSDK();
+  }
+
+  void _initializeSDK() {
+    Kuralit.init(KuralitConfig(
+      serverUrl: 'ws://localhost:8000/ws',
+      apiKey: 'demo-api-key',
+      appId: 'my-app',
+      debug: true,
+    ));
+
+    _sessionId = Kuralit.generateSessionId();
+    _connect();
+
+    setState(() => _isInitialized = true);
+  }
+
+  Future<void> _connect() async {
+    try {
+      await Kuralit.connect();
+    } catch (e) {
+      print('Connection failed: $e');
+    }
+  }
+
+  void _openChat() {
+    if (_sessionId == null) return;
+
+    KuralitPopupChat.show(
+      context,
+      sessionId: _sessionId!,
+      config: KuralitPopupChatConfig(
+        enableAudioMode: true,
+        enableToolCalls: true,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('My App')),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: _isInitialized ? _openChat : null,
+          child: const Text('Open Chat'),
+        ),
+      ),
+    );
+  }
+}
+```
+</CodeGroup>
+
+## Best Practices
+
+### When to Use Templates
+
+- **Quick integration** - Get started fast
+- **Standard UI** - Templates provide good default UI
+- **Prototyping** - Test functionality quickly
+- **Production** - Templates are production-ready
+
+### When to Build Custom UI
+
+- **Brand requirements** - Need specific design
+- **Complex layouts** - Templates don't fit your layout
+- **Advanced features** - Need features not in templates
+
+## Next Steps
+
+- [Popup Chat Example →](/flutter-sdk/examples/popup-chat) - Complete popup chat example
+- [Agent Overlay Example →](/flutter-sdk/examples/agent-overlay) - Complete overlay example
+- [Basic Usage →](/flutter-sdk/guides/basic-usage) - Build custom UI
+
+## Related
+
+- [Basic Usage →](/flutter-sdk/guides/basic-usage) - Learn the fundamentals
+- [API Reference →](/flutter-sdk/api-reference/templates) - Template API reference
+

@@ -1,0 +1,167 @@
+---
+title: "Flutter SDK"
+description: "Connect to AI Voice Agents with the Kuralit Flutter SDK"
+---
+Build Flutter applications that connect to AI Voice Agents. Create beautiful user interfaces for voice and text conversations with AI Voice Agents.
+
+## What You Can Build
+
+With the Flutter SDK, you can build:
+
+- **Chat Applications** - Text and voice chat with AI Voice Agents
+- **Voice Assistants** - Voice-first applications with real-time transcription
+- **Customer Support Apps** - Support interfaces with AI Voice Agents
+- **Agent Overlays** - Full-screen animated overlays for voice interaction
+
+## Key Features
+
+<CardGroup cols={3}>
+  <Card
+    title="Real-Time Communication"
+    icon="wifi"
+  >
+    WebSocket-based real-time text and voice streaming
+  </Card>
+  <Card
+    title="Voice Input"
+    icon="microphone"
+  >
+    Stream audio from device microphone to AI Voice Agents
+  </Card>
+  <Card
+    title="Ready-Made Templates"
+    icon="layer-group"
+  >
+    Popup chat and agent overlay templates
+  </Card>
+</CardGroup>
+
+## Quick Start
+
+Connect to an AI Voice Agent in 5 minutes:
+
+<CodeGroup>
+```dart
+import 'package:kuralit_sdk/kuralit.dart';
+
+// Initialize SDK
+Kuralit.init(KuralitConfig(
+  serverUrl: 'ws://localhost:8000/ws',
+  apiKey: 'demo-api-key',
+  appId: 'my-app',
+));
+
+// Generate session ID
+final sessionId = Kuralit.generateSessionId();
+
+// Connect to server
+await Kuralit.connect();
+
+// Listen to events
+Kuralit.events.listen((event) {
+  if (event is KuralitServerTextEvent) {
+    print('Agent: ${event.text}');
+  }
+});
+
+// Send text message
+Kuralit.sendText(sessionId, 'Hello!');
+```
+</CodeGroup>
+
+[Full quickstart guide →](/getting-started/quickstart)
+
+## Core Concepts
+
+### SDK Initialization
+
+Initialize the SDK once in your app:
+
+```dart
+Kuralit.init(KuralitConfig(
+  serverUrl: 'ws://localhost:8000/ws',
+  apiKey: 'your-api-key',
+  appId: 'your-app-id',
+));
+```
+
+### Event Stream
+
+Listen to SDK events for real-time updates:
+
+```dart
+Kuralit.events.listen((event) {
+  if (event is KuralitConnectedEvent) {
+    // Connected
+  } else if (event is KuralitServerTextEvent) {
+    // Received text response
+  }
+});
+```
+
+### Session Management
+
+Each conversation uses a session ID:
+
+```dart
+final sessionId = Kuralit.generateSessionId();
+Kuralit.sendText(sessionId, 'Hello!');
+```
+
+## Documentation Structure
+
+<CardGroup cols={2}>
+  <Card
+    title="Guides"
+    icon="book"
+    href="/flutter-sdk/guides/basic-usage"
+  >
+    Step-by-step guides for using the SDK
+  </Card>
+  <Card
+    title="API Reference"
+    icon="code"
+    href="/flutter-sdk/api-reference/kuralit-config"
+  >
+    Complete API documentation
+  </Card>
+  <Card
+    title="Examples"
+    icon="file-code"
+    href="/flutter-sdk/examples/basic-chat"
+  >
+    Working code examples
+  </Card>
+  <Card
+    title="Templates"
+    icon="layer-group"
+    href="/flutter-sdk/guides/using-templates"
+  >
+    Ready-made UI components
+  </Card>
+</CardGroup>
+
+## Installation
+
+Add to your `pubspec.yaml`:
+
+```yaml
+dependencies:
+  kuralit_sdk: ^1.0.0
+```
+
+Then run:
+
+```bash
+flutter pub get
+```
+
+[Full installation guide →](/getting-started/installation)
+
+## Next Steps
+
+1. **[Quickstart](/getting-started/quickstart)** - Complete guide: Python server + Flutter mobile app
+2. **[Basic Usage Guide](/flutter-sdk/guides/basic-usage)** - Learn the fundamentals
+3. **[Using Templates](/flutter-sdk/guides/using-templates)** - Use ready-made UI components
+4. **[Examples](/flutter-sdk/examples/basic-chat)** - See complete examples
+

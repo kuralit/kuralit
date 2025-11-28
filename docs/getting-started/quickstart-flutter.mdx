@@ -1,0 +1,291 @@
+---
+title: "Connect to AI Voice Agents (Flutter)"
+description: "Build a Flutter client to connect to AI Voice Agents in 5 minutes"
+---
+
+Build a Flutter client application that connects to your AI Voice Agent server.
+
+## Prerequisites
+
+- Flutter SDK 3.0.0 or higher
+- A running AI Voice Agent server (see [Python quickstart](/getting-started/quickstart-python))
+- Server URL and API key
+
+## Step 1: Add Kuralit SDK
+
+Add the SDK to your `pubspec.yaml`:
+
+```yaml
+dependencies:
+  kuralit_sdk: ^1.0.0
+```
+
+Then install:
+
+```bash
+flutter pub get
+```
+
+## Step 2: Configure Permissions
+
+### Android
+
+Add to `android/app/src/main/AndroidManifest.xml`:
+
+```xml
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
+<uses-permission android:name="android.permission.INTERNET" />
+```
+
+### iOS
+
+Add to `ios/Runner/Info.plist`:
+
+```xml
+<key>NSMicrophoneUsageDescription</key>
+<string>This app needs microphone access for voice chat with AI Voice Agents</string>
+```
+
+## Step 3: Initialize the SDK
+
+<CodeGroup>
+```dart
+import 'package:kuralit_sdk/kuralit.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: const ChatScreen(),
+    );
+  }
+}
+
+class ChatScreen extends StatefulWidget {
+  const ChatScreen({super.key});
+
+  @override
+  State<ChatScreen> createState() => _ChatScreenState();
+}
+
+class _ChatScreenState extends State<ChatScreen> {
+  final TextEditingController _textController = TextEditingController();
+  final List<String> _messages = [];
+  bool _isConnected = false;
+  String? _sessionId;
+  StreamSubscription<KuralitEvent>? _eventSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeSDK();
+  }
+
+  // Step 1: Initialize SDK
+  void _initializeSDK() {
+    // Replace with your server details
+    const serverUrl = 'ws://localhost:8000/ws'; // Your server URL
+    const apiKey = 'demo-api-key'; // Your API key
+    const appId = 'my-app'; // Your app ID
+    
+    Kuralit.init(KuralitConfig(
+      serverUrl: serverUrl,
+      apiKey: apiKey,
+      appId: appId,
+      debug: true,
+    ));
+    
+    _sessionId = Kuralit.generateSessionId();
+    _setupEventListener();
+    _connect();
+  }
+
+  // Step 2: Set up event listener
+  void _setupEventListener() {
+    _eventSubscription = Kuralit.events.listen((event) {
+      if (!mounted) return;
+
+      if (event is KuralitConnectedEvent) {
+        setState(() => _isConnected = true);
+        _addMessage('Connected to AI Voice Agent');
+      } else if (event is KuralitServerTextEvent) {
+        // Receive text response from AI Voice Agent
+        _addMessage('Agent: ${event.text}');
+      } else if (event is KuralitErrorEvent) {
+        _addMessage('Error: ${event.message}');
+      }
+    });
+  }
+
+  // Step 3: Connect to server
+  void _connect() {
+    if (_sessionId != null) {
+      Kuralit.connect(_sessionId!);
+    }
+  }
+
+  // Step 4: Send text message
+  void _sendMessage() {
+    final text = _textController.text.trim();
+    if (text.isEmpty || !_isConnected) return;
+
+    _addMessage('You: $text');
+    _textController.clear();
+
+    // Send text to AI Voice Agent
+    Kuralit.sendText(_sessionId!, text);
+  }
+
+  void _addMessage(String message) {
+    setState(() {
+      _messages.add(message);
+    });
+  }
+
+  @override
+  void dispose() {
+    _eventSubscription?.cancel();
+    _textController.dispose();
+    Kuralit.disconnect();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('AI Voice Agent Chat'),
+        actions: [
+          Icon(
+            _isConnected ? Icons.check_circle : Icons.cancel,
+            color: _isConnected ? Colors.green : Colors.red,
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: _messages.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(_messages[index]),
+                );
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _textController,
+                    decoration: const InputDecoration(
+                      hintText: 'Type a message...',
+                    ),
+                    onSubmitted: (_) => _sendMessage(),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.send),
+                  onPressed: _sendMessage,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+</CodeGroup>
+
+## Step 4: Run Your App
+
+```bash
+flutter run
+```
+
+## What You've Built
+
+Your Flutter app can now:
+
+- ✅ **Connect** to your AI Voice Agent server
+- ✅ **Send messages** to the AI Voice Agent
+- ✅ **Receive responses** from the AI Voice Agent
+
+## Next Steps
+
+### Add Voice Streaming
+
+Enable real-time voice input:
+
+<CodeGroup>
+```dart
+// Start voice streaming
+Kuralit.startAudio(_sessionId!);
+
+// Send audio chunks
+Kuralit.sendAudioChunk(_sessionId!, audioData);
+
+// End voice streaming
+Kuralit.endAudio(_sessionId!);
+```
+</CodeGroup>
+
+[Learn more about audio streaming →](/flutter-sdk/guides/audio-streaming)
+
+### Use Templates
+
+Use ready-made UI templates:
+
+<CodeGroup>
+```dart
+import 'package:kuralit_sdk/templates/popup_chat/kuralit_popup_chat.dart';
+
+// Use PopupChat template
+KuralitPopupChat(
+  config: KuralitPopupChatConfig(
+    serverUrl: 'ws://localhost:8000/ws',
+    apiKey: 'demo-api-key',
+    appId: 'my-app',
+  ),
+)
+```
+</CodeGroup>
+
+[Learn more about templates →](/flutter-sdk/guides/using-templates)
+
+### Explore Examples
+
+- [Basic Chat](/flutter-sdk/examples/basic-chat) - Custom UI implementation
+- [Popup Chat](/flutter-sdk/examples/popup-chat) - Ready-made template
+- [Agent Overlay](/flutter-sdk/examples/agent-overlay) - Voice-first UI
+
+---
+
+<CardGroup cols={2}>
+  <Card
+    title="Audio Streaming Guide"
+    icon="microphone"
+    href="/flutter-sdk/guides/audio-streaming"
+  >
+    Add real-time voice input
+  </Card>
+  <Card
+    title="Using Templates"
+    icon="layer-group"
+    href="/flutter-sdk/guides/using-templates"
+  >
+    Use ready-made UI components
+  </Card>
+</CardGroup>
+

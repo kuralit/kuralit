@@ -1,0 +1,97 @@
+---
+title: "Speech-to-Text (STT)"
+---
+
+
+STT converts spoken audio into text that your AI Voice Agent can understand.
+
+## What is STT?
+
+Speech-to-Text (STT) is the process of converting spoken words into written text. In Kuralit, STT:
+
+- **Streams audio continuously** - Process audio in real-time
+- **Provides interim results** - Show transcription as user speaks
+- **Delivers final transcripts** - Complete utterance transcriptions
+- **Supports multiple languages** - Various language codes
+
+## How STT Works
+
+STT plugins process audio through this flow:
+
+```
+Audio Input (WebSocket)
+    ↓
+STT Plugin
+    ↓
+Interim Transcripts (as user speaks)
+    ↓
+Final Transcripts (complete utterance)
+    ↓
+AI Agent (LLM)
+```
+
+## Configuration
+
+### Basic Configuration
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+
+# Using Deepgram
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    # ...
+)
+
+# Using Google Cloud STT
+agent = AgentSession(
+    stt="google/en-US",
+    # ...
+)
+```
+</CodeGroup>
+
+### Environment Variables
+
+```bash
+# Deepgram
+DEEPGRAM_API_KEY=your-deepgram-api-key
+
+# Google Cloud STT
+GOOGLE_STT_API_KEY=your-google-stt-key
+# OR
+GOOGLE_STT_CREDENTIALS=/path/to/credentials.json
+```
+
+## Available Providers
+
+- **Deepgram** - High accuracy, real-time streaming, multiple languages
+- **Google Cloud STT** - Google ecosystem integration, high accuracy
+
+[View all STT providers →](/integrations/stt-providers)
+
+## Language Codes
+
+Common language codes:
+
+- `en-US` - English (United States)
+- `en-GB` - English (United Kingdom)
+- `es-ES` - Spanish (Spain)
+- `fr-FR` - French (France)
+- `de-DE` - German (Germany)
+
+## Sample Rates
+
+STT plugins support various sample rates:
+
+- **8000 Hz** - Telephone quality
+- **16000 Hz** - Standard quality (recommended)
+- **44100 Hz** - High quality
+
+## Next Steps
+
+- [STT Providers →](/integrations/stt-providers) - Choose and configure STT providers
+- [VAD →](/basics/voice/vad) - Voice Activity Detection
+- [Turn Detection →](/basics/voice/turn-detection) - Turn detection
+

@@ -1,0 +1,192 @@
+---
+title: "Gemini LLM Plugin"
+description: "Google Gemini LLM plugin for fast, accurate AI Voice Agent responses"
+---
+Google Gemini provides fast, high-quality language model capabilities for your AI Voice Agents.
+
+## Overview
+
+Gemini LLM offers:
+
+- **Fast responses** - Optimized for low latency
+- **High quality** - State-of-the-art language understanding
+- **Tool calling** - Native support for function calling
+- **Google ecosystem** - Seamless integration with Google services
+
+## Setup and Installation
+
+Gemini LLM is included with Kuralit. No additional installation required.
+
+### Get API Key
+
+1. Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Create an API key
+3. Copy your API key
+
+### Set Environment Variable
+
+```bash
+GEMINI_API_KEY=your-gemini-api-key-here
+# OR
+GOOGLE_API_KEY=your-google-api-key-here
+```
+
+## Environment Variables
+
+### Required (One of)
+
+- `GEMINI_API_KEY` - Your Gemini API key
+- `GOOGLE_API_KEY` - Your Google API key (also works)
+
+### Optional (Vertex AI)
+
+- `GOOGLE_GENAI_USE_VERTEXAI` - Use Vertex AI instead of Gemini API
+- `GOOGLE_CLOUD_PROJECT` - Vertex AI project ID
+- `GOOGLE_CLOUD_LOCATION` - Vertex AI location
+
+## Configuration
+
+### Basic Usage
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+
+# Using Gemini LLM
+agent = AgentSession(
+    llm="gemini/gemini-2.0-flash-001",  # Gemini Flash model
+    # ...
+)
+```
+</CodeGroup>
+
+### String Format
+
+The string format is: `gemini/{model}`
+
+- `gemini` - Plugin name
+- `{model}` - Model identifier (e.g., `gemini-2.0-flash-001`)
+
+## Supported Models
+
+### Gemini 2.0 Flash (Recommended)
+
+- **Model**: `gemini-2.0-flash-001`
+- **Best for**: Fast responses, general use
+- **Example**: `gemini/gemini-2.0-flash-001`
+
+### Gemini Pro
+
+- **Model**: `gemini-pro`
+- **Best for**: Higher quality, more complex tasks
+- **Example**: `gemini/gemini-pro`
+
+## Configuration Options
+
+### Temperature
+
+Control response randomness:
+
+- **Lower (0.0-0.5)** - More deterministic, focused responses
+- **Default (0.7)** - Balanced creativity and consistency
+- **Higher (0.8-1.0)** - More creative, varied responses
+
+### Max Tokens
+
+Limit response length:
+
+- **Default**: Model-dependent
+- **Custom**: Set maximum tokens for responses
+
+## Usage Examples
+
+### Basic Setup
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    vad="silero/v3",
+    turn_detection="multilingual/v1",
+    instructions="You are a helpful assistant."
+)
+```
+</CodeGroup>
+
+### With Tools
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+from kuralit.tools import Toolkit
+
+def get_weather(location: str) -> str:
+    """Get weather for a location."""
+    return f"Weather in {location}: sunny, 22°C"
+
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",  # Gemini supports tool calling
+    tools=[Toolkit(tools=[get_weather])],
+    instructions="You are a helpful assistant with weather tools."
+)
+```
+</CodeGroup>
+
+## Vertex AI Support (Optional)
+
+Use Vertex AI instead of Gemini API:
+
+```bash
+GOOGLE_GENAI_USE_VERTEXAI=true
+GOOGLE_CLOUD_PROJECT=your-project-id
+GOOGLE_CLOUD_LOCATION=us-central1
+```
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="API key not found">
+    - Verify `GEMINI_API_KEY` or `GOOGLE_API_KEY` is set
+    - Check for typos in the variable name
+    - Ensure the API key is valid and active
+  </Accordion>
+  
+  <Accordion title="Responses not working">
+    - Check network connectivity
+    - Verify API key has sufficient quota
+    - Ensure model name is correct
+    - Check Google AI service status
+  </Accordion>
+  
+  <Accordion title="Slow responses">
+    - Use `gemini-2.0-flash-001` for faster responses
+    - Check network latency
+    - Verify API quota limits
+    - Consider Vertex AI for better performance
+  </Accordion>
+  
+  <Accordion title="Tool calling not working">
+    - Verify tools are properly configured
+    - Check tool function signatures
+    - Ensure tool descriptions are clear
+    - Verify Gemini model supports tool calling
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+- **Use Gemini Flash** - Fastest model for most use cases
+- **Set appropriate temperature** - Balance creativity and consistency
+- **Monitor usage** - Track API usage to manage costs
+- **Use tool calling** - Leverage Gemini's native tool support
+
+## Next Steps
+
+- [Model Providers →](/integrations/model-providers) - Learn about model providers
+- [Agents →](/basics/agents) - Build AI Voice Agents
+- [Tools →](/basics/tools) - Add capabilities with tools
+

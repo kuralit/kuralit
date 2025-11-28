@@ -1,0 +1,88 @@
+---
+title: "LLM (Large Language Model) Plugins"
+description: "LLM plugins for powering your AI Voice Agent's intelligence"
+---
+LLM plugins provide the conversational intelligence that powers your AI Voice Agent.
+
+## What is LLM?
+
+Large Language Models (LLMs) are AI models that:
+
+- **Understand natural language** - Process user input
+- **Generate responses** - Create natural, contextual replies
+- **Maintain context** - Remember conversation history
+- **Use tools** - Call functions and APIs when needed
+
+## Available LLM Plugins
+
+<Card
+  title="Gemini"
+  icon="robot"
+  href="/integrations/model-providers/gemini"
+>
+  Google's Gemini models for fast, accurate responses
+</Card>
+
+## How LLM Works
+
+LLM plugins process conversations through this flow:
+
+```
+User Input (Text)
+    ↓
+LLM Plugin
+    ↓
+Context Analysis
+    ↓
+Tool Selection (if needed)
+    ↓
+Response Generation
+    ↓
+Response to User
+```
+
+## Choosing an LLM Plugin
+
+### Gemini
+
+**Best for:**
+- Fast response times
+- Google ecosystem integration
+- High-quality responses
+- Tool calling support
+
+**Requirements:**
+- `GEMINI_API_KEY` OR `GOOGLE_API_KEY` environment variable
+
+[Learn more →](/integrations/model-providers/gemini)
+
+## Configuration
+
+### Basic Configuration
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+
+# Using Gemini
+agent = AgentSession(
+    llm="gemini/gemini-2.0-flash-001",  # Gemini Flash model
+    # ...
+)
+```
+</CodeGroup>
+
+### Environment Variables
+
+```bash
+# Gemini
+GEMINI_API_KEY=your-gemini-api-key
+# OR
+GOOGLE_API_KEY=your-google-api-key
+```
+
+## Next Steps
+
+- [Gemini →](/integrations/model-providers/gemini) - Gemini provider documentation
+- [Agents →](/basics/agents) - Learn about building AI Voice Agents
+

@@ -1,0 +1,134 @@
+---
+title: "Plugins"
+description: "Plugin system for STT, LLM, VAD, and turn detection in AI Voice Agents"
+---
+Kuralit uses a plugin-based architecture that lets you choose the best providers for your AI Voice Agent's needs.
+
+## What are Plugins?
+
+Plugins are provider implementations for different components:
+
+- **STT Plugins** - Speech-to-Text providers (Deepgram, Google Cloud STT)
+- **LLM Plugins** - Large Language Model providers (Gemini)
+- **VAD Plugins** - Voice Activity Detection providers (Silero)
+- **Turn Detection Plugins** - Turn detection providers (Multilingual)
+
+## Plugin Types
+
+<CardGroup cols={2}>
+  <Card
+    title="STT (Speech-to-Text)"
+    icon="microphone"
+    href="/integrations/stt-providers"
+  >
+    Convert speech to text in real-time
+  </Card>
+  <Card
+    title="LLM (Large Language Model)"
+    icon="robot"
+    href="/integrations/model-providers"
+  >
+    Power your AI Voice Agent's intelligence
+  </Card>
+  <Card
+    title="VAD (Voice Activity Detection)"
+    icon="waveform"
+    href="/integrations/vad-providers"
+  >
+    Detect when users are speaking
+  </Card>
+  <Card
+    title="Turn Detection"
+    icon="arrows-rotate"
+    href="/integrations/turn-detection-providers"
+  >
+    Determine when users have finished speaking
+  </Card>
+</CardGroup>
+
+## How to Choose Plugins
+
+### STT Plugins
+
+Choose based on:
+- **Accuracy requirements** - Deepgram Nova-2 offers high accuracy
+- **Language support** - Check supported languages
+- **Cost** - Compare pricing models
+- **Integration** - Google Cloud STT for Google ecosystem
+
+[Compare STT providers →](/integrations/stt-providers)
+
+### LLM Plugins
+
+Choose based on:
+- **Response speed** - Gemini Flash for fast responses
+- **Model capabilities** - Different models for different tasks
+- **Cost** - Compare pricing per token
+- **Ecosystem** - Google for Google Cloud integration
+
+[Compare model providers →](/integrations/model-providers)
+
+### VAD Plugins
+
+- **Silero** - On-device, no API keys needed, works offline
+
+[Learn about VAD →](/integrations/vad-providers)
+
+### Turn Detection Plugins
+
+- **Multilingual** - Supports multiple languages, no API keys needed
+
+[Learn about turn detection →](/integrations/turn-detection-providers)
+
+## Using Plugins
+
+### String-Based Configuration (Recommended)
+
+The easiest way to use plugins:
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",      # STT plugin
+    llm="gemini/gemini-2.0-flash-001", # LLM plugin
+    vad="silero/v3",                    # VAD plugin
+    turn_detection="multilingual/v1",   # Turn detection plugin
+    # ...
+)
+```
+</CodeGroup>
+
+### Environment Variables
+
+Plugins automatically load from environment variables:
+
+```bash
+# STT
+DEEPGRAM_API_KEY=your-key
+
+# LLM
+GEMINI_API_KEY=your-key
+
+# VAD and Turn Detection don't need API keys
+```
+
+## Plugin Configuration
+
+Each plugin has its own configuration options:
+
+- **API Keys** - Required for STT and LLM plugins
+- **Model Selection** - Choose specific models
+- **Language Codes** - Set language for STT
+- **Thresholds** - Configure VAD and turn detection sensitivity
+
+[View provider-specific documentation →](/integrations/stt-providers)
+
+## Next Steps
+
+- [STT Providers →](/integrations/stt-providers) - Speech-to-Text providers
+- [Model Providers →](/integrations/model-providers) - Large Language Model providers
+- [VAD Providers →](/integrations/vad-providers) - Voice Activity Detection
+- [Turn Detection Providers →](/integrations/turn-detection-providers) - Turn detection providers
+

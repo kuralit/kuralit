@@ -1,0 +1,128 @@
+---
+title: "Installation"
+description: "Install Kuralit Python and Flutter SDKs"
+---
+Install the Kuralit SDKs to start building AI Voice Agents.
+
+## Python SDK (Server)
+
+The Python SDK is used to create AI Voice Agent servers that process voice input and respond with AI.
+
+### Prerequisites
+
+- Python 3.8 or higher
+- pip package manager
+
+### Install
+
+```bash
+pip install kuralit
+```
+
+### Verify Installation
+
+```python
+import kuralit
+print(kuralit.__version__)
+```
+
+### Optional Dependencies
+
+Some plugins may require additional dependencies:
+
+- **Deepgram STT**: `pip install deepgram-sdk`
+- **Google Cloud STT**: `pip install google-cloud-speech`
+- **Gemini LLM**: Included with `kuralit`
+
+[Learn more about integrations →](/integrations)
+
+---
+
+## Flutter SDK (Client)
+
+The Flutter SDK is used to build client applications that connect to AI Voice Agents.
+
+### Prerequisites
+
+- Flutter SDK 3.0.0 or higher
+- Dart 3.0.0 or higher
+
+### Install
+
+Add the SDK to your `pubspec.yaml`:
+
+```yaml
+dependencies:
+  kuralit_sdk: ^1.0.0
+```
+
+Then run:
+
+```bash
+flutter pub get
+```
+
+### Verify Installation
+
+```dart
+import 'package:kuralit_sdk/kuralit.dart';
+
+void main() {
+  print('Kuralit SDK installed successfully');
+}
+```
+
+### Platform Setup
+
+#### Android
+
+Add microphone permission to `android/app/src/main/AndroidManifest.xml`:
+
+```xml
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
+```
+
+#### iOS
+
+Add microphone permission to `ios/Runner/Info.plist`:
+
+```xml
+<key>NSMicrophoneUsageDescription</key>
+<string>This app needs microphone access for voice chat</string>
+```
+
+[Learn more about Flutter setup →](/flutter-sdk/guides/basic-usage)
+
+---
+
+## Next Steps
+
+After installation:
+
+1. **[Configure your environment](/help/configuration)** - Set up API keys and environment variables
+2. **[Quickstart](/getting-started/quickstart)** - Complete guide: Python server + Flutter mobile app
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Python installation issues">
+    - Make sure you're using Python 3.8+
+    - Try upgrading pip: `pip install --upgrade pip`
+    - Use a virtual environment: `python -m venv venv && source venv/bin/activate`
+  </Accordion>
+  
+  <Accordion title="Flutter installation issues">
+    - Run `flutter doctor` to check your setup
+    - Ensure Flutter SDK is 3.0.0 or higher
+    - Run `flutter pub get` after adding the dependency
+  </Accordion>
+  
+  <Accordion title="Import errors">
+    - Verify the package is installed: `pip list | grep kuralit` or `flutter pub deps`
+    - Check your Python/Flutter version meets requirements
+    - Restart your IDE/editor after installation
+  </Accordion>
+</AccordionGroup>
+

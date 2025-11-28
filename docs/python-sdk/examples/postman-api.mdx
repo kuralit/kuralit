@@ -1,0 +1,261 @@
+---
+title: "Postman API Tools"
+description: "Load REST API tools from Postman collections for your AI Voice Agent"
+---
+Demonstrates how to load REST API tools from a Postman collection and use them with your AI Voice Agent.
+
+## What It Demonstrates
+
+This example shows:
+
+- ✅ Loading Postman collections
+- ✅ Converting API endpoints to tools
+- ✅ Using RESTAPIToolkit
+- ✅ Command-line arguments for configuration
+- ✅ AI Voice Agent with REST API capabilities
+
+## Prerequisites
+
+- Python 3.8 or higher
+- Kuralit SDK installed: `pip install kuralit`
+- API keys:
+  - `DEEPGRAM_API_KEY` - Deepgram STT API key
+  - `GEMINI_API_KEY` - Google Gemini LLM API key
+  - `KURALIT_API_KEY` - Server API key (defaults to "demo-api-key")
+- Postman collection JSON file (optional): `postman.json`
+
+## Step-by-Step Explanation
+
+### Step 1: Load Postman Collection
+
+```python
+from kuralit.tools.api import RESTAPIToolkit
+
+# Load from Postman collection
+api_toolkit = RESTAPIToolkit.from_postman_collection(
+    collection_path="postman.json",
+    base_url="http://localhost:35814"
+)
+```
+
+### Step 2: Use with AgentSession
+
+```python
+agent_session = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    tools=[api_toolkit],  # Add API tools
+    instructions="You have access to REST API tools. Use them when users make API-related requests.",
+)
+```
+
+## Full Code
+
+<CodeGroup>
+```python
+"""Postman API Demo - REST API Tools from Postman Collections"""
+
+import os
+import argparse
+from pathlib import Path
+from kuralit.server.agent_session import AgentSession
+from kuralit.server.websocket_server import create_app
+
+def validate_api_key(api_key: str) -> bool:
+    """Validate API key."""
+    expected_key = os.getenv("KURALIT_API_KEY", "demo-api-key")
+    return api_key == expected_key
+
+if __name__ == "__main__":
+    import uvicorn
+    
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(
+        description="KuralIt WebSocket Server with Postman API Tools"
+    )
+    parser.add_argument(
+        "--collection",
+        type=str,
+        default="postman.json",
+        help="Path to Postman collection JSON file"
+    )
+    parser.add_argument(
+        "--base-url",
+        type=str,
+        default=os.getenv("API_BASE_URL", "http://localhost:35814"),
+        help="Base URL for the API"
+    )
+    args = parser.parse_args()
+    
+    # Load Postman collection
+    tools = []
+    collection_path = Path(args.collection)
+    
+    if collection_path.exists():
+        try:
+            from kuralit.tools.api import RESTAPIToolkit
+            
+            api_toolkit = RESTAPIToolkit.from_postman_collection(
+                collection_path=str(collection_path),
+                base_url=args.base_url
+            )
+            tools.append(api_toolkit)
+            print(f"✅ Loaded {len(api_toolkit.get_functions())} API tools")
+        except Exception as e:
+            print(f"⚠️  Failed to load Postman collection: {e}")
+    
+    # Create agent with API tools
+    agent_session = AgentSession(
+        stt="deepgram/nova-2:en-US",
+        llm="gemini/gemini-2.0-flash-001",
+        vad="silero/v3",
+        turn_detection="multilingual/v1",
+        tools=tools if tools else None,
+        instructions="You are a helpful assistant with access to REST API tools.",
+    )
+    
+    app = create_app(
+        api_key_validator=validate_api_key,
+        agent_session=agent_session,
+    )
+    
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+```
+</CodeGroup>
+
+## How to Run
+
+### Basic Usage
+
+```bash
+python examples/postman_api_demo.py
+```
+
+### With Custom Collection
+
+```bash
+python examples/postman_api_demo.py --collection path/to/collection.json
+```
+
+### With Custom Base URL
+
+```bash
+python examples/postman_api_demo.py --base-url https://api.example.com
+```
+
+## Expected Output
+
+```
+📦 Loading Postman collection: postman.json
+✅ Loaded 5 API tools from collection
+
+   Available API tools:
+   - Get Notes: Get all notes
+   - Create Note: Create a new note
+   - Update Note: Update an existing note
+   - Delete Note: Delete a note
+
+🚀 Starting WebSocket server with API tools...
+   Host: 0.0.0.0
+   Port: 8000
+   API Base URL: http://localhost:35814
+   Connect at: ws://0.0.0.0:8000/ws
+
+   The agent can now make API calls based on user requests.
+```
+
+## Postman Collection Format
+
+Your Postman collection should follow the standard format:
+
+```json
+{
+  "info": {
+    "name": "My API Collection"
+  },
+  "item": [
+    {
+      "name": "Get Notes",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/notes"
+        }
+      }
+    },
+    {
+      "name": "Create Note",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{base_url}}/notes"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"title\": \"{{title}}\", \"content\": \"{{content}}\"}"
+        }
+      }
+    }
+  ]
+}
+```
+
+## Example Interactions
+
+- **"Get all notes"** → Calls `GET /notes`
+- **"Create a note titled 'Meeting Notes'"** → Calls `POST /notes`
+- **"Update note 123"** → Calls `PUT /notes/123`
+- **"Delete note 456"** → Calls `DELETE /notes/456`
+
+## How It Works
+
+1. **Load Collection** - Reads Postman collection JSON file
+2. **Convert Endpoints** - Each API endpoint becomes a tool
+3. **Agent Uses Tools** - Agent can call APIs based on user requests
+4. **Return Results** - API responses are included in agent responses
+
+## Key Concepts
+
+### RESTAPIToolkit
+
+RESTAPIToolkit automatically converts Postman endpoints to tools:
+
+```python
+api_toolkit = RESTAPIToolkit.from_postman_collection(
+    collection_path="postman.json",
+    base_url="https://api.example.com",
+    headers={"Authorization": "Bearer token"}
+)
+```
+
+### Base URL
+
+The base URL is used for all API requests:
+
+```python
+base_url="https://api.example.com"
+# GET /notes becomes https://api.example.com/notes
+```
+
+### Headers
+
+Add authentication and other headers:
+
+```python
+headers={
+    "Authorization": "Bearer your-token",
+    "Content-Type": "application/json"
+}
+```
+
+## Next Steps
+
+- [Tools →](/basics/tools) - Learn about REST API tools
+- [RESTAPIToolkit API →](/python-sdk/api-reference/tools#restapitoolkit) - API reference
+- [WebSocket Demo →](/python-sdk/examples/websocket-demo) - Similar example
+
+## Related
+
+- [REST API Tools →](/basics/tools/rest-api-tools) - REST API tools guide
+- [RESTAPIToolkit API →](/python-sdk/api-reference/tools#restapitoolkit) - Complete API reference
+

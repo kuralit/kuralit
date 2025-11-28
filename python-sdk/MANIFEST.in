@@ -1,0 +1,52 @@
+# Include license and readme files (must be before global-exclude)
+include LICENSE
+include README.md
+include pyproject.toml
+
+# Include version file
+include kuralit/version.py
+
+# Exclude examples and test files
+global-exclude examples/
+global-exclude *test*.py
+global-exclude *tests/
+global-exclude testing/
+
+# Exclude development and build files
+global-exclude *.pyc
+global-exclude __pycache__/
+global-exclude *.py[co]
+global-exclude *.so
+global-exclude *.egg-info/
+global-exclude .DS_Store
+global-exclude .pytest_cache/
+global-exclude .coverage
+global-exclude htmlcov/
+global-exclude dist/
+global-exclude build/
+global-exclude *.egg
+
+# Exclude documentation and planning files (but keep root README.md)
+recursive-exclude kuralit *.md
+recursive-exclude kuralit REFACTORING_PLAN.md
+recursive-exclude kuralit IMPLEMENTATION_PLAN.md
+recursive-exclude examples *.md
+
+# Exclude development configuration files
+global-exclude .env
+global-exclude .env.*
+global-exclude secrets_env.json
+global-exclude postman.json
+global-exclude uv.lock
+
+# Exclude IDE and editor files
+global-exclude .vscode/
+global-exclude .idea/
+global-exclude *.swp
+global-exclude *.swo
+global-exclude *~
+
+# Exclude setup.py (deprecated, using pyproject.toml)
+global-exclude setup.py
+recursive-exclude kuralit setup.py
+

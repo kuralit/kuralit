@@ -1,0 +1,74 @@
+---
+title: "Voice Activity Detection (VAD)"
+---
+
+
+VAD detects when speech starts and ends in the audio stream, helping your AI Voice Agent know when to listen and when to respond.
+
+## What is VAD?
+
+Voice Activity Detection (VAD) analyzes audio to determine:
+
+- **START_OF_SPEECH** - User has started speaking
+- **END_OF_SPEECH** - User has stopped speaking
+- **CONTINUING** - Speech is ongoing
+
+## How VAD Works
+
+VAD processes audio frames:
+
+```
+Audio Frame
+    ↓
+VAD Plugin
+    ↓
+Speech Detection
+    ↓
+Event: START_OF_SPEECH / END_OF_SPEECH / CONTINUING
+    ↓
+Audio Recognition Handler
+```
+
+## Configuration
+
+### Basic Configuration
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+
+# Using Silero VAD
+agent = AgentSession(
+    vad="silero/v3",  # Silero VAD v3
+    # ...
+)
+```
+</CodeGroup>
+
+### Sample Rates
+
+VAD requires specific sample rates:
+
+- **8000 Hz** - Telephone quality
+- **16000 Hz** - Standard quality (recommended)
+
+### Activation Threshold
+
+Adjust sensitivity:
+
+- **Lower (0.3-0.4)** - More sensitive, detects quieter speech
+- **Default (0.5)** - Balanced
+- **Higher (0.6-0.7)** - Less sensitive, reduces false positives
+
+## Available Providers
+
+- **Silero** - On-device, no API keys needed, works offline
+
+[View VAD providers →](/integrations/vad-providers)
+
+## Next Steps
+
+- [VAD Providers →](/integrations/vad-providers) - Choose and configure VAD
+- [STT →](/basics/voice/stt) - Speech-to-Text
+- [Turn Detection →](/basics/voice/turn-detection) - Turn detection
+

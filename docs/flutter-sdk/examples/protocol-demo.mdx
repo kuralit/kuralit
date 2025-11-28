@@ -1,0 +1,135 @@
+---
+title: "Protocol Demo"
+description: "Understand the WebSocket protocol by seeing actual message formats"
+---
+Demonstrates the WebSocket protocol by showing actual message formats sent and received when communicating with AI Voice Agents.
+
+## What It Demonstrates
+
+This example shows:
+
+- ✅ WebSocket message formats
+- ✅ Client message types
+- ✅ Server message types
+- ✅ Audio streaming format
+- ✅ Event-to-message mapping
+- ✅ Protocol debugging
+
+## Prerequisites
+
+- Flutter SDK 3.0.0 or higher
+- Kuralit Flutter SDK installed
+- A running AI Voice Agent server
+
+## Step-by-Step Explanation
+
+### Step 1: Initialize SDK
+
+```dart
+Kuralit.init(KuralitConfig(
+  serverUrl: 'ws://localhost:8000/ws',
+  apiKey: 'demo-api-key',
+  appId: 'my-app',
+  debug: true,
+));
+```
+
+### Step 2: Listen to All Events
+
+The example listens to all event types and displays the underlying protocol messages:
+
+```dart
+Kuralit.events.listen((event) {
+  // Log each event with its protocol representation
+  if (event is KuralitConnectedEvent) {
+    _addMessage('WebSocket Connected', isSystem: true);
+  } else if (event is KuralitServerTextEvent) {
+    _addMessage('Agent: ${event.text}');
+    // Also show protocol format
+    _addProtocolMessage({
+      'type': 'server_text',
+      'session_id': event.sessionId,
+      'data': {'text': event.text},
+    });
+  }
+  // ... handle all event types
+});
+```
+
+## Full Code Structure
+
+The example includes:
+
+1. **Event Logging** - Logs all SDK events
+2. **Protocol Display** - Shows JSON message formats
+3. **Audio Streaming** - Demonstrates audio protocol
+4. **Message History** - View all sent/received messages
+5. **Format Display** - See actual WebSocket message formats
+
+## How to Run
+
+### Step 1: Update Configuration
+
+Edit `main.dart`:
+
+```dart
+const serverUrl = 'ws://localhost:8000/ws';
+const apiKey = 'demo-api-key';
+const appId = 'my-app';
+```
+
+### Step 2: Run
+
+```bash
+cd example/protocol
+flutter pub get
+flutter run
+```
+
+## Expected Behavior
+
+1. **App starts** - SDK initializes
+2. **Connection** - See connection messages
+3. **Send message** - See client message format
+4. **Receive response** - See server message format
+5. **Audio streaming** - See audio message formats
+
+## Message Formats Shown
+
+### Client Messages
+
+- `client_text` - Text message format
+- `client_audio_start` - Audio stream start
+- `client_audio_chunk` - Audio data chunks
+- `client_audio_end` - Audio stream end
+
+### Server Messages
+
+- `server_connected` - Connection confirmation
+- `server_text` - Final text response
+- `server_partial` - Streaming text response
+- `server_stt` - Speech-to-text transcription
+- `server_tool_call` - Tool execution notification
+- `server_tool_result` - Tool execution result
+- `server_error` - Error messages
+
+## Use Cases
+
+This example is useful for:
+
+- **Understanding the protocol** - See actual message formats
+- **Debugging** - Identify protocol issues
+- **Custom implementations** - Build custom clients
+- **Learning** - Understand how the SDK works
+
+## Next Steps
+
+- [Protocol Reference →](/protocol) - Complete protocol documentation
+- [Basic Chat →](/flutter-sdk/examples/basic-chat) - Simple implementation
+- [Basic Usage →](/flutter-sdk/guides/basic-usage) - Usage guide
+
+## Related
+
+- [Protocol →](/protocol) - Complete WebSocket protocol reference
+- [Basic Usage →](/flutter-sdk/guides/basic-usage) - SDK usage guide
+

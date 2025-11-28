@@ -1,0 +1,31 @@
+# Build artifacts
+.dart_tool/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+
+# Log files
+*.log
+analysis.txt
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Generated files
+*.g.dart
+*.freezed.dart
+
+# Pub lock file (for packages, not apps)
+pubspec.lock
+

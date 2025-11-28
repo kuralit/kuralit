@@ -1,0 +1,305 @@
+---
+title: "Configuration"
+description: "Complete guide to configuring Kuralit AI Voice Agents"
+---
+Configure your AI Voice Agent server and client with environment variables and programmatic settings.
+
+## Python Server Configuration
+
+### Environment Variables (Recommended)
+
+Create a `.env` file in your project directory:
+
+```bash
+# ============================================
+# Server Configuration
+# ============================================
+KURALIT_HOST=0.0.0.0
+KURALIT_PORT=8000
+KURALIT_API_KEY=demo-api-key
+KURALIT_DEBUG=false
+KURALIT_LOG_LEVEL=INFO
+
+# ============================================
+# STT (Speech-to-Text) Configuration
+# ============================================
+# Deepgram STT (recommended)
+DEEPGRAM_API_KEY=your-deepgram-api-key-here
+
+# OR Google Cloud STT
+# GOOGLE_STT_API_KEY=your-google-stt-key
+# GOOGLE_STT_CREDENTIALS=/path/to/credentials.json
+
+# ============================================
+# LLM (Large Language Model) Configuration
+# ============================================
+# Gemini LLM
+GEMINI_API_KEY=your-gemini-api-key-here
+# OR
+GOOGLE_API_KEY=your-google-api-key-here
+
+# Optional: Vertex AI support
+# GOOGLE_GENAI_USE_VERTEXAI=false
+# GOOGLE_CLOUD_PROJECT=your-project-id
+# GOOGLE_CLOUD_LOCATION=us-central1
+
+# ============================================
+# Agent Configuration
+# ============================================
+KURALIT_AGENT_NAME=My AI Voice Agent
+KURALIT_AGENT_INSTRUCTIONS=You are a helpful AI Voice Agent assistant.
+```
+
+### Plugin-Specific Environment Variables
+
+#### STT Plugins
+
+**Deepgram**:
+- `DEEPGRAM_API_KEY` (required) - Your Deepgram API key
+
+**Google Cloud STT**:
+- `GOOGLE_STT_API_KEY` OR `GOOGLE_STT_CREDENTIALS` (required) - API key or path to credentials JSON
+
+#### LLM Plugins
+
+**Gemini**:
+- `GEMINI_API_KEY` OR `GOOGLE_API_KEY` (required) - Your Gemini/Google API key
+- `GOOGLE_GENAI_USE_VERTEXAI` (optional) - Use Vertex AI instead of Gemini API
+- `GOOGLE_CLOUD_PROJECT` (optional) - Vertex AI project ID
+- `GOOGLE_CLOUD_LOCATION` (optional) - Vertex AI location
+
+#### VAD Plugins
+
+**Silero VAD**:
+- No API keys required (on-device model)
+
+#### Turn Detection Plugins
+
+**Multilingual Turn Detector**:
+- No API keys required (on-device model)
+
+### Programmatic Configuration
+
+You can also configure your AI Voice Agent programmatically:
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+from kuralit.server.config import ServerConfig
+
+# Create server configuration
+server_config = ServerConfig(
+    host="0.0.0.0",
+    port=8000,
+    api_key="my-secret-key",
+    debug=False,
+    log_level="INFO",
+)
+
+# Create agent session with configuration
+agent_session = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    vad="silero/v3",
+    turn_detection="multilingual/v1",
+    instructions="You are a helpful AI Voice Agent",
+    name="My AI Voice Agent",
+    config=server_config,  # Pass configuration
+)
+```
+</CodeGroup>
+
+### Common Configuration Patterns
+
+#### Development Configuration
+
+```bash
+# .env.development
+KURALIT_DEBUG=true
+KURALIT_LOG_LEVEL=DEBUG
+KURALIT_API_KEY=dev-api-key
+```
+
+#### Production Configuration
+
+```bash
+# .env.production
+KURALIT_DEBUG=false
+KURALIT_LOG_LEVEL=WARNING
+KURALIT_API_KEY=${SECRET_API_KEY}  # Use secret management
+KURALIT_REQUIRE_WSS=true  # Require secure WebSocket
+```
+
+---
+
+## Flutter Client Configuration
+
+### Basic Configuration
+
+<CodeGroup>
+```dart
+import 'package:kuralit_sdk/kuralit.dart';
+
+// Initialize with configuration
+Kuralit.init(KuralitConfig(
+  serverUrl: 'ws://localhost:8000/ws',
+  apiKey: 'your-api-key',
+  appId: 'your-app-id',
+  debug: true,  // Enable debug logging
+));
+```
+</CodeGroup>
+
+### Configuration Options
+
+- `serverUrl` (required) - WebSocket server URL
+- `apiKey` (required) - API key for authentication
+- `appId` (required) - Application identifier
+- `debug` (optional) - Enable debug logging (default: false)
+- `reconnectAttempts` (optional) - Number of reconnection attempts (default: 5)
+- `reconnectDelay` (optional) - Delay between reconnection attempts in milliseconds (default: 1000)
+
+### Factory Methods
+
+<CodeGroup>
+```dart
+// Default configuration
+final config = KuralitConfig.defaults(
+  serverUrl: 'ws://localhost:8000/ws',
+  apiKey: 'your-api-key',
+  appId: 'your-app-id',
+);
+
+// Production configuration
+final config = KuralitConfig.production(
+  serverUrl: 'wss://api.example.com/ws',
+  apiKey: 'your-api-key',
+  appId: 'your-app-id',
+);
+
+// Development configuration
+final config = KuralitConfig.development(
+  serverUrl: 'ws://localhost:8000/ws',
+  apiKey: 'dev-api-key',
+  appId: 'dev-app',
+);
+```
+</CodeGroup>
+
+---
+
+## Environment-Specific Setup
+
+### Development
+
+```bash
+# Use local server
+serverUrl: 'ws://localhost:8000/ws'
+apiKey: 'dev-api-key'
+debug: true
+```
+
+### Production
+
+```bash
+# Use secure WebSocket
+serverUrl: 'wss://api.example.com/ws'
+apiKey: '${SECRET_API_KEY}'  # From secret management
+debug: false
+```
+
+### Testing
+
+```bash
+# Use test server
+serverUrl: 'ws://test.example.com/ws'
+apiKey: 'test-api-key'
+debug: true
+```
+
+---
+
+## Configuration Validation
+
+The SDK validates configuration at startup:
+
+- **Missing required environment variables** - Raises error with clear message
+- **Invalid plugin configuration** - Validates plugin-specific settings
+- **Invalid server configuration** - Checks host, port, and other settings
+
+### Error Messages
+
+Common configuration errors:
+
+- `"Deepgram API key is required. Set DEEPGRAM_API_KEY environment variable."`
+- `"Gemini API key is required. Set GEMINI_API_KEY or GOOGLE_API_KEY environment variable."`
+- `"Invalid server configuration: port must be between 1 and 65535"`
+
+---
+
+## Quick Setup Examples
+
+### Minimal Setup (Default Plugins)
+
+```bash
+# .env
+DEEPGRAM_API_KEY=your-key
+GEMINI_API_KEY=your-key
+KURALIT_API_KEY=demo-api-key
+```
+
+### Custom Plugin Setup
+
+```python
+# Use Google STT instead of Deepgram
+agent_session = AgentSession(
+    stt="google/en-US",  # Uses GOOGLE_STT_API_KEY or GOOGLE_STT_CREDENTIALS
+    llm="gemini/gemini-2.0-flash-001",
+    # ...
+)
+```
+
+### Multiple Environments
+
+```bash
+# .env.development
+KURALIT_DEBUG=true
+KURALIT_API_KEY=dev-key
+
+# .env.production
+KURALIT_DEBUG=false
+KURALIT_API_KEY=${PROD_API_KEY}
+```
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Environment variables not loading">
+    - Make sure `.env` file is in the project root
+    - Install `python-dotenv`: `pip install python-dotenv`
+    - Check file permissions
+  </Accordion>
+  
+  <Accordion title="API key validation failing">
+    - Verify API key is set correctly
+    - Check for extra spaces or quotes
+    - Ensure key matches server configuration
+  </Accordion>
+  
+  <Accordion title="Plugin not found">
+    - Verify plugin name is correct (e.g., "deepgram/nova-2:en-US")
+    - Check required environment variables are set
+    - Ensure plugin is installed/available
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next Steps
+
+- [Learn about integrations →](/integrations)
+- [Quickstart →](/getting-started/quickstart) - Complete guide: Python server + Flutter mobile app
+- [API Reference →](/python-sdk/api-reference/server-config)
+

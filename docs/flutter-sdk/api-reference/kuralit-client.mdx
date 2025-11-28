@@ -1,0 +1,262 @@
+---
+title: "Kuralit"
+description: "API reference for Kuralit class - Main SDK interface"
+---
+Main SDK class for connecting to AI Voice Agents and sending/receiving messages.
+
+## Class
+
+<ParamField path="class" type="Kuralit">
+  Static class providing the main SDK interface.
+</ParamField>
+
+## Static Methods
+
+### init()
+
+<ParamField path="init" type="void">
+  Initialize the SDK with configuration.
+  
+  **Parameters:**
+  - `config` (KuralitConfig): SDK configuration
+  
+  **Throws:**
+  - `StateError`: If SDK is already initialized
+  
+  **Example:**
+  ```dart
+  Kuralit.init(KuralitConfig(
+    serverUrl: 'ws://localhost:8000/ws',
+    apiKey: 'demo-api-key',
+    appId: 'my-app',
+  ));
+  ```
+</ParamField>
+
+### connect()
+
+<ParamField path="connect" type="Future<void>">
+  Connect to the WebSocket server.
+  
+  **Returns:**
+  - `Future<void>`: Completes when connection is established or fails
+  
+  **Throws:**
+  - `StateError`: If SDK is not initialized
+  
+  **Example:**
+  ```dart
+  try {
+    await Kuralit.connect();
+    print('Connected');
+  } catch (e) {
+    print('Connection failed: $e');
+  }
+  ```
+</ParamField>
+
+### disconnect()
+
+<ParamField path="disconnect" type="void">
+  Disconnect from the WebSocket server.
+  
+  **Throws:**
+  - `StateError`: If SDK is not initialized
+</ParamField>
+
+### sendText()
+
+<ParamField path="sendText" type="bool">
+  Send a text message to the AI Voice Agent.
+  
+  **Parameters:**
+  - `sessionId` (String): Session ID for conversation continuity
+  - `text` (String): Text message to send (max 4KB)
+  - `metadata` (Map<String, dynamic>?, optional): Optional metadata
+  
+  **Returns:**
+  - `bool`: True if message was sent, false otherwise
+  
+  **Throws:**
+  - `StateError`: If SDK is not initialized
+  - `ArgumentError`: If text is empty or exceeds 4KB
+  
+  **Example:**
+  ```dart
+  final sent = Kuralit.sendText(sessionId, 'Hello!');
+  if (sent) {
+    print('Message sent');
+  }
+  ```
+</ParamField>
+
+### startAudioStream()
+
+<ParamField path="startAudioStream" type="bool">
+  Start an audio stream.
+  
+  **Parameters:**
+  - `sessionId` (String): Session ID
+  - `sampleRate` (int, default: 16000): Audio sample rate (8000, 16000, 44100, 48000)
+  - `encoding` (String, default: 'PCM16'): Audio encoding ('PCM16' or 'PCM8')
+  - `metadata` (Map<String, dynamic>?, optional): Optional metadata
+  
+  **Returns:**
+  - `bool`: True if start message was sent, false otherwise
+  
+  **Example:**
+  ```dart
+  Kuralit.startAudioStream(sessionId, sampleRate: 16000);
+  ```
+</ParamField>
+
+### sendAudioChunk()
+
+<ParamField path="sendAudioChunk" type="bool">
+  Send an audio chunk.
+  
+  **Parameters:**
+  - `sessionId` (String): Session ID
+  - `chunk` (Uint8List): Audio data
+  - `timestamp` (double?, optional): Unix timestamp in seconds
+  
+  **Returns:**
+  - `bool`: True if chunk was sent, false otherwise
+  
+  **Throws:**
+  - `ArgumentError`: If chunk is empty
+  
+  **Example:**
+  ```dart
+  final audioData = await captureAudioChunk();
+  Kuralit.sendAudioChunk(sessionId, audioData);
+  ```
+</ParamField>
+
+### endAudioStream()
+
+<ParamField path="endAudioStream" type="bool">
+  End an audio stream.
+  
+  **Parameters:**
+  - `sessionId` (String): Session ID
+  - `finalChunk` (Uint8List?, optional): Optional final audio chunk
+  
+  **Returns:**
+  - `bool`: True if end message was sent, false otherwise
+  
+  **Example:**
+  ```dart
+  Kuralit.endAudioStream(sessionId);
+  ```
+</ParamField>
+
+### generateSessionId()
+
+<ParamField path="generateSessionId" type="String">
+  Generate a new session ID.
+  
+  **Returns:**
+  - `String`: UUID v4 string
+  
+  **Example:**
+  ```dart
+  final sessionId = Kuralit.generateSessionId();
+  ```
+</ParamField>
+
+### isConnected()
+
+<ParamField path="isConnected" type="bool">
+  Check if SDK is connected to the server.
+  
+  **Returns:**
+  - `bool`: True if connected, false otherwise
+  
+  **Example:**
+  ```dart
+  if (Kuralit.isConnected()) {
+    print('Connected');
+  }
+  ```
+</ParamField>
+
+### getServerSessionId()
+
+<ParamField path="getServerSessionId" type="String?">
+  Get server-provided session ID (if available).
+  
+  **Returns:**
+  - `String?`: Server session ID, or null if not available
+  
+  **Example:**
+  ```dart
+  final serverSessionId = Kuralit.getServerSessionId();
+  if (serverSessionId != null) {
+    // Use server session ID
+  }
+  ```
+</ParamField>
+
+### dispose()
+
+<ParamField path="dispose" type="void">
+  Dispose SDK resources.
+  
+  Call this when you're done using the SDK. After calling dispose(), you can call init() again to reinitialize.
+</ParamField>
+
+## Static Properties
+
+### events
+
+<ParamField path="events" type="Stream<KuralitEvent>">
+  Stream of SDK events.
+  
+  **Example:**
+  ```dart
+  Kuralit.events.listen((event) {
+    if (event is KuralitServerTextEvent) {
+      print('Agent: ${event.text}');
+    }
+  });
+  ```
+</ParamField>
+
+## Usage Examples
+
+### Complete Example
+
+<CodeGroup>
+```dart
+import 'package:kuralit_sdk/kuralit.dart';
+
+// Initialize
+Kuralit.init(KuralitConfig(
+  serverUrl: 'ws://localhost:8000/ws',
+  apiKey: 'demo-api-key',
+  appId: 'my-app',
+));
+
+// Connect
+await Kuralit.connect();
+
+// Listen to events
+Kuralit.events.listen((event) {
+  if (event is KuralitServerTextEvent) {
+    print('Agent: ${event.text}');
+  }
+});
+
+// Generate session and send message
+final sessionId = Kuralit.generateSessionId();
+Kuralit.sendText(sessionId, 'Hello!');
+```
+</CodeGroup>
+
+## Related
+
+- [KuralitConfig →](/flutter-sdk/api-reference/kuralit-config) - Configuration class
+- [Events →](/flutter-sdk/api-reference/events) - Event types
+- [Basic Usage →](/flutter-sdk/guides/basic-usage) - Usage guide
+

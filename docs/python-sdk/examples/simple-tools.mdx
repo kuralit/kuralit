@@ -1,0 +1,217 @@
+---
+title: "Simple Tools"
+description: "Custom Python functions as tools for your AI Voice Agent"
+---
+Demonstrates how to create custom Python functions as tools and use them with your AI Voice Agent.
+
+## What It Demonstrates
+
+This example shows:
+
+- ✅ Creating custom Python functions
+- ✅ Converting functions to tools using `Function.from_callable()`
+- ✅ Creating a Toolkit to group related tools
+- ✅ Passing tools to AgentSession
+- ✅ Agent using tools in conversation
+
+## Prerequisites
+
+- Python 3.8 or higher
+- Kuralit SDK installed: `pip install kuralit`
+- API keys:
+  - `DEEPGRAM_API_KEY` - Deepgram STT API key
+  - `GEMINI_API_KEY` - Google Gemini LLM API key
+  - `KURALIT_API_KEY` - Server API key (defaults to "demo-api-key")
+
+## Step-by-Step Explanation
+
+### Step 1: Define Custom Tool Functions
+
+Create regular Python functions with type hints and docstrings:
+
+```python
+def calculate(expression: str) -> str:
+    """Calculate a mathematical expression.
+    
+    Args:
+        expression: A string containing a mathematical expression
+    
+    Returns:
+        The result of the calculation as a string
+    """
+    try:
+        result = eval(expression)
+        return str(result)
+    except Exception as e:
+        return f"Error: {str(e)}"
+```
+
+### Step 2: Create Toolkit
+
+Group related tools together:
+
+```python
+from kuralit.tools import Toolkit
+
+utility_tools = Toolkit(
+    name="utility_tools",
+    tools=[calculate, get_current_time, get_weather, convert_currency],
+    instructions="Utility tools for calculations, time, weather, and currency conversion."
+)
+```
+
+### Step 3: Use with AgentSession
+
+```python
+agent_session = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    tools=[utility_tools],  # Add toolkit
+    # ...
+)
+```
+
+## Full Code
+
+<CodeGroup>
+```python
+"""Simple Tools Demo - Custom Python Functions as Tools"""
+
+import os
+from datetime import datetime
+from kuralit.server.agent_session import AgentSession
+from kuralit.server.websocket_server import create_app
+from kuralit.tools import Toolkit
+
+# Define custom tool functions
+def calculate(expression: str) -> str:
+    """Calculate a mathematical expression."""
+    try:
+        result = eval(expression)
+        return str(result)
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+def get_current_time() -> str:
+    """Get the current time."""
+    now = datetime.now()
+    return now.strftime("%H:%M:%S")
+
+def get_weather(location: str) -> str:
+    """Get weather information for a location."""
+    mock_weather = {
+        "london": "Cloudy, 15°C",
+        "new york": "Sunny, 22°C",
+    }
+    return f"Weather in {location}: {mock_weather.get(location.lower(), 'Partly cloudy, 20°C')}"
+
+def convert_currency(amount: float, from_currency: str, to_currency: str) -> str:
+    """Convert currency from one type to another."""
+    exchange_rates = {
+        "USD": {"EUR": 0.85, "GBP": 0.73},
+        "EUR": {"USD": 1.18, "GBP": 0.86},
+    }
+    # Implementation here...
+    return f"{amount} {from_currency} = {converted} {to_currency}"
+
+# Create toolkit
+utility_tools = Toolkit(
+    name="utility_tools",
+    tools=[calculate, get_current_time, get_weather, convert_currency],
+    instructions="Utility tools for calculations, time, weather, and currency conversion."
+)
+
+# Create agent with tools
+agent_session = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    vad="silero/v3",
+    turn_detection="multilingual/v1",
+    tools=[utility_tools],
+    instructions="You are a helpful assistant with utility tools.",
+)
+
+# Create and run server
+app = create_app(
+    api_key_validator=lambda key: key == "demo-key",
+    agent_session=agent_session,
+)
+```
+</CodeGroup>
+
+## How to Run
+
+```bash
+python examples/simple_tools_demo.py
+```
+
+## Expected Output
+
+```
+🚀 Starting WebSocket server with utility tools...
+   Host: 0.0.0.0
+   Port: 8000
+   Available tools: calculate, get_current_time, get_weather, convert_currency
+   Connect at: ws://0.0.0.0:8000/ws
+
+   Try asking:
+   - 'What's 25 times 17?'
+   - 'What time is it?'
+   - 'What's the weather in London?'
+   - 'Convert 100 USD to EUR'
+```
+
+## Example Interactions
+
+- **"What's 25 times 17?"** → Uses `calculate` tool
+- **"What time is it?"** → Uses `get_current_time` tool
+- **"What's the weather in London?"** → Uses `get_weather` tool
+- **"Convert 100 USD to EUR"** → Uses `convert_currency` tool
+
+## Key Concepts
+
+### Function Docstrings
+
+The agent uses your function's docstring to understand what the tool does:
+
+```python
+def calculate(expression: str) -> str:
+    """Calculate a mathematical expression.
+    
+    Args:
+        expression: A string containing a mathematical expression
+    
+    Returns:
+        The result of the calculation as a string
+    """
+```
+
+### Type Hints
+
+Type hints help the agent understand parameter types:
+
+```python
+def convert_currency(amount: float, from_currency: str, to_currency: str) -> str:
+```
+
+### Toolkit Instructions
+
+Toolkit instructions help the agent know when to use tools:
+
+```python
+Toolkit(
+    instructions="Utility tools for calculations, time, weather, and currency conversion."
+)
+```
+
+## Next Steps
+
+- [Voice Assistant →](/python-sdk/examples/voice-assistant) - Multiple toolkits example
+- [Tools →](/basics/tools) - Complete tools documentation
+- [Function API →](/python-sdk/api-reference/tools#function) - Function class reference
+
+## Related
+
+- [Tools →](/basics/tools) - Adding capabilities to AI Voice Agents
+- [Toolkit API →](/python-sdk/api-reference/tools#toolkit) - Toolkit class reference
+

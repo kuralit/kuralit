@@ -1,0 +1,92 @@
+---
+title: "Tools"
+---
+
+
+Tools are what make your AI Voice Agents capable. They enable your agents to perform actions, not just talk.
+
+## What are Tools?
+
+Tools are functions that your AI Voice Agent can call to perform actions:
+
+- **Custom Python Functions** - Write your own functions
+- **REST API Tools** - Call external APIs
+- **Toolkits** - Group related tools together
+
+When a user asks your AI Voice Agent to do something, the agent can:
+
+1. **Identify which tool(s) are needed**
+2. **Call the tool(s) with the right parameters**
+3. **Use the results to provide a helpful response**
+
+## Why Tools Matter
+
+**Without tools**, your agent can only talk. **With tools**, your agent can:
+
+- Search the web
+- Access databases
+- Call APIs
+- Perform calculations
+- Execute any action you can code
+
+## Core Concepts
+
+<CardGroup cols={3}>
+  <Card
+    title="Function Calling"
+    icon="code"
+    href="/basics/tools/function-calling"
+  >
+    Learn how function calling works
+  </Card>
+  <Card
+    title="Custom Functions"
+    icon="wrench"
+    href="/basics/tools/custom-functions"
+  >
+    Create your own tools
+  </Card>
+  <Card
+    title="REST API Tools"
+    icon="globe"
+    href="/basics/tools/rest-api-tools"
+  >
+    Connect to external APIs
+  </Card>
+  <Card
+    title="Toolkits"
+    icon="layer-group"
+    href="/basics/tools/toolkits"
+  >
+    Organize related tools
+  </Card>
+</CardGroup>
+
+## Quick Example
+
+<CodeGroup>
+```python
+from kuralit.tools import Toolkit
+
+def get_weather(location: str) -> str:
+    """Get weather for a location."""
+    return f"Weather in {location}: sunny, 22°C"
+
+# Create toolkit
+weather_tools = Toolkit(tools=[get_weather])
+
+# Use with agent
+agent = AgentSession(
+    tools=[weather_tools],
+    # ...
+)
+```
+</CodeGroup>
+
+## Next Steps
+
+- [Function Calling →](/basics/tools/function-calling) - Learn the basics
+- [Custom Functions →](/basics/tools/custom-functions) - Create your own tools
+- [REST API Tools →](/basics/tools/rest-api-tools) - Connect to APIs
+- [Toolkits →](/basics/tools/toolkits) - Organize your tools
+

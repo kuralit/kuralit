@@ -1,0 +1,278 @@
+---
+title: "Tools"
+description: "API reference for Toolkit, Function, and RESTAPIToolkit classes"
+---
+API reference for creating and managing tools for AI Voice Agents.
+
+## Toolkit
+
+A collection of tools that can be used by an agent.
+
+### Class
+
+<ParamField path="class" type="Toolkit">
+  Groups related tools together with instructions for the agent.
+</ParamField>
+
+### Constructor
+
+<ParamField path="constructor" type="Toolkit()">
+  Initialize a new Toolkit.
+</ParamField>
+
+### Parameters
+
+<ParamField path="name" type="str" default="toolkit">
+  Descriptive name for the toolkit.
+</ParamField>
+
+<ParamField path="tools" type="List[Callable | Function]" default="[]">
+  List of tools (callables or Function objects) to include.
+</ParamField>
+
+<ParamField path="instructions" type="str | None" default="None">
+  Instructions for the toolkit. Helps the agent understand when and how to use these tools.
+</ParamField>
+
+<ParamField path="auto_register" type="bool" default="True">
+  Automatically register all tools in the list.
+</ParamField>
+
+### Methods
+
+<ParamField path="register" type="None">
+  Register a function with the toolkit.
+  
+  **Parameters:**
+  - `function` (Callable | Function): Function to register
+  - `name` (str | None): Optional custom name
+  
+  **Example:**
+  ```python
+  toolkit = Toolkit(name="weather")
+  toolkit.register(get_weather)
+  ```
+</ParamField>
+
+<ParamField path="get_functions" type="List[Function]">
+  Get all registered functions.
+</ParamField>
+
+<ParamField path="get_function" type="Function | None">
+  Get a function by name.
+  
+  **Parameters:**
+  - `name` (str): Function name
+  
+  **Returns:**
+  - `Function | None`: Function if found, None otherwise
+</ParamField>
+
+### Usage Examples
+
+<CodeGroup>
+```python
+from kuralit.tools import Toolkit
+
+def get_weather(location: str) -> str:
+    """Get weather for a location."""
+    return f"Weather in {location}: sunny, 22°C"
+
+# Create toolkit
+weather_tools = Toolkit(
+    name="weather",
+    tools=[get_weather],
+    instructions="Weather tools for getting current conditions"
+)
+
+# Use with agent
+agent = AgentSession(
+    tools=[weather_tools],
+    # ...
+)
+```
+</CodeGroup>
+
+---
+
+## Function
+
+Model for storing functions that can be called by an agent.
+
+### Class
+
+<ParamField path="class" type="Function">
+  Represents a single tool function that can be called by the agent.
+</ParamField>
+
+### Constructor
+
+<ParamField path="constructor" type="Function()">
+  Create a Function object manually.
+</ParamField>
+
+### Parameters
+
+<ParamField path="name" type="str" required>
+  Name of the function.
+</ParamField>
+
+<ParamField path="description" type="str | None" default="None">
+  Description of what the function does.
+</ParamField>
+
+<ParamField path="parameters" type="Dict[str, Any]" default="{}">
+  JSON Schema object describing function parameters.
+</ParamField>
+
+<ParamField path="entrypoint" type="Callable | None" default="None">
+  The function to be called.
+</ParamField>
+
+<ParamField path="show_result" type="bool" default="False">
+  If True, the function call will show the result.
+</ParamField>
+
+<ParamField path="stop_after_tool_call" type="bool" default="False">
+  If True, the agent will stop after the function call.
+</ParamField>
+
+<ParamField path="requires_confirmation" type="bool" default="False">
+  If True, the function will require confirmation before execution.
+</ParamField>
+
+<ParamField path="external_execution" type="bool" default="False">
+  If True, the function will be executed outside the agent's control.
+</ParamField>
+
+### Class Methods
+
+<ParamField path="from_callable" type="Function">
+  Create a Function from a callable.
+  
+  **Parameters:**
+  - `c` (Callable): Python function to convert
+  - `name` (str | None): Optional custom name
+  
+  **Returns:**
+  - `Function`: Function object
+  
+  **Example:**
+  ```python
+  def get_weather(location: str) -> str:
+      """Get weather for a location."""
+      return f"Weather in {location}: sunny"
+  
+  tool = Function.from_callable(get_weather)
+  ```
+</ParamField>
+
+### Methods
+
+<ParamField path="to_dict" type="Dict[str, Any]">
+  Convert function to dictionary for API calls.
+  
+  **Returns:**
+  - `Dict[str, Any]`: Function dictionary with name, description, parameters
+</ParamField>
+
+<ParamField path="__call__" type="Any">
+  Call the function entrypoint.
+  
+  **Parameters:**
+  - `*args`: Positional arguments
+  - `**kwargs`: Keyword arguments
+  
+  **Returns:**
+  - `Any`: Function result
+  
+  **Raises:**
+  - `ValueError`: If entrypoint is None
+</ParamField>
+
+### Usage Examples
+
+<CodeGroup>
+```python
+from kuralit.tools.function import Function
+
+# Define function
+def calculate(expression: str) -> str:
+    """Calculate a mathematical expression."""
+    return str(eval(expression))
+
+# Convert to Function
+tool = Function.from_callable(calculate)
+
+# Use with toolkit
+from kuralit.tools import Toolkit
+calculator_tools = Toolkit(tools=[tool])
+```
+</CodeGroup>
+
+---
+
+## RESTAPIToolkit
+
+Create tools from REST API endpoints (Postman collections).
+
+### Class
+
+<ParamField path="class" type="RESTAPIToolkit">
+  Toolkit that loads REST API tools from Postman collections.
+</ParamField>
+
+### Class Methods
+
+<ParamField path="from_postman_collection" type="RESTAPIToolkit">
+  Create RESTAPIToolkit from a Postman collection file.
+  
+  **Parameters:**
+  - `collection_path` (str): Path to Postman collection JSON file
+  - `base_url` (str): Base URL for API requests
+  - `headers` (Dict[str, str] | None): Optional default headers
+  - `auth` (Any | None): Optional authentication object
+  
+  **Returns:**
+  - `RESTAPIToolkit`: Toolkit with API tools
+  
+  **Example:**
+  ```python
+  api_tools = RESTAPIToolkit.from_postman_collection(
+      collection_path="api_collection.json",
+      base_url="https://api.example.com",
+      headers={"Authorization": "Bearer token"}
+  )
+  ```
+</ParamField>
+
+### Usage Examples
+
+<CodeGroup>
+```python
+from kuralit.tools.api import RESTAPIToolkit
+
+# Load from Postman collection
+api_tools = RESTAPIToolkit.from_postman_collection(
+    collection_path="postman_collection.json",
+    base_url="https://api.example.com",
+    headers={
+        "Authorization": "Bearer your-token",
+        "Content-Type": "application/json"
+    }
+)
+
+# Use with agent
+agent = AgentSession(
+    tools=[api_tools],
+    # ...
+)
+```
+</CodeGroup>
+
+## Related
+
+- [Tools →](/basics/tools) - Complete guide to adding capabilities
+- [Postman API Example →](/python-sdk/examples/postman-api) - REST API tools example
+- [Simple Tools Example →](/python-sdk/examples/simple-tools) - Custom functions example
+

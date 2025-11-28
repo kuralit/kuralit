@@ -1,0 +1,61 @@
+---
+title: "Turn Detection Providers"
+description: "Turn detection providers for determining when users have finished speaking"
+---
+Choose turn detection providers for your AI Voice Agents.
+
+## What are Turn Detection Providers?
+
+Turn detection providers determine when users have finished speaking:
+
+- **End-of-turn prediction** - Predicts when user is done speaking
+- **Dynamic endpointing** - Adjusts delay based on probability
+- **Context-aware** - Uses conversation history
+
+## Available Providers
+
+<Card
+  title="Multilingual"
+  icon="language"
+  href="/integrations/turn-detection-providers/multilingual"
+>
+  Multilingual turn detector, no API keys needed
+</Card>
+
+## Choosing a Provider
+
+### Multilingual
+
+**Best for:**
+- Multiple language support
+- No API keys required
+- Context-aware detection
+- Dynamic endpointing
+
+**Requirements:**
+- No API keys needed (on-device model)
+
+[Learn more →](/integrations/turn-detection-providers/multilingual)
+
+## Configuration
+
+### Basic Configuration
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+
+# Using Multilingual Turn Detector
+agent = AgentSession(
+    turn_detection="multilingual/v1",  # Multilingual turn detector
+    # ...
+)
+```
+</CodeGroup>
+
+## Next Steps
+
+- [Multilingual →](/integrations/turn-detection-providers/multilingual) - Multilingual provider documentation
+- [Voice →](/basics/voice) - Learn about voice streaming
+- [Turn Detection →](/basics/voice/turn-detection) - Understand turn detection
+

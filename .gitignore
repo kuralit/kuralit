@@ -1,0 +1,67 @@
+# Root-level .gitignore for Kuralit monorepo
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+*.sublime-project
+*.sublime-workspace
+
+# Documentation build artifacts
+docs/.next/
+docs/.mint/
+docs/.mint-cache/
+docs/build/
+docs/.cache/
+docs/node_modules/
+docs/.turbo/
+
+# Environment files
+.env
+.env.*
+*.env
+secrets_env.json
+postman.json
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Package manager files (keep lock files for reproducibility)
+# Uncomment if you want to ignore lock files:
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Coverage reports
+coverage/
+*.lcov
+.nyc_output/
+
+# Misc
+*.orig
+.cache/
+

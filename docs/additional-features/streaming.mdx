@@ -1,0 +1,70 @@
+---
+title: "Real-time Streaming"
+description: "Learn about real-time text and audio streaming"
+---
+Kuralit supports real-time streaming for both text and audio, enabling natural conversations.
+
+## Text Streaming
+
+### Partial Responses
+
+Receive text responses as they're generated:
+
+<CodeGroup>
+```dart
+// Flutter client
+Kuralit.events.listen((event) {
+  if (event is KuralitServerPartialEvent) {
+    // Streaming response
+    print('Agent (streaming): ${event.text}');
+  } else if (event is KuralitServerTextEvent) {
+    // Final response
+    print('Agent: ${event.text}');
+  }
+});
+```
+</CodeGroup>
+
+### Server Side
+
+The agent automatically streams responses:
+
+- **Partial messages** - Sent as text is generated
+- **Final messages** - Complete response when done
+
+## Audio Streaming
+
+### Continuous Streaming
+
+Audio is streamed continuously:
+
+1. **Start stream** - `client_audio_start` message
+2. **Stream chunks** - `client_audio_chunk` messages (continuous)
+3. **End stream** - `client_audio_end` message
+
+### Real-time Processing
+
+- **Low latency** - Immediate processing
+- **Interim results** - See transcription as user speaks
+- **Natural flow** - No artificial delays
+
+## Best Practices
+
+### Text Streaming
+
+- **Update UI incrementally** - Show partial responses
+- **Handle final messages** - Replace partial with final
+- **Show loading state** - Indicate when streaming
+
+### Audio Streaming
+
+- **Consistent sample rate** - Use same rate throughout
+- **Proper encoding** - Use PCM16 for best quality
+- **Handle errors** - Manage network interruptions
+
+## Next Steps
+
+- [Protocol →](/additional-features/protocol) - WebSocket protocol details
+- [Error Handling →](/additional-features/error-handling) - Error handling
+- [Voice →](/basics/voice) - Learn about voice streaming
+

@@ -1,0 +1,221 @@
+---
+title: "Voice Assistant"
+description: "Complete voice assistant AI Voice Agent with multiple toolkits"
+---
+A comprehensive voice assistant AI Voice Agent with multiple integrated toolkits for calendar, weather, reminders, notes, and calculator.
+
+## What It Demonstrates
+
+This example shows:
+
+- ✅ Multiple toolkits working together
+- ✅ Calendar management tools
+- ✅ Weather information tools
+- ✅ Reminder management tools
+- ✅ Note-taking tools
+- ✅ Calculator tools
+- ✅ Complete AI Voice Agent with multiple capabilities
+
+## Prerequisites
+
+- Python 3.8 or higher
+- Kuralit SDK installed: `pip install kuralit`
+- API keys:
+  - `DEEPGRAM_API_KEY` - Deepgram STT API key
+  - `GEMINI_API_KEY` - Google Gemini LLM API key
+  - `KURALIT_API_KEY` - Server API key (defaults to "demo-api-key")
+
+## Features
+
+Your AI Voice Agent can:
+
+- **📅 Calendar** - Add, list, and delete events
+- **🌤️ Weather** - Get current weather and forecasts
+- **⏰ Reminders** - Create, list, and complete reminders
+- **📝 Notes** - Create, list, and search notes
+- **🔢 Calculator** - Perform mathematical calculations
+
+## Step-by-Step Explanation
+
+### Step 1: Define Tool Functions
+
+Create functions for each capability:
+
+```python
+# Calendar tools
+def add_event(title: str, date: str, time: str) -> str:
+    """Add an event to the calendar."""
+    # Implementation...
+
+def list_events(date: Optional[str] = None) -> str:
+    """List calendar events."""
+    # Implementation...
+
+# Weather tools
+def get_weather(location: str) -> str:
+    """Get current weather for a location."""
+    # Implementation...
+
+# Reminder tools
+def create_reminder(text: str, due_date: Optional[str] = None) -> str:
+    """Create a reminder."""
+    # Implementation...
+
+# Note tools
+def create_note(title: str, content: str) -> str:
+    """Create a note."""
+    # Implementation...
+
+# Calculator
+def calculate(expression: str) -> str:
+    """Calculate a mathematical expression."""
+    # Implementation...
+```
+
+### Step 2: Create Multiple Toolkits
+
+Group related tools into toolkits:
+
+```python
+from kuralit.tools import Toolkit
+
+calendar_tools = Toolkit(
+    name="calendar",
+    tools=[add_event, list_events, delete_event],
+    instructions="Calendar tools for managing events."
+)
+
+weather_tools = Toolkit(
+    name="weather",
+    tools=[get_weather, get_forecast],
+    instructions="Weather tools for getting current conditions and forecasts."
+)
+
+reminder_tools = Toolkit(
+    name="reminders",
+    tools=[create_reminder, list_reminders, complete_reminder],
+    instructions="Reminder tools for creating and managing reminders."
+)
+
+note_tools = Toolkit(
+    name="notes",
+    tools=[create_note, list_notes, search_notes],
+    instructions="Note tools for creating and managing notes."
+)
+
+calculator_tools = Toolkit(
+    name="calculator",
+    tools=[calculate],
+    instructions="Calculator tool for mathematical calculations."
+)
+```
+
+### Step 3: Combine All Toolkits
+
+```python
+agent_session = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    vad="silero/v3",
+    turn_detection="multilingual/v1",
+    tools=[
+        calendar_tools,
+        weather_tools,
+        reminder_tools,
+        note_tools,
+        calculator_tools,
+    ],
+    instructions="You are a comprehensive voice assistant with access to multiple tools...",
+)
+```
+
+## Full Code Structure
+
+The example includes:
+
+1. **In-memory storage** - For demo data (calendar events, reminders, notes)
+2. **Calendar tools** - Add, list, delete events
+3. **Weather tools** - Current weather and forecasts
+4. **Reminder tools** - Create, list, complete reminders
+5. **Note tools** - Create, list, search notes
+6. **Calculator tools** - Mathematical calculations
+7. **AgentSession** - Combines all toolkits
+8. **Server setup** - WebSocket server with all capabilities
+
+## How to Run
+
+```bash
+python examples/voice_assistant_demo.py
+```
+
+## Expected Output
+
+```
+🚀 Starting Voice Assistant server...
+   Host: 0.0.0.0
+   Port: 8000
+   Connect at: ws://0.0.0.0:8000/ws
+
+   Available features:
+   📅 Calendar: Add, list, delete events
+   🌤️  Weather: Current weather and forecasts
+   ⏰ Reminders: Create, list, complete reminders
+   📝 Notes: Create, list, search notes
+   🔢 Calculator: Mathematical calculations
+```
+
+## Example Interactions
+
+- **"Add a meeting tomorrow at 2pm"** → Uses `add_event` tool
+- **"What's the weather in San Francisco?"** → Uses `get_weather` tool
+- **"Remind me to call John at 5pm"** → Uses `create_reminder` tool
+- **"Create a note about the project ideas"** → Uses `create_note` tool
+- **"What reminders do I have?"** → Uses `list_reminders` tool
+- **"What's 15 times 23?"** → Uses `calculate` tool
+
+## Key Concepts
+
+### Multiple Toolkits
+
+This example demonstrates combining multiple toolkits:
+
+```python
+tools=[
+    calendar_tools,    # Calendar management
+    weather_tools,     # Weather information
+    reminder_tools,    # Reminder management
+    note_tools,        # Note-taking
+    calculator_tools,  # Calculations
+]
+```
+
+### Toolkit Instructions
+
+Each toolkit has instructions to help the agent understand when to use it:
+
+```python
+calendar_tools = Toolkit(
+    instructions="Calendar tools for managing events. Use when users want to add, view, or delete calendar events."
+)
+```
+
+### In-Memory Storage
+
+This demo uses in-memory storage. In production, you would:
+
+- Connect to a database
+- Use external APIs
+- Integrate with existing services
+
+## Next Steps
+
+- [Customer Support →](/python-sdk/examples/customer-support) - Real-world use case example
+- [Tools →](/basics/tools) - Learn about tools and toolkits
+- [Agents →](/basics/agents) - Building AI Voice Agents
+
+## Related
+
+- [Tools →](/basics/tools) - Complete tools documentation
+- [Simple Tools →](/python-sdk/examples/simple-tools) - Basic tools example
+- [Toolkit API →](/python-sdk/api-reference/tools#toolkit) - Toolkit reference
+

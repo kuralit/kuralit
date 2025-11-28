@@ -1,0 +1,154 @@
+---
+title: "Basic Chat"
+description: "Simple text chat example - send and receive messages with AI Voice Agents"
+---
+A simple text chat implementation that demonstrates the core SDK functionality for connecting to AI Voice Agents.
+
+## What It Demonstrates
+
+This example shows:
+
+- ✅ SDK initialization
+- ✅ WebSocket connection
+- ✅ Event handling
+- ✅ Sending text messages
+- ✅ Receiving text responses
+- ✅ Custom UI implementation
+
+## Prerequisites
+
+- Flutter SDK 3.0.0 or higher
+- Kuralit Flutter SDK installed
+- A running AI Voice Agent server (see [Quickstart](/getting-started/quickstart))
+
+## Step-by-Step Explanation
+
+### Step 1: Initialize SDK
+
+```dart
+Kuralit.init(KuralitConfig(
+  serverUrl: 'ws://localhost:8000/ws',
+  apiKey: 'demo-api-key',
+  appId: 'my-app',
+  debug: true,
+));
+```
+
+### Step 2: Generate Session ID
+
+```dart
+_sessionId = Kuralit.generateSessionId();
+```
+
+### Step 3: Set Up Event Listener
+
+```dart
+_eventSubscription = Kuralit.events.listen((event) {
+  if (event is KuralitConnectedEvent) {
+    setState(() => _isConnected = true);
+  } else if (event is KuralitServerTextEvent) {
+    setState(() => _messages.add('Agent: ${event.text}'));
+  }
+});
+```
+
+### Step 4: Connect to Server
+
+```dart
+await Kuralit.connect();
+```
+
+### Step 5: Send Messages
+
+```dart
+Kuralit.sendText(_sessionId!, text);
+```
+
+## Full Code Structure
+
+The example includes:
+
+1. **SDK Initialization** - Configure and initialize SDK
+2. **Event Handling** - Listen to all SDK events
+3. **Connection Management** - Connect/disconnect handling
+4. **Message Sending** - Send text messages
+5. **Message Display** - Show messages in UI
+6. **Connection Status** - Visual connection indicator
+
+## How to Run
+
+### Step 1: Update Configuration
+
+Edit `main.dart` and update:
+
+```dart
+const serverUrl = 'ws://localhost:8000/ws';  // Your server URL
+const apiKey = 'demo-api-key';               // Your API key
+const appId = 'my-app';                      // Your app ID
+```
+
+### Step 2: Run the App
+
+```bash
+cd example/basic
+flutter pub get
+flutter run
+```
+
+## Expected Behavior
+
+1. **App starts** - SDK initializes
+2. **Connects to server** - WebSocket connection established
+3. **Connection indicator** - Shows green "Connected" status
+4. **Send message** - Type and send a message
+5. **Receive response** - Agent response appears in chat
+
+## Key Features
+
+- **Text messaging** - Send and receive text messages
+- **Connection status** - Visual indicator in app bar
+- **Message history** - View all messages in conversation
+- **Error handling** - Shows errors in UI
+- **Streaming support** - Handles partial/streaming responses
+
+## Code Highlights
+
+### Event Handling
+
+```dart
+Kuralit.events.listen((event) {
+  if (event is KuralitServerTextEvent) {
+    // Final response
+    _addMessage('Agent: ${event.text}', isUser: false);
+  } else if (event is KuralitServerPartialEvent) {
+    // Streaming response
+    _updateOrAddStreamingMessage(event.text);
+  }
+});
+```
+
+### Message Sending
+
+```dart
+void _sendMessage() {
+  final text = _textController.text.trim();
+  if (text.isEmpty || !_isConnected) return;
+
+  _addMessage(text, isUser: true);
+  _textController.clear();
+  Kuralit.sendText(_sessionId!, text);
+}
+```
+
+## Next Steps
+
+- [Popup Chat →](/flutter-sdk/examples/popup-chat) - Use ready-made template
+- [Agent Overlay →](/flutter-sdk/examples/agent-overlay) - Voice-first overlay
+- [Protocol Demo →](/flutter-sdk/examples/protocol-demo) - Understand the protocol
+
+## Related
+
+- [Basic Usage →](/flutter-sdk/guides/basic-usage) - Complete usage guide
+- [API Reference →](/flutter-sdk/api-reference/kuralit-client) - SDK API reference
+- [Quickstart →](/getting-started/quickstart) - Complete guide: Python server + Flutter mobile app
+

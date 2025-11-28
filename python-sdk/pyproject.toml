@@ -1,0 +1,111 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kuralit"
+version = "0.1.0"  # Managed in kuralit/version.py - keep in sync
+description = "Standalone AI agent framework for KuralIt"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "KuralIt" }]
+license = { text = "Non-Commercial" }
+keywords = [
+    "ai",
+    "agent",
+    "llm",
+    "language-model",
+    "gemini",
+    "tools",
+    "function-calling",
+    "websocket",
+    "stt",
+    "speech-to-text",
+    "vad",
+    "voice-activity-detection",
+    "assistant",
+    "chatbot",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: Free for non-commercial use",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Communications :: Chat",
+    "Typing :: Typed",
+]
+# Core dependencies - required for basic functionality
+dependencies = [
+    "pydantic>=2.5.0",
+    "docstring-parser>=0.15.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/kuralit/kuralit"
+Repository = "https://github.com/kuralit/kuralit"
+Documentation = "https://github.com/kuralit/kuralit#readme"
+"Bug Tracker" = "https://github.com/kuralit/kuralit/issues"
+
+[project.optional-dependencies]
+# Google Gemini LLM support
+gemini = ["google-genai>=0.2.0"]
+# REST API tools support
+rest = ["requests>=2.31.0"]
+# WebSocket server support
+websocket = [
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "websockets>=12.0",
+    "python-multipart>=0.0.6",
+]
+# Speech-to-Text support
+stt = [
+    "google-cloud-speech>=2.19.0",
+    "aiohttp>=3.9.0",
+]
+# Audio processing support
+audio = ["numpy>=1.24.0"]
+# Structured logging support
+logging = ["structlog>=23.2.0"]
+# Environment variable loading support
+env = ["python-dotenv>=1.0.0"]
+# Voice Activity Detection support
+vad = [
+    "onnxruntime>=1.16.0",
+    "transformers>=4.35.0",
+    "huggingface-hub>=0.19.0",
+    "jinja2>=3.1.0",
+]
+# All optional dependencies
+all = [
+    "google-genai>=0.2.0",
+    "requests>=2.31.0",
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "websockets>=12.0",
+    "python-multipart>=0.0.6",
+    "google-cloud-speech>=2.19.0",
+    "aiohttp>=3.9.0",
+    "numpy>=1.24.0",
+    "structlog>=23.2.0",
+    "python-dotenv>=1.0.0",
+    "onnxruntime>=1.16.0",
+    "transformers>=4.35.0",
+    "huggingface-hub>=0.19.0",
+    "jinja2>=3.1.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["kuralit*"]
+exclude = ["examples*", "tests*"]
+
+

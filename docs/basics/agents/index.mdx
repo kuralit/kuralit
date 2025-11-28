@@ -1,0 +1,73 @@
+---
+title: "Agents"
+---
+
+
+AI Voice Agents are the conversational intelligence that powers your applications. They understand context, maintain conversation history, and respond naturally using Large Language Models (LLMs).
+
+## What are Agents?
+
+Agents are the "brain" of your AI Voice Agent system. They:
+
+- **Understand natural language** - Process user input in natural language
+- **Maintain context** - Remember conversation history across multiple turns
+- **Generate natural responses** - Respond in a conversational, helpful manner
+- **Use tools** - Call functions and APIs to perform actions
+- **Handle voice** - Process real-time voice input and respond
+
+## How Agents Work
+
+Agents use Large Language Models (LLMs) to process conversations. They are configured with:
+
+- **Instructions** - Define the agent's personality and behavior
+- **Context** - Conversation history and session management
+- **Tools** - Functions the agent can call to perform actions
+
+## Core Concepts
+
+<CardGroup cols={3}>
+  <Card
+    title="Creating Agents"
+    icon="plus-circle"
+    href="/basics/agents/creating-agents"
+  >
+    Learn how to create and configure agents
+  </Card>
+  <Card
+    title="Instructions"
+    icon="file-text"
+    href="/basics/agents/instructions"
+  >
+    Write effective instructions for your agents
+  </Card>
+  <Card
+    title="Context"
+    icon="database"
+    href="/basics/agents/context"
+  >
+    Understand conversation context and history
+  </Card>
+</CardGroup>
+
+## Quick Example
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+
+# Create a basic agent
+agent = AgentSession(
+    llm="gemini/gemini-2.0-flash-001",  # The AI brain
+    instructions="You are a helpful assistant.",
+)
+```
+</CodeGroup>
+
+## Next Steps
+
+- [Creating Agents →](/basics/agents/creating-agents) - Learn how to create agents
+- [Instructions →](/basics/agents/instructions) - Write effective instructions
+- [Context →](/basics/agents/context) - Understand conversation context
+- [Tools →](/basics/tools) - Add capabilities to your agents
+- [Voice →](/basics/voice) - Enable real-time voice conversations
+

@@ -1,0 +1,121 @@
+---
+title: "Silero VAD Plugin"
+description: "Silero Voice Activity Detection plugin - on-device, no API keys needed"
+---
+Silero VAD provides on-device voice activity detection with no API keys required.
+
+## Overview
+
+Silero VAD offers:
+
+- **On-device processing** - No external API calls
+- **No API keys** - Works offline, no authentication needed
+- **Fast detection** - Real-time speech detection
+- **Multiple sample rates** - Supports 8000 Hz and 16000 Hz
+
+## Setup and Installation
+
+Silero VAD is included with Kuralit. No additional installation required.
+
+### No API Keys Needed
+
+Silero VAD works completely offline - no API keys or external services required!
+
+## Environment Variables
+
+**None required!** Silero VAD works without any environment variables.
+
+## Configuration
+
+### Basic Usage
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+
+# Using Silero VAD
+agent = AgentSession(
+    vad="silero/v3",  # Silero VAD v3
+    # ...
+)
+```
+</CodeGroup>
+
+### String Format
+
+The string format is: `silero/{version}`
+
+- `silero` - Plugin name
+- `{version}` - Model version (e.g., `v3`)
+
+## Supported Sample Rates
+
+Silero VAD supports:
+
+- **8000 Hz** - Telephone quality
+- **16000 Hz** - Standard quality (recommended)
+
+## Configuration Options
+
+### Activation Threshold
+
+Control speech detection sensitivity:
+
+- **Lower (0.3-0.4)** - More sensitive, detects quieter speech
+- **Default (0.5)** - Balanced
+- **Higher (0.6-0.7)** - Less sensitive, reduces false positives
+
+## Usage Examples
+
+### Basic Setup
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    vad="silero/v3",  # On-device VAD
+    turn_detection="multilingual/v1",
+    instructions="You are a helpful assistant."
+)
+```
+</CodeGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="VAD not detecting speech">
+    - Verify sample rate matches (8000 or 16000 Hz)
+    - Adjust activation threshold if needed
+    - Check audio quality and volume
+    - Ensure audio format is correct
+  </Accordion>
+  
+  <Accordion title="Too many false positives">
+    - Increase activation threshold (e.g., 0.6-0.7)
+    - Check for background noise
+    - Verify audio quality
+  </Accordion>
+  
+  <Accordion title="Missing speech detection">
+    - Decrease activation threshold (e.g., 0.3-0.4)
+    - Check audio volume levels
+    - Verify sample rate matches audio
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+- **Use 16000 Hz** - Best balance of quality and performance
+- **Adjust threshold** - Fine-tune based on your audio environment
+- **Match sample rates** - Ensure VAD sample rate matches audio input
+- **Test in environment** - Test with actual audio conditions
+
+## Next Steps
+
+- [VAD Providers →](/integrations/vad-providers) - Learn about VAD
+- [Voice →](/basics/voice) - Learn about voice streaming
+- [Configuration →](/getting-started/configuration) - Complete configuration guide
+

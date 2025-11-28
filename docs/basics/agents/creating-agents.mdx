@@ -1,0 +1,150 @@
+---
+title: "Creating Agents"
+---
+
+
+Learn how to create and configure AI Voice Agents using AgentSession.
+
+## Basic Agent Creation
+
+The simplest way to create an AI Voice Agent is using `AgentSession`:
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+
+# Create a basic AI Voice Agent
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",      # Speech-to-Text
+    llm="gemini/gemini-2.0-flash-001", # Large Language Model
+    vad="silero/v3",                    # Voice Activity Detection
+    turn_detection="multilingual/v1",   # Turn Detection
+    instructions="You are a helpful AI Voice Agent assistant"
+)
+```
+</CodeGroup>
+
+## Agent Configuration
+
+### Required Components
+
+- **LLM** - Large Language Model (the "brain")
+- **STT** - Speech-to-Text (for voice input)
+- **VAD** - Voice Activity Detection (detects when user speaks)
+- **Turn Detection** - Determines when user finishes speaking
+
+### Optional Components
+
+- **Tools** - Functions the agent can call
+- **Instructions** - Agent personality and behavior
+- **Name** - Agent identifier
+
+## Configuration Methods
+
+### String-Based (Recommended)
+
+<CodeGroup>
+```python
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    vad="silero/v3",
+    turn_detection="multilingual/v1",
+)
+```
+</CodeGroup>
+
+### Environment Variables
+
+<CodeGroup>
+```bash
+# .env file
+DEEPGRAM_API_KEY=your-key
+GEMINI_API_KEY=your-key
+KURALIT_AGENT_INSTRUCTIONS=You are a helpful assistant.
+```
+
+```python
+# Loads from environment automatically
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+)
+```
+</CodeGroup>
+
+## Agent with Instructions
+
+Instructions define your AI Voice Agent's personality and behavior:
+
+<CodeGroup>
+```python
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    vad="silero/v3",
+    turn_detection="multilingual/v1",
+    instructions="""You are a friendly customer support AI Voice Agent.
+    
+Your role is to:
+- Help customers with their questions
+- Be polite and professional
+- Escalate complex issues when needed
+- Provide clear, concise answers"""
+)
+```
+</CodeGroup>
+
+## Agent with Tools
+
+Add capabilities to your agent with tools:
+
+<CodeGroup>
+```python
+from kuralit.tools import Toolkit
+
+def get_weather(location: str) -> str:
+    """Get weather for a location."""
+    return f"Weather in {location}: sunny, 22°C"
+
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    tools=[Toolkit(tools=[get_weather])],
+    instructions="You are a helpful assistant with weather tools."
+)
+```
+</CodeGroup>
+
+## Complete Example
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+from kuralit.server.websocket_server import create_app
+
+# Create agent
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    vad="silero/v3",
+    turn_detection="multilingual/v1",
+    instructions="You are a helpful assistant.",
+    name="My AI Voice Agent",
+)
+
+# Create server
+app = create_app(
+    api_key_validator=lambda key: key == "demo-api-key",
+    agent_session=agent,
+)
+```
+</CodeGroup>
+
+## Next Steps
+
+- [Instructions →](/basics/agents/instructions) - Write effective instructions
+- [Context →](/basics/agents/context) - Understand conversation context
+- [Tools →](/basics/tools) - Add capabilities
+- [Python SDK →](/sdks/python) - Implementation details
+

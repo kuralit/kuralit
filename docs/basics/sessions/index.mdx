@@ -1,0 +1,92 @@
+---
+title: "Sessions"
+---
+
+
+Sessions manage conversation state and history for your AI Voice Agents.
+
+## What are Sessions?
+
+Sessions are conversation contexts that:
+
+- **Maintain conversation history** - All messages in the session
+- **Store session state** - Current conversation state
+- **Manage user metadata** - User information and preferences
+- **Track activity** - Last activity timestamp
+
+## Session Lifecycle
+
+### Session Creation
+
+Sessions are created automatically:
+
+- **On WebSocket connection** - New session per connection
+- **On first message** - If session doesn't exist, create one
+- **Unique session ID** - Each session has a unique identifier
+
+### Session State
+
+Each session maintains:
+
+- **Conversation History** - All messages in the session
+- **Audio Buffer** - Current audio stream data
+- **User Metadata** - User information
+- **Activity Tracking** - Last activity timestamp
+
+## Core Concepts
+
+<CardGroup cols={3}>
+  <Card
+    title="Session Management"
+    icon="cog"
+    href="/basics/sessions/session-management"
+  >
+    Learn how to manage sessions
+  </Card>
+  <Card
+    title="Conversation History"
+    icon="history"
+    href="/basics/sessions/conversation-history"
+  >
+    Understand conversation history
+  </Card>
+  <Card
+    title="Multi-turn Conversations"
+    icon="comments"
+    href="/basics/sessions/multi-turn"
+  >
+    Learn about multi-turn conversations
+  </Card>
+</CardGroup>
+
+## Quick Example
+
+<CodeGroup>
+```python
+# Server side - sessions created automatically
+from kuralit.server.websocket_server import create_app
+
+app = create_app(
+    api_key_validator=lambda key: key == "demo-api-key",
+    agent_session=agent,
+)
+# Each WebSocket connection = new session
+```
+</CodeGroup>
+
+<CodeGroup>
+```dart
+// Client side - generate session ID
+final sessionId = Kuralit.generateSessionId();
+await Kuralit.connect();
+Kuralit.sendText(sessionId, 'Hello!');
+// All messages with same sessionId share context
+```
+</CodeGroup>
+
+## Next Steps
+
+- [Session Management →](/basics/sessions/session-management) - Learn how to manage sessions
+- [Conversation History →](/basics/sessions/conversation-history) - Understand history
+- [Multi-turn Conversations →](/basics/sessions/multi-turn) - Learn about multi-turn
+

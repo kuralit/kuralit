@@ -1,0 +1,154 @@
+---
+title: "Python SDK"
+description: "Build AI Voice Agent servers with the Kuralit Python SDK"
+---
+Build AI Voice Agent servers with the Kuralit Python SDK. Create conversational AI systems that can listen, think, and act in real-time.
+
+## What You Can Build
+
+With the Python SDK, you can build:
+
+- **AI Voice Agent Servers** - WebSocket servers that process voice input and respond with AI
+- **Customer Support AI Voice Agents** - Handle support calls with tools for tickets and FAQs
+- **Voice Assistant AI Voice Agents** - Personal assistants with calendar, weather, and reminders
+- **Enterprise AI Voice Agents** - Business applications with API integrations
+
+## Key Features
+
+<CardGroup cols={3}>
+  <Card
+    title="🤖 AI Agents"
+    icon="robot"
+    href="/basics/agents"
+  >
+    Build conversational AI agents with context and personality
+  </Card>
+  <Card
+    title="🛠️ Tools & Function Calling"
+    icon="wrench"
+    href="/basics/tools"
+  >
+    Add capabilities with Python functions and REST API tools
+  </Card>
+  <Card
+    title="🎤 Real-Time Voice"
+    icon="microphone"
+    href="/basics/voice"
+  >
+    Process voice input with STT, VAD, and turn detection
+  </Card>
+</CardGroup>
+
+## Quick Start
+
+Build your first AI Voice Agent server in 5 minutes:
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+from kuralit.server.websocket_server import create_app
+
+# Create your AI Voice Agent
+agent_session = AgentSession(
+    stt="deepgram/nova-2:en-US",      # 🎤 Real-Time Voice
+    llm="gemini/gemini-2.0-flash-001", # 🤖 AI Agent
+    vad="silero/v3",
+    turn_detection="multilingual/v1",
+    instructions="You are a helpful AI Voice Agent assistant"
+)
+
+# Create WebSocket server
+app = create_app(
+    api_key_validator=lambda key: key == "demo-api-key",
+    agent_session=agent_session,
+)
+
+# Run server
+import uvicorn
+uvicorn.run(app, host="0.0.0.0", port=8000)
+```
+</CodeGroup>
+
+[Full quickstart guide →](/getting-started/quickstart)
+
+## Core Concepts
+
+### AI Voice Agents
+
+AI Voice Agents are the core of your application. They combine:
+
+- **AI Agents** - Conversational intelligence with LLMs
+- **Tools** - Function calling for capabilities
+- **Voice** - Real-time speech-to-text and turn detection
+
+[Learn about building AI Voice Agents →](/basics/agents)
+
+### Plugins
+
+Kuralit uses a plugin-based architecture. Choose from:
+
+- **STT Plugins**: Deepgram, Google Cloud STT
+- **LLM Plugins**: Gemini
+- **VAD Plugins**: Silero
+- **Turn Detection**: Multilingual
+
+[Explore integrations →](/integrations)
+
+### Tools
+
+Add capabilities to your AI Voice Agents with:
+
+- **Custom Python Functions** - Write your own tools
+- **REST API Tools** - Load from Postman collections
+- **Toolkits** - Group related tools together
+
+[Learn about tools →](/basics/tools)
+
+## Documentation Structure
+
+<CardGroup cols={2}>
+  <Card
+    title="Basics"
+    icon="book"
+    href="/basics/agents"
+  >
+    Core concepts: Agents, Tools, Voice, Sessions
+  </Card>
+  <Card
+    title="Plugins"
+    icon="puzzle-piece"
+    href="/integrations"
+  >
+    STT, LLM, VAD, and turn detection plugins
+  </Card>
+  <Card
+    title="API Reference"
+    icon="code"
+    href="/python-sdk/api-reference/server-config"
+  >
+    Complete API documentation
+  </Card>
+  <Card
+    title="Examples"
+    icon="file-code"
+    href="/python-sdk/examples/minimal-server"
+  >
+    Working code examples
+  </Card>
+</CardGroup>
+
+## Installation
+
+```bash
+pip install kuralit
+```
+
+[Full installation guide →](/getting-started/installation)
+
+## Next Steps
+
+1. **[Quickstart](/getting-started/quickstart)** - Complete guide: Python server + Flutter mobile app
+2. **[Learn about Agents](/basics/agents)** - Deep dive into building AI Voice Agents
+3. **[Add Tools](/basics/tools)** - Make your agent capable
+4. **[Configure Voice](/basics/voice)** - Set up real-time voice streaming
+

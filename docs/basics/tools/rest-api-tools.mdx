@@ -1,0 +1,181 @@
+---
+title: "REST API Tools"
+---
+
+
+Load REST API tools directly from Postman collections, enabling your AI Voice Agent to call external APIs.
+
+## What are REST API Tools?
+
+REST API tools let your agent:
+
+- **Call external APIs** - Integrate with any REST API
+- **Load from Postman** - Use existing Postman collections
+- **Automatic conversion** - Each API endpoint becomes a tool
+- **No code needed** - Just provide the Postman collection
+
+## Loading from Postman Collections
+
+### Basic Usage
+
+<CodeGroup>
+```python
+from kuralit.tools.api import RESTAPIToolkit
+
+# Load tools from Postman collection
+api_tools = RESTAPIToolkit.from_postman_collection(
+    collection_path="postman_collection.json",
+    base_url="https://api.example.com",
+    headers={
+        "Authorization": "Bearer your-token",
+        "Content-Type": "application/json"
+    }
+)
+
+# Use with agent
+from kuralit.server.agent_session import AgentSession
+
+agent = AgentSession(
+    tools=[api_tools],
+    # ...
+)
+```
+</CodeGroup>
+
+## Postman Collection Format
+
+Your Postman collection should follow the standard format:
+
+<CodeGroup>
+```json
+{
+  "info": {
+    "name": "My API Collection"
+  },
+  "item": [
+    {
+      "name": "Get User",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/users/{{user_id}}"
+        }
+      }
+    },
+    {
+      "name": "Create Note",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{base_url}}/notes"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"title\": \"{{title}}\", \"content\": \"{{content}}\"}"
+        }
+      }
+    }
+  ]
+}
+```
+</CodeGroup>
+
+## Configuration
+
+### Base URL
+
+Set the base URL for all API requests:
+
+<CodeGroup>
+```python
+api_tools = RESTAPIToolkit.from_postman_collection(
+    collection_path="api.json",
+    base_url="https://api.example.com",  # Base URL
+)
+```
+</CodeGroup>
+
+### Headers
+
+Add authentication and custom headers:
+
+<CodeGroup>
+```python
+api_tools = RESTAPIToolkit.from_postman_collection(
+    collection_path="api.json",
+    base_url="https://api.example.com",
+    headers={
+        "Authorization": "Bearer your-token",
+        "X-API-Key": "your-api-key",
+        "Content-Type": "application/json"
+    }
+)
+```
+</CodeGroup>
+
+## How It Works
+
+1. **Load Collection** - Reads Postman collection JSON
+2. **Convert Endpoints** - Each API endpoint becomes a tool
+3. **Agent Uses Tools** - Agent can call APIs based on user requests
+4. **Return Results** - API responses included in agent responses
+
+## Example Use Cases
+
+### Customer Data API
+
+<CodeGroup>
+```python
+# Load customer API tools
+customer_api = RESTAPIToolkit.from_postman_collection(
+    collection_path="customer_api.json",
+    base_url="https://api.example.com",
+    headers={"Authorization": "Bearer token"}
+)
+
+agent = AgentSession(
+    tools=[customer_api],
+    instructions="You have access to customer data APIs. Use them to help users."
+)
+```
+</CodeGroup>
+
+### E-commerce API
+
+<CodeGroup>
+```python
+# Load e-commerce API tools
+ecommerce_api = RESTAPIToolkit.from_postman_collection(
+    collection_path="ecommerce_api.json",
+    base_url="https://api.shop.com",
+    headers={"Authorization": "Bearer token"}
+)
+
+agent = AgentSession(
+    tools=[ecommerce_api],
+    instructions="You can help users with products, orders, and shipping."
+)
+```
+</CodeGroup>
+
+## Best Practices
+
+### Collection Organization
+
+- **Group related endpoints** - Organize by functionality
+- **Clear endpoint names** - Descriptive names help the agent
+- **Document parameters** - Include parameter descriptions in Postman
+
+### Security
+
+- **Use environment variables** - Don't hardcode API keys
+- **Secure headers** - Pass authentication via headers
+- **Validate responses** - Handle API errors gracefully
+
+## Next Steps
+
+- [Function Calling →](/basics/tools/function-calling) - Understand how it works
+- [Custom Functions →](/basics/tools/custom-functions) - Create your own tools
+- [Toolkits →](/basics/tools/toolkits) - Organize your tools
+- [Python SDK Examples →](/sdks/python/examples/postman-api) - See complete examples
+

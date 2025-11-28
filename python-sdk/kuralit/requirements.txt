@@ -1,0 +1,51 @@
+# Core dependencies for KuralIt package
+# These are required for the base functionality
+
+# Data validation and modeling
+pydantic>=2.5.0
+
+# Docstring parsing for function tools
+docstring-parser>=0.15.0
+
+# Optional: Google Gemini model support
+# Only needed if using Gemini models
+google-genai>=0.2.0
+
+# HTTP requests for REST API tools
+# Only needed if using RESTAPIToolkit
+requests>=2.31.0
+
+# WebSocket server dependencies
+# Only needed if using WebSocket server
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+websockets>=12.0
+python-multipart>=0.0.6
+
+# Speech-to-Text support
+# Only needed if using STT features
+google-cloud-speech>=2.19.0  # For Google STT (legacy)
+aiohttp>=3.9.0  # For Deepgram STT (recommended)
+
+# Audio processing
+# Only needed if using audio features
+numpy>=1.24.0
+
+# Structured logging
+# Only needed if using server logging
+structlog>=23.2.0
+
+# Environment variable loading
+# Only needed if using .env files
+python-dotenv>=1.0.0
+
+# VAD (Voice Activity Detection) and Turn Detector support
+# Only needed if using VAD or Turn Detector features
+onnxruntime>=1.16.0
+transformers>=4.35.0
+huggingface-hub>=0.19.0
+jinja2>=3.1.0  # Required for transformers chat templates
+
+# Note: All other imports are from Python standard library
+# No additional dependencies required for core functionality
+

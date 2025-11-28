@@ -1,0 +1,93 @@
+---
+title: "Connection Management"
+description: "Learn about WebSocket connection management"
+---
+Learn how Kuralit manages WebSocket connections for reliable communication.
+
+## Connection Lifecycle
+
+### Connection Flow
+
+```
+1. Client initiates connection
+   ↓
+2. Authentication (API key in headers)
+   ↓
+3. Server confirms connection
+   ↓
+4. Session created
+   ↓
+5. Messages exchanged
+   ↓
+6. Connection maintained or closed
+```
+
+## Automatic Reconnection
+
+### Client Side
+
+The Flutter SDK handles automatic reconnection:
+
+<CodeGroup>
+```dart
+KuralitConfig(
+  reconnectEnabled: true,
+  maxReconnectAttempts: 10,
+  reconnectDelayMs: 1000,
+)
+```
+</CodeGroup>
+
+### Reconnection Behavior
+
+- **Automatic retry** - SDK automatically retries
+- **Exponential backoff** - Delay increases with attempts
+- **Max attempts** - Stops after max attempts
+
+## Connection Status
+
+### Check Connection
+
+<CodeGroup>
+```dart
+// Flutter
+if (Kuralit.isConnected()) {
+  // Connected
+}
+```
+</CodeGroup>
+
+### Connection Events
+
+<CodeGroup>
+```dart
+Kuralit.events.listen((event) {
+  if (event is KuralitConnectedEvent) {
+    // Connected
+  } else if (event is KuralitDisconnectedEvent) {
+    // Disconnected
+  }
+});
+```
+</CodeGroup>
+
+## Best Practices
+
+### Connection Management
+
+- **Connect when needed** - Connect when user opens chat
+- **Disconnect when done** - Disconnect when user closes chat
+- **Handle reconnection** - SDK handles automatically
+
+### Error Handling
+
+- **Show connection status** - Visual indicator for users
+- **Handle disconnections** - Graceful handling
+- **Retry logic** - SDK handles automatically
+
+## Next Steps
+
+- [Protocol →](/additional-features/protocol) - WebSocket protocol
+- [Error Handling →](/additional-features/error-handling) - Error handling
+- [Troubleshooting →](/help/troubleshooting) - Common issues
+

@@ -1,0 +1,194 @@
+---
+title: "FAQ"
+description: "Frequently asked questions about Kuralit AI Voice Agents"
+---
+Frequently asked questions about building AI Voice Agents with Kuralit.
+
+## General
+
+### What is Kuralit?
+
+Kuralit is a framework for building **AI Voice Agents** - conversational AI systems that can listen, think, and act in real-time.
+
+### What are AI Voice Agents?
+
+AI Voice Agents combine three capabilities:
+- **🤖 Agents** - Conversational intelligence
+- **🛠️ Tools** - Function calling for capabilities
+- **🎤 Voice** - Real-time voice streaming
+
+[Learn more →](/getting-started/features)
+
+
+## Getting Started
+
+### How do I get started?
+
+1. Install the Python SDK: `pip install kuralit`
+2. Follow the [Quickstart →](/getting-started/quickstart) - Complete guide: Python server + Flutter mobile app
+
+### What do I need to get started?
+
+- Python 3.8+ or Flutter SDK
+- API keys:
+  - STT provider (Deepgram or Google Cloud STT)
+  - LLM provider (Gemini)
+- A WebSocket server (Python) or client (Flutter)
+
+## Agents
+
+### How do I create an agent?
+
+Use `AgentSession` to create agents:
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    vad="silero/v3",
+    turn_detection="multilingual/v1",
+    instructions="You are a helpful assistant."
+)
+```
+</CodeGroup>
+
+[Learn more →](/basics/agents/creating-agents)
+
+### How do I add tools to my agent?
+
+Create tools and add them to your agent:
+
+<CodeGroup>
+```python
+from kuralit.tools import Toolkit
+
+def get_weather(location: str) -> str:
+    """Get weather for a location."""
+    return f"Weather in {location}: sunny"
+
+agent = AgentSession(
+    tools=[Toolkit(tools=[get_weather])],
+    # ...
+)
+```
+</CodeGroup>
+
+[Learn more →](/basics/tools)
+
+## Voice
+
+### How do I enable voice?
+
+Voice is enabled by configuring STT, VAD, and turn detection:
+
+<CodeGroup>
+```python
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",      # Speech-to-Text
+    vad="silero/v3",                   # Voice Activity Detection
+    turn_detection="multilingual/v1",  # Turn Detection
+    # ...
+)
+```
+</CodeGroup>
+
+[Learn more →](/basics/voice)
+
+### What STT providers are available?
+
+- **Deepgram** - High accuracy, real-time streaming
+- **Google Cloud STT** - Google ecosystem integration
+
+[View all STT providers →](/integrations/stt-providers)
+
+## Tools
+
+### How do I create custom tools?
+
+Convert Python functions to tools:
+
+<CodeGroup>
+```python
+from kuralit.tools import Toolkit
+
+def my_function(param: str) -> str:
+    """Description of what the function does."""
+    return "result"
+
+toolkit = Toolkit(tools=[my_function])
+```
+</CodeGroup>
+
+[Learn more →](/basics/tools/custom-functions)
+
+### Can I use REST APIs as tools?
+
+Yes! Load REST API tools from Postman collections:
+
+<CodeGroup>
+```python
+from kuralit.tools.api import RESTAPIToolkit
+
+api_tools = RESTAPIToolkit.from_postman_collection(
+    collection_path="api.json",
+    base_url="https://api.example.com"
+)
+```
+</CodeGroup>
+
+[Learn more →](/basics/tools/rest-api-tools)
+
+## Configuration
+
+### How do I configure my agent?
+
+Use environment variables or programmatic configuration:
+
+<CodeGroup>
+```bash
+# .env file
+DEEPGRAM_API_KEY=your-key
+GEMINI_API_KEY=your-key
+KURALIT_API_KEY=demo-api-key
+```
+</CodeGroup>
+
+[Learn more →](/help/configuration)
+
+### What environment variables do I need?
+
+Required:
+- `DEEPGRAM_API_KEY` or `GOOGLE_STT_API_KEY` (for STT)
+- `GEMINI_API_KEY` or `GOOGLE_API_KEY` (for LLM)
+- `KURALIT_API_KEY` (for server authentication)
+
+[View all environment variables →](/help/configuration)
+
+## Troubleshooting
+
+### Connection issues?
+
+- Verify server is running
+- Check API key matches
+- Ensure network connectivity
+
+[More troubleshooting →](/help/troubleshooting)
+
+### Audio not working?
+
+- Verify STT API key
+- Check audio format (sample rate, encoding)
+- Ensure microphone permissions
+
+[More troubleshooting →](/help/troubleshooting)
+
+## Next Steps
+
+- [Quickstart →](/getting-started/quickstart) - Complete guide: Python server + Flutter mobile app
+- [Basics →](/basics/agents) - Learn core concepts
+- [Examples →](/sdks/python/examples) - See complete examples
+- [Troubleshooting →](/help/troubleshooting) - Common issues
+

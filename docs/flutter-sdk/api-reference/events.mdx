@@ -1,0 +1,263 @@
+---
+title: "Events"
+description: "API reference for Kuralit SDK events"
+---
+The Kuralit SDK uses an event-based architecture. Listen to the `Kuralit.events` stream to receive real-time updates.
+
+## Event Stream
+
+<ParamField path="events" type="Stream<KuralitEvent>">
+  Stream of SDK events.
+  
+  **Example:**
+  ```dart
+  Kuralit.events.listen((event) {
+    // Handle event
+  });
+  ```
+</ParamField>
+
+## Event Types
+
+### Connection Events
+
+#### KuralitConnectedEvent
+
+<ParamField path="KuralitConnectedEvent" type="KuralitConnectedEvent">
+  WebSocket connection established.
+  
+  **Example:**
+  ```dart
+  if (event is KuralitConnectedEvent) {
+    print('Connected to server');
+  }
+  ```
+</ParamField>
+
+#### KuralitDisconnectedEvent
+
+<ParamField path="KuralitDisconnectedEvent" type="KuralitDisconnectedEvent">
+  WebSocket connection closed.
+  
+  **Example:**
+  ```dart
+  if (event is KuralitDisconnectedEvent) {
+    print('Disconnected from server');
+  }
+  ```
+</ParamField>
+
+#### KuralitServerConnectedEvent
+
+<ParamField path="KuralitServerConnectedEvent" type="KuralitServerConnectedEvent">
+  Server connection confirmation with session ID.
+  
+  **Properties:**
+  - `sessionId` (String): Session ID provided by server
+  - `metadata` (Map<String, dynamic>?): Optional metadata
+  
+  **Example:**
+  ```dart
+  if (event is KuralitServerConnectedEvent) {
+    print('Server connected. Session: ${event.sessionId}');
+  }
+  ```
+</ParamField>
+
+### Message Events
+
+#### KuralitServerTextEvent
+
+<ParamField path="KuralitServerTextEvent" type="KuralitServerTextEvent">
+  Final text response from AI Voice Agent.
+  
+  **Properties:**
+  - `sessionId` (String): Session ID
+  - `text` (String): Text content
+  - `metadata` (Map<String, dynamic>?): Optional metadata
+  
+  **Example:**
+  ```dart
+  if (event is KuralitServerTextEvent) {
+    print('Agent: ${event.text}');
+  }
+  ```
+</ParamField>
+
+#### KuralitServerPartialEvent
+
+<ParamField path="KuralitServerPartialEvent" type="KuralitServerPartialEvent">
+  Partial/streaming text response from AI Voice Agent.
+  
+  **Properties:**
+  - `sessionId` (String): Session ID
+  - `text` (String): Partial text content
+  - `isFinal` (bool): Whether this is the final partial message
+  - `metadata` (Map<String, dynamic>?): Optional metadata
+  
+  **Example:**
+  ```dart
+  if (event is KuralitServerPartialEvent) {
+    print('Agent (streaming): ${event.text}');
+    if (event.isFinal) {
+      print('Streaming complete');
+    }
+  }
+  ```
+</ParamField>
+
+#### KuralitServerSttEvent
+
+<ParamField path="KuralitServerSttEvent" type="KuralitServerSttEvent">
+  Speech-to-text transcription event.
+  
+  **Properties:**
+  - `sessionId` (String): Session ID
+  - `text` (String): Transcribed text
+  - `confidence` (double?): Confidence score (0.0 to 1.0)
+  
+  **Example:**
+  ```dart
+  if (event is KuralitServerSttEvent) {
+    print('STT: ${event.text} (confidence: ${event.confidence})');
+  }
+  ```
+</ParamField>
+
+### Tool Events
+
+#### KuralitServerToolCallEvent
+
+<ParamField path="KuralitServerToolCallEvent" type="KuralitServerToolCallEvent">
+  AI Voice Agent is calling a tool.
+  
+  **Properties:**
+  - `sessionId` (String): Session ID
+  - `toolName` (String): Tool name
+  - `toolCallId` (String): Tool call ID
+  - `status` (String): Status (e.g., "calling")
+  - `arguments` (Map<String, dynamic>): Tool arguments
+  
+  **Example:**
+  ```dart
+  if (event is KuralitServerToolCallEvent) {
+    print('Agent calling tool: ${event.toolName}');
+    print('Arguments: ${event.arguments}');
+  }
+  ```
+</ParamField>
+
+#### KuralitServerToolResultEvent
+
+<ParamField path="KuralitServerToolResultEvent" type="KuralitServerToolResultEvent">
+  Tool execution result.
+  
+  **Properties:**
+  - `sessionId` (String): Session ID
+  - `toolName` (String): Tool name
+  - `toolCallId` (String): Tool call ID
+  - `result` (String): Tool execution result
+  - `metadata` (Map<String, dynamic>?): Optional metadata
+  
+  **Example:**
+  ```dart
+  if (event is KuralitServerToolResultEvent) {
+    print('Tool ${event.toolName} result: ${event.result}');
+  }
+  ```
+</ParamField>
+
+### Error Events
+
+#### KuralitErrorEvent
+
+<ParamField path="KuralitErrorEvent" type="KuralitErrorEvent">
+  Error occurred.
+  
+  **Properties:**
+  - `code` (String): Error code
+  - `message` (String): Error message
+  - `retriable` (bool): Whether the error is retriable
+  
+  **Example:**
+  ```dart
+  if (event is KuralitErrorEvent) {
+    print('Error [${event.code}]: ${event.message}');
+    if (event.retriable) {
+      print('Error is retriable');
+    }
+  }
+  ```
+</ParamField>
+
+## Complete Event Handler Example
+
+<CodeGroup>
+```dart
+Kuralit.events.listen((event) {
+  if (event is KuralitConnectedEvent) {
+    // WebSocket connected
+    setState(() => _isConnected = true);
+  } else if (event is KuralitDisconnectedEvent) {
+    // WebSocket disconnected
+    setState(() => _isConnected = false);
+  } else if (event is KuralitServerConnectedEvent) {
+    // Server confirmed connection
+    setState(() => _sessionId = event.sessionId);
+  } else if (event is KuralitServerTextEvent) {
+    // Final text response
+    setState(() => _messages.add('Agent: ${event.text}'));
+  } else if (event is KuralitServerPartialEvent) {
+    // Streaming response
+    setState(() => _streamingText = event.text);
+  } else if (event is KuralitServerSttEvent) {
+    // STT transcription
+    setState(() => _sttText = event.text);
+  } else if (event is KuralitServerToolCallEvent) {
+    // Tool being called
+    print('Tool call: ${event.toolName}');
+  } else if (event is KuralitServerToolResultEvent) {
+    // Tool result
+    print('Tool result: ${event.result}');
+  } else if (event is KuralitErrorEvent) {
+    // Error
+    _showError(event.message);
+  }
+});
+```
+</CodeGroup>
+
+## Event Flow
+
+```
+Connection
+    ↓
+KuralitConnectedEvent
+    ↓
+KuralitServerConnectedEvent (with session ID)
+    ↓
+User sends message
+    ↓
+KuralitServerSttEvent (if voice)
+    ↓
+KuralitServerToolCallEvent (if tool needed)
+    ↓
+KuralitServerToolResultEvent (tool result)
+    ↓
+KuralitServerPartialEvent (streaming response)
+    ↓
+KuralitServerTextEvent (final response)
+```
+
+## Best Practices
+
+- **Handle all event types** - Don't ignore events you don't need
+- **Update UI in setState** - Use setState() when updating Flutter UI
+- **Check mounted** - Verify widget is mounted before setState
+- **Cancel subscription** - Cancel event subscription in dispose()
+
+## Related
+
+- [KuralitClient →](/flutter-sdk/api-reference/kuralit-client) - Main SDK class
+- [Basic Usage →](/flutter-sdk/guides/basic-usage) - Usage guide
+

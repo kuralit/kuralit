@@ -1,0 +1,190 @@
+---
+title: "WebSocket Demo"
+description: "AI Voice Agent server with Postman collection tools"
+---
+AI Voice Agent server that loads REST API tools from a Postman collection.
+
+## What It Demonstrates
+
+This example shows:
+
+- ✅ AgentSession with string-based plugin specs
+- ✅ Loading REST API tools from Postman collections
+- ✅ Using RESTAPIToolkit
+- ✅ Complete server setup with API tools
+
+## Prerequisites
+
+- Python 3.8 or higher
+- Kuralit SDK installed: `pip install kuralit`
+- API keys:
+  - `DEEPGRAM_API_KEY` - Deepgram STT API key
+  - `GEMINI_API_KEY` - Google Gemini LLM API key
+  - `KURALIT_API_KEY` - Server API key (defaults to "demo-api-key")
+- Postman collection file (optional): `postman.json`
+
+## Step-by-Step Explanation
+
+### Step 1: Load Postman Collection
+
+The example attempts to load a Postman collection and convert it to REST API tools:
+
+```python
+from kuralit.tools.api import RESTAPIToolkit
+
+# Load Postman collection
+api_toolkit = RESTAPIToolkit.from_postman_collection(
+    collection_path="postman.json",
+    base_url="http://localhost:35814"
+)
+```
+
+### Step 2: Create AgentSession with Tools
+
+```python
+agent_session = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    vad="silero/v3",
+    turn_detection="multilingual/v1",
+    tools=[api_toolkit] if api_toolkit else None,  # Add API tools
+    instructions="You are a helpful assistant with access to REST API tools.",
+)
+```
+
+## Full Code
+
+<CodeGroup>
+```python
+"""WebSocket Demo - Server with Postman Collection Tools"""
+
+import os
+import json
+from pathlib import Path
+from kuralit.server.agent_session import AgentSession
+from kuralit.server.config import ServerConfig
+from kuralit.server.websocket_server import create_app
+
+def validate_api_key(api_key: str) -> bool:
+    """Validate API key."""
+    expected_key = os.getenv("KURALIT_API_KEY", "demo-api-key")
+    return api_key == expected_key
+
+if __name__ == "__main__":
+    import uvicorn
+    
+    # Load Postman collection if provided
+    tools = []
+    postman_collection_path = "postman.json"
+    
+    if postman_collection_path:
+        try:
+            from kuralit.tools.api import RESTAPIToolkit
+            
+            collection_path = Path(postman_collection_path)
+            if not collection_path.is_absolute():
+                resolved_path = Path.cwd() / collection_path
+                if resolved_path.exists():
+                    collection_path = resolved_path.resolve()
+            
+            if collection_path and collection_path.exists():
+                api_toolkit = RESTAPIToolkit.from_postman_collection(
+                    collection_path=str(collection_path),
+                    base_url="http://localhost:35814"
+                )
+                tools.append(api_toolkit)
+        except Exception as e:
+            print(f"⚠️  Failed to load Postman collection: {e}")
+    
+    # Create AgentSession with API tools
+    agent_session = AgentSession(
+        stt="deepgram/nova-2:en-US",
+        llm="gemini/gemini-2.0-flash-001",
+        vad="silero/v3",
+        turn_detection="multilingual/v1",
+        instructions="You are a helpful assistant with access to realtime communication. "
+                    "Provide clear, concise, and helpful responses.",
+        name="KuralIt Demo Agent",
+        tools=tools if tools else None,
+    )
+    
+    app = create_app(
+        api_key_validator=validate_api_key,
+        agent_session=agent_session,
+    )
+    
+    config = agent_session._config.server if agent_session._config else ServerConfig()
+    
+    print("🚀 Starting WebSocket server...")
+    uvicorn.run(
+        app,
+        host=config.host,
+        port=config.port,
+        log_level=config.log_level.lower(),
+    )
+```
+</CodeGroup>
+
+## How to Run
+
+```bash
+python examples/websocket_demo.py
+```
+
+## Expected Output
+
+```
+🚀 Starting WebSocket server...
+   Host: 0.0.0.0
+   Port: 8000
+   Connect at: ws://0.0.0.0:8000/ws
+```
+
+If Postman collection is loaded:
+```
+   The agent can now make API calls based on user requests.
+```
+
+## Postman Collection Format
+
+Your `postman.json` should follow the standard Postman collection format:
+
+```json
+{
+  "info": {
+    "name": "My API Collection"
+  },
+  "item": [
+    {
+      "name": "Get User",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/users/{{user_id}}"
+        }
+      }
+    }
+  ]
+}
+```
+
+## What Your AI Voice Agent Can Do
+
+With this setup, your AI Voice Agent can:
+
+- ✅ **Listen** - Receive voice input
+- ✅ **Think** - Process with Gemini LLM
+- ✅ **Act** - Call REST API endpoints from Postman collection
+- ✅ **Respond** - Send responses with API results
+
+## Next Steps
+
+- [Postman API Tools →](/python-sdk/examples/postman-api) - Detailed Postman collection example
+- [REST API Tools →](/basics/tools/rest-api-tools) - Learn about REST API tools
+- [Tools →](/basics/tools) - Complete tools documentation
+
+## Related
+
+- [Tools →](/basics/tools) - Adding capabilities to AI Voice Agents
+- [RESTAPIToolkit API →](/python-sdk/api-reference/tools#restapitoolkit) - API reference
+

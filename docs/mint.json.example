@@ -1,0 +1,166 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "Kuralit",
+  "logo": {
+    "dark": "/logo/dark.svg",
+    "light": "/logo/light.svg"
+  },
+  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#6366F1",
+    "light": "#818CF8",
+    "dark": "#4F46E5",
+    "anchors": {
+      "from": "#6366F1",
+      "to": "#818CF8"
+    }
+  },
+  "topbarLinks": [
+    {
+      "name": "GitHub",
+      "url": "https://github.com/your-org/kuralit"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Get Started",
+    "url": "/getting-started/quickstart-python"
+  },
+  "anchors": [
+    {
+      "name": "Documentation",
+      "icon": "book-open-cover",
+      "url": "https://docs.kuralit.com"
+    },
+    {
+      "name": "GitHub",
+      "icon": "github",
+      "url": "https://github.com/your-org/kuralit"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Get Started",
+      "pages": [
+        "getting-started/intro",
+        "getting-started/installation",
+        "getting-started/quickstart-python",
+        "getting-started/quickstart-flutter",
+        "getting-started/configuration"
+      ]
+    },
+    {
+      "group": "Python SDK",
+      "pages": [
+        "python-sdk/intro",
+        {
+          "group": "Guides",
+          "pages": [
+            "python-sdk/guides/setting-up-server",
+            "python-sdk/guides/creating-agents",
+            "python-sdk/guides/using-tools",
+            "python-sdk/guides/audio-setup",
+            "python-sdk/guides/deployment"
+          ]
+        },
+        {
+          "group": "API Reference",
+          "pages": [
+            "python-sdk/api-reference/server-config",
+            "python-sdk/api-reference/websocket-server",
+            "python-sdk/api-reference/agent",
+            "python-sdk/api-reference/tools"
+          ]
+        },
+        {
+          "group": "Examples",
+          "pages": [
+            "python-sdk/examples/basic-server",
+            "python-sdk/examples/custom-agent",
+            "python-sdk/examples/with-tools"
+          ]
+        },
+        {
+          "group": "Troubleshooting",
+          "pages": [
+            "python-sdk/troubleshooting/common-issues",
+            "python-sdk/troubleshooting/audio-issues"
+          ]
+        }
+      ]
+    },
+    {
+      "group": "Flutter SDK",
+      "pages": [
+        "flutter-sdk/intro",
+        {
+          "group": "Guides",
+          "pages": [
+            "flutter-sdk/guides/basic-usage",
+            "flutter-sdk/guides/audio-streaming",
+            "flutter-sdk/guides/text-messaging",
+            "flutter-sdk/guides/using-templates",
+            "flutter-sdk/guides/custom-ui"
+          ]
+        },
+        {
+          "group": "API Reference",
+          "pages": [
+            "flutter-sdk/api-reference/kuralit-config",
+            "flutter-sdk/api-reference/kuralit-client",
+            "flutter-sdk/api-reference/events",
+            "flutter-sdk/api-reference/templates"
+          ]
+        },
+        {
+          "group": "Examples",
+          "pages": [
+            "flutter-sdk/examples/basic-integration",
+            "flutter-sdk/examples/popup-chat",
+            "flutter-sdk/examples/custom-ui"
+          ]
+        },
+        {
+          "group": "Troubleshooting",
+          "pages": [
+            "flutter-sdk/troubleshooting/connection-issues",
+            "flutter-sdk/troubleshooting/audio-permissions"
+          ]
+        }
+      ]
+    },
+    {
+      "group": "Tutorials",
+      "pages": [
+        "tutorials/building-voice-assistant",
+        "tutorials/production-deployment"
+      ]
+    },
+    {
+      "group": "Protocol",
+      "pages": [
+        "protocol/overview",
+        "protocol/messages",
+        "protocol/error-handling"
+      ]
+    },
+    {
+      "group": "Contributing",
+      "pages": [
+        "contributing/intro",
+        "contributing/development-setup",
+        "contributing/architecture"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "github": "https://github.com/your-org/kuralit",
+    "twitter": "https://twitter.com/kuralit"
+  },
+  "api": {
+    "baseUrl": "https://api.kuralit.com",
+    "auth": {
+      "method": "bearer"
+    }
+  }
+}
+

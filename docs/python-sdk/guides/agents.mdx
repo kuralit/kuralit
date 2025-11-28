@@ -1,0 +1,271 @@
+---
+title: "Agents (Python SDK)"
+description: "Python SDK implementation guide for creating and configuring AI Voice Agents"
+---
+This guide covers how to create and configure AI Voice Agents using the Python SDK. For conceptual information about agents, see [Basics: Agents →](/basics/agents).
+
+## Creating Agents with AgentSession
+
+The Python SDK uses `AgentSession` to create and configure agents:
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+
+# Create a basic agent
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    vad="silero/v3",
+    turn_detection="multilingual/v1",
+    instructions="You are a helpful assistant."
+)
+```
+</CodeGroup>
+
+## AgentSession Parameters
+
+### Required Parameters
+
+- `llm` - Large Language Model provider (e.g., `"gemini/gemini-2.0-flash-001"`)
+
+### Optional Parameters
+
+- `stt` - Speech-to-Text provider (e.g., `"deepgram/nova-2:en-US"`)
+- `vad` - Voice Activity Detection provider (e.g., `"silero/v3"`)
+- `turn_detection` - Turn detection provider (e.g., `"multilingual/v1"`)
+- `tools` - List of toolkits or functions
+- `instructions` - Agent instructions/personality
+- `name` - Agent name identifier
+- `config` - Optional `Config` object for advanced configuration
+
+## Configuration Methods
+
+### String-Based (Recommended)
+
+<CodeGroup>
+```python
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    vad="silero/v3",
+    turn_detection="multilingual/v1",
+)
+```
+</CodeGroup>
+
+### Environment Variables
+
+<CodeGroup>
+```bash
+# .env file
+DEEPGRAM_API_KEY=your-key
+GEMINI_API_KEY=your-key
+KURALIT_AGENT_INSTRUCTIONS=You are a helpful assistant.
+```
+
+```python
+# Loads from environment automatically
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+)
+```
+</CodeGroup>
+
+### Direct Plugin Instances
+
+<CodeGroup>
+```python
+from kuralit.plugins.stt import deepgram
+from kuralit.plugins.llm import gemini
+
+# Create plugin instances
+stt_handler = deepgram.DeepgramSTTHandler(config)
+llm_handler = gemini.Gemini(config)
+
+agent = AgentSession(
+    stt=stt_handler,
+    llm=llm_handler,
+)
+```
+</CodeGroup>
+
+## Using with WebSocket Server
+
+Create a WebSocket server with your agent:
+
+<CodeGroup>
+```python
+from kuralit.server.websocket_server import create_app
+import uvicorn
+
+# Create agent
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    vad="silero/v3",
+    turn_detection="multilingual/v1",
+    instructions="You are a helpful assistant.",
+)
+
+# Create app
+app = create_app(
+    api_key_validator=lambda key: key == "demo-api-key",
+    agent_session=agent,
+)
+
+# Run server
+uvicorn.run(app, host="0.0.0.0", port=8000)
+```
+</CodeGroup>
+
+## Instructions
+
+### Setting Instructions
+
+<CodeGroup>
+```python
+agent = AgentSession(
+    instructions="""You are a friendly customer support assistant.
+    
+Your role is to:
+- Help customers with their questions
+- Be polite and professional
+- Escalate complex issues when needed""",
+    # ...
+)
+```
+</CodeGroup>
+
+### Instructions Priority
+
+Instructions are loaded in this order:
+
+1. **Direct parameter** - `instructions="..."` in AgentSession
+2. **Environment variable** - `KURALIT_AGENT_INSTRUCTIONS`
+3. **Default** - Generated default instructions
+
+[Learn more about writing instructions →](/basics/agents/instructions)
+
+## Agent Name
+
+Set a name for your agent:
+
+<CodeGroup>
+```python
+agent = AgentSession(
+    name="My AI Voice Agent",
+    # ...
+)
+```
+</CodeGroup>
+
+## Complete Example
+
+<CodeGroup>
+```python
+import os
+from kuralit.server.agent_session import AgentSession
+from kuralit.server.websocket_server import create_app
+import uvicorn
+
+def validate_api_key(api_key: str) -> bool:
+    expected_key = os.getenv("KURALIT_API_KEY", "demo-api-key")
+    return api_key == expected_key
+
+# Create agent
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    vad="silero/v3",
+    turn_detection="multilingual/v1",
+    instructions="You are a helpful assistant.",
+    name="My AI Voice Agent",
+)
+
+# Create server
+app = create_app(
+    api_key_validator=validate_api_key,
+    agent_session=agent,
+)
+
+# Run
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+```
+</CodeGroup>
+
+## Python SDK-Specific Features
+
+### Config Object
+
+For advanced configuration, use the `Config` object:
+
+<CodeGroup>
+```python
+from kuralit.config import Config
+from kuralit.server.config import ServerConfig
+
+# Create custom config
+server_config = ServerConfig(
+    host="0.0.0.0",
+    port=8000,
+    log_level="DEBUG",
+)
+
+config = Config(server=server_config)
+
+agent = AgentSession(
+    config=config,
+    # ...
+)
+```
+</CodeGroup>
+
+### Error Handling
+
+<CodeGroup>
+```python
+try:
+    agent = AgentSession(
+        stt="deepgram/nova-2:en-US",
+        llm="gemini/gemini-2.0-flash-001",
+        # ...
+    )
+except ValueError as e:
+    print(f"Configuration error: {e}")
+    # Handle missing API keys, invalid providers, etc.
+```
+</CodeGroup>
+
+## Best Practices
+
+### Python SDK Best Practices
+
+- **Use string-based configuration** - Simplest and most maintainable
+- **Set environment variables** - Keep API keys out of code
+- **Validate configuration** - Check for missing API keys before starting server
+- **Use type hints** - Helps with IDE support and documentation
+
+### Import Organization
+
+<CodeGroup>
+```python
+# Standard library
+import os
+import uvicorn
+
+# Kuralit imports
+from kuralit.server.agent_session import AgentSession
+from kuralit.server.websocket_server import create_app
+```
+</CodeGroup>
+
+## Next Steps
+
+- [Agents Concepts →](/basics/agents) - Understand what agents are
+- [Tools (Python SDK) →](/python-sdk/guides/tools) - Add tools to your agent
+- [Voice (Python SDK) →](/python-sdk/guides/voice) - Configure voice streaming
+- [API Reference →](/python-sdk/api-reference/agent-session) - Complete AgentSession API
+- [Examples →](/python-sdk/examples/minimal-server) - See complete examples

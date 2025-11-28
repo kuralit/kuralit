@@ -1,0 +1,265 @@
+---
+title: "AgentSession"
+description: "API reference for AgentSession class - Configure AI Voice Agents"
+---
+LiveKit-style agent configuration session for creating AI Voice Agents.
+
+## Class
+
+<ParamField path="class" type="AgentSession">
+  Unified way to configure AI Voice Agents with STT, LLM, VAD, Turn Detector, and tools.
+</ParamField>
+
+## Constructor
+
+<ParamField path="constructor" type="AgentSession()">
+  Initialize an AgentSession with plugin configurations.
+</ParamField>
+
+## Parameters
+
+### stt
+
+<ParamField path="stt" type="str | STTHandler | None" default="None">
+  Speech-to-Text specification or handler instance.
+  
+  **String format:** `"{provider}/{model}:{language}"`
+  - Example: `"deepgram/nova-2:en-US"`
+  - Example: `"google/en-US"`
+  
+  **Handler instance:** Direct STT handler object
+  
+  **Environment fallback:** Loads from `KURALIT_STT_PROVIDER` if not provided
+</ParamField>
+
+### llm
+
+<ParamField path="llm" type="str | Model | None" default="None">
+  Large Language Model specification or model instance.
+  
+  **String format:** `"{provider}/{model}"`
+  - Example: `"gemini/gemini-2.0-flash-001"`
+  
+  **Model instance:** Direct LLM model object
+  
+  **Environment fallback:** Loads from `KURALIT_LLM_PROVIDER` if not provided
+</ParamField>
+
+### vad
+
+<ParamField path="vad" type="str | VADHandler | None" default="None">
+  Voice Activity Detection specification or handler instance.
+  
+  **String format:** `"{provider}/{version}"`
+  - Example: `"silero/v3"`
+  
+  **Handler instance:** Direct VAD handler object
+  
+  **Environment fallback:** Loads from `KURALIT_VAD_PROVIDER` if not provided
+</ParamField>
+
+### turn_detection
+
+<ParamField path="turn_detection" type="str | TurnDetectorHandler | None" default="None">
+  Turn Detector specification or handler instance.
+  
+  **String format:** `"{provider}/{version}"`
+  - Example: `"multilingual/v1"`
+  
+  **Handler instance:** Direct turn detector handler object
+  
+  **Environment fallback:** Loads from `KURALIT_TURN_DETECTOR_PROVIDER` if not provided
+</ParamField>
+
+### tools
+
+<ParamField path="tools" type="List[Toolkit] | None" default="None">
+  List of toolkits to provide to the agent.
+  
+  **Example:**
+  ```python
+  tools=[
+      Toolkit(tools=[get_weather, get_time]),
+      RESTAPIToolkit.from_postman_collection("api.json"),
+  ]
+  ```
+</ParamField>
+
+### instructions
+
+<ParamField path="instructions" type="str | None" default="None">
+  Agent system instructions. Defines the agent's personality and behavior.
+  
+  **Priority:**
+  1. Direct parameter (highest)
+  2. `KURALIT_AGENT_INSTRUCTIONS` environment variable
+  3. Default generated instructions (lowest)
+</ParamField>
+
+### name
+
+<ParamField path="name" type="str | None" default="None">
+  Agent name. Used for logging and identification.
+  
+  **Default:** `"WebSocket Agent"`
+  
+  **Environment fallback:** `KURALIT_AGENT_NAME`
+</ParamField>
+
+### config
+
+<ParamField path="config" type="Config | None" default="None">
+  Full Config object. Used as fallback if components not provided.
+  
+  **Note:** Usually not needed - AgentSession loads from environment automatically.
+</ParamField>
+
+## Properties
+
+### stt
+
+<ParamField path="stt" type="STTHandler | None">
+  Resolved STT handler instance.
+</ParamField>
+
+### llm
+
+<ParamField path="llm" type="Model | None">
+  Resolved LLM model instance.
+</ParamField>
+
+### vad
+
+<ParamField path="vad" type="VADHandler | None">
+  Resolved VAD handler instance.
+</ParamField>
+
+### turn_detection
+
+<ParamField path="turn_detection" type="TurnDetectorHandler | None">
+  Resolved turn detector handler instance.
+</ParamField>
+
+### tools
+
+<ParamField path="tools" type="List[Toolkit]">
+  List of toolkits available to the agent.
+</ParamField>
+
+### instructions
+
+<ParamField path="instructions" type="str">
+  Agent system instructions.
+</ParamField>
+
+### name
+
+<ParamField path="name" type="str">
+  Agent name.
+</ParamField>
+
+## Usage Examples
+
+### String-Based Configuration (Recommended)
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    vad="silero/v3",
+    turn_detection="multilingual/v1",
+    instructions="You are a helpful assistant.",
+    name="My AI Voice Agent",
+)
+```
+</CodeGroup>
+
+### With Tools
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+from kuralit.tools import Toolkit
+
+def get_weather(location: str) -> str:
+    """Get weather for a location."""
+    return f"Weather in {location}: sunny, 22°C"
+
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    vad="silero/v3",
+    turn_detection="multilingual/v1",
+    tools=[Toolkit(tools=[get_weather])],
+    instructions="You are a helpful assistant with weather tools.",
+)
+```
+</CodeGroup>
+
+### Environment Variable Configuration
+
+<CodeGroup>
+```bash
+# .env file
+DEEPGRAM_API_KEY=your-key
+GEMINI_API_KEY=your-key
+KURALIT_AGENT_INSTRUCTIONS=You are a helpful assistant.
+KURALIT_AGENT_NAME=My Agent
+```
+
+```python
+from kuralit.server.agent_session import AgentSession
+
+# Loads from environment automatically
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    # Instructions and name loaded from environment
+)
+```
+</CodeGroup>
+
+### Direct Handler Instances
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+from kuralit.plugins.stt.deepgram import DeepgramSTTHandler
+from kuralit.plugins.llm.gemini import Gemini
+from kuralit.config.schema import STTConfig, LLMConfig
+
+# Create handlers directly
+stt_config = STTConfig(provider="deepgram", api_key="your-key")
+stt_handler = DeepgramSTTHandler(stt_config)
+
+llm_config = LLMConfig(provider="gemini", api_key="your-key")
+llm_model = Gemini(llm_config)
+
+# Use with AgentSession
+agent = AgentSession(
+    stt=stt_handler,
+    llm=llm_model,
+    vad="silero/v3",
+    turn_detection="multilingual/v1",
+)
+```
+</CodeGroup>
+
+## Configuration Approaches
+
+AgentSession supports three configuration approaches:
+
+1. **String-based** (Recommended) - Simple string specifications
+2. **Direct imports** - Use handler instances directly
+3. **Environment variables** - Automatic loading from `.env`
+
+## Related
+
+- [Agents →](/basics/agents) - Guide to creating agents
+- [Tools →](/basics/tools) - Adding capabilities
+- [Voice →](/basics/voice) - Real-time voice setup
+- [WebSocketServer →](/python-sdk/api-reference/websocket-server) - Create server
+

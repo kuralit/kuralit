@@ -1,0 +1,231 @@
+---
+title: "Popup Chat"
+description: "Use the KuralitPopupChat template for quick chat integration"
+---
+Demonstrates how to use the `KuralitPopupChat` template for quick chat integration with AI Voice Agents.
+
+## What It Demonstrates
+
+This example shows:
+
+- ✅ Using KuralitPopupChat template
+- ✅ One-line chat integration
+- ✅ Template configuration
+- ✅ Text and voice input
+- ✅ Ready-made UI
+
+## Prerequisites
+
+- Flutter SDK 3.0.0 or higher
+- Kuralit Flutter SDK installed
+- A running AI Voice Agent server
+
+## Step-by-Step Explanation
+
+### Step 1: Initialize SDK
+
+```dart
+Kuralit.init(KuralitConfig(
+  serverUrl: 'ws://localhost:8000/ws',
+  apiKey: 'demo-api-key',
+  appId: 'my-app',
+));
+```
+
+### Step 2: Generate Session ID
+
+```dart
+_sessionId = Kuralit.generateSessionId();
+```
+
+### Step 3: Connect to Server
+
+```dart
+await Kuralit.connect();
+```
+
+### Step 4: Open Popup Chat
+
+```dart
+KuralitPopupChat.show(
+  context,
+  sessionId: _sessionId!,
+);
+```
+
+That's it! The template handles everything else.
+
+## Full Code
+
+<CodeGroup>
+```dart
+import 'package:flutter/material.dart';
+import 'package:kuralit_sdk/kuralit.dart';
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  String? _sessionId;
+  bool _isInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeSDK();
+  }
+
+  void _initializeSDK() {
+    Kuralit.init(KuralitConfig(
+      serverUrl: 'ws://localhost:8000/ws',
+      apiKey: 'demo-api-key',
+      appId: 'my-app',
+      debug: true,
+    ));
+
+    _sessionId = Kuralit.generateSessionId();
+    _connect();
+
+    setState(() => _isInitialized = true);
+  }
+
+  Future<void> _connect() async {
+    try {
+      await Kuralit.connect();
+    } catch (e) {
+      print('Connection failed: $e');
+    }
+  }
+
+  void _openChat() {
+    if (_sessionId == null) return;
+
+    // Open popup chat - just one line!
+    KuralitPopupChat.show(
+      context,
+      sessionId: _sessionId!,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Popup Chat Example')),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: _isInitialized ? _openChat : null,
+          child: const Text('Open Chat'),
+        ),
+      ),
+    );
+  }
+}
+```
+</CodeGroup>
+
+## With Configuration
+
+<CodeGroup>
+```dart
+KuralitPopupChat.show(
+  context,
+  sessionId: _sessionId!,
+  config: KuralitPopupChatConfig(
+    // Theme
+    primaryColor: Colors.blue,
+    backgroundColor: Colors.white,
+    
+    // Features
+    enableAudioMode: true,  // Enable voice input
+    enableToolCalls: true,  // Show tool calls
+    
+    // Callbacks
+    onClose: () {
+      print('Chat closed');
+    },
+  ),
+);
+```
+</CodeGroup>
+
+## How to Run
+
+### Step 1: Update Configuration
+
+Edit `main.dart`:
+
+```dart
+const serverUrl = 'ws://localhost:8000/ws';
+const apiKey = 'demo-api-key';
+const appId = 'my-app';
+```
+
+### Step 2: Run
+
+```bash
+cd example/popup_chat
+flutter pub get
+flutter run
+```
+
+## Expected Behavior
+
+1. **App starts** - SDK initializes
+2. **Tap "Open Chat"** - Popup chat dialog opens
+3. **Chat UI appears** - Ready-made chat interface
+4. **Send messages** - Text or voice input
+5. **Receive responses** - Agent responses appear
+
+## Template Features
+
+The `KuralitPopupChat` template provides:
+
+- ✅ **Chat UI** - Message bubbles, input field
+- ✅ **Text input** - Type and send messages
+- ✅ **Voice input** - Record and send audio
+- ✅ **Connection status** - Visual indicator
+- ✅ **Tool calls** - Display when agent uses tools
+- ✅ **Streaming responses** - Show partial responses
+- ✅ **STT display** - Show transcriptions
+
+## Customization
+
+### Theme Colors
+
+```dart
+config: KuralitPopupChatConfig(
+  primaryColor: Colors.purple,
+  backgroundColor: Colors.grey[100],
+  userMessageColor: Colors.blue,
+  botMessageColor: Colors.grey[300],
+)
+```
+
+### Custom Widgets
+
+```dart
+config: KuralitPopupChatConfig(
+  messageBuilder: (message) {
+    return MyCustomMessageWidget(message: message);
+  },
+  textInputBuilder: (controller, isConnected, isLoading, onSend) {
+    return MyCustomInputWidget(controller: controller);
+  },
+)
+```
+
+## Next Steps
+
+- [Agent Overlay →](/flutter-sdk/examples/agent-overlay) - Full-screen overlay
+- [Using Templates →](/flutter-sdk/guides/using-templates) - Complete templates guide
+- [Templates API →](/flutter-sdk/api-reference/templates) - API reference
+
+## Related
+
+- [Using Templates →](/flutter-sdk/guides/using-templates) - Templates guide
+- [Templates API →](/flutter-sdk/api-reference/templates) - API reference
+

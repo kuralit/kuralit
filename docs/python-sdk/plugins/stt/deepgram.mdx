@@ -1,0 +1,193 @@
+---
+title: "Deepgram STT Plugin"
+description: "Deepgram Speech-to-Text plugin for high-accuracy real-time transcription"
+---
+Deepgram provides high-quality speech-to-text transcription with real-time streaming support.
+
+## Overview
+
+Deepgram STT is a powerful speech-to-text service that offers:
+
+- **High accuracy** - State-of-the-art transcription models
+- **Real-time streaming** - Low-latency transcription
+- **Multiple languages** - Support for many languages
+- **Multiple models** - Choose the best model for your needs
+
+## Setup and Installation
+
+Deepgram STT is included with Kuralit. No additional installation required.
+
+### Get API Key
+
+1. Sign up at [Deepgram](https://deepgram.com)
+2. Create a project
+3. Get your API key from the dashboard
+
+### Set Environment Variable
+
+```bash
+DEEPGRAM_API_KEY=your-deepgram-api-key-here
+```
+
+## Environment Variables
+
+### Required
+
+- `DEEPGRAM_API_KEY` - Your Deepgram API key
+
+## Configuration
+
+### Basic Usage
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+
+# Using Deepgram STT
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",  # Deepgram Nova-2, English (US)
+    # ...
+)
+```
+</CodeGroup>
+
+### String Format
+
+The string format is: `deepgram/{model}:{language}`
+
+- `deepgram` - Plugin name
+- `{model}` - Model name (e.g., `nova-2`, `nova`)
+- `{language}` - Language code (e.g., `en-US`, `en-GB`)
+
+## Supported Models
+
+### Nova-2 (Recommended)
+
+- **Model**: `nova-2`
+- **Best for**: Highest accuracy, latest features
+- **Example**: `deepgram/nova-2:en-US`
+
+### Nova
+
+- **Model**: `nova`
+- **Best for**: Previous generation, still excellent
+- **Example**: `deepgram/nova:en-US`
+
+## Language Codes
+
+Common language codes:
+
+- `en-US` - English (United States)
+- `en-GB` - English (United Kingdom)
+- `es-ES` - Spanish (Spain)
+- `fr-FR` - French (France)
+- `de-DE` - German (Germany)
+- `it-IT` - Italian (Italy)
+- `pt-BR` - Portuguese (Brazil)
+- `ja-JP` - Japanese (Japan)
+- `zh-CN` - Chinese (Simplified)
+
+[View all supported languages →](https://developers.deepgram.com/docs/languages-overview)
+
+## Configuration Options
+
+### Sample Rate
+
+Deepgram supports various sample rates:
+
+- **8000 Hz** - Telephone quality
+- **16000 Hz** - Standard quality (recommended)
+- **44100 Hz** - High quality
+
+### Encoding
+
+- **linear16** - PCM 16-bit (default)
+- **mulaw** - μ-law encoding
+- **alaw** - A-law encoding
+
+## Usage Examples
+
+### Basic Setup
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    vad="silero/v3",
+    turn_detection="multilingual/v1",
+    instructions="You are a helpful assistant."
+)
+```
+</CodeGroup>
+
+### Multiple Languages
+
+<CodeGroup>
+```python
+# English (US)
+agent_us = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    # ...
+)
+
+# Spanish (Spain)
+agent_es = AgentSession(
+    stt="deepgram/nova-2:es-ES",
+    # ...
+)
+
+# French (France)
+agent_fr = AgentSession(
+    stt="deepgram/nova-2:fr-FR",
+    # ...
+)
+```
+</CodeGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="API key not found">
+    - Verify `DEEPGRAM_API_KEY` is set in your environment
+    - Check for typos in the variable name
+    - Ensure the API key is valid and active
+  </Accordion>
+  
+  <Accordion title="Transcription not working">
+    - Check network connectivity
+    - Verify API key has sufficient credits
+    - Ensure audio format matches (sample rate, encoding)
+    - Check Deepgram service status
+  </Accordion>
+  
+  <Accordion title="Low accuracy">
+    - Try `nova-2` model for better accuracy
+    - Ensure good audio quality
+    - Check language code matches audio language
+    - Verify sample rate is appropriate
+  </Accordion>
+  
+  <Accordion title="High latency">
+    - Use `nova-2` model (optimized for speed)
+    - Ensure stable network connection
+    - Check audio chunk size
+    - Verify server location
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+- **Use Nova-2** - Latest model with best accuracy and speed
+- **Match language code** - Ensure language code matches the spoken language
+- **Optimal sample rate** - Use 16000 Hz for best balance
+- **Monitor usage** - Track API usage to manage costs
+
+## Next Steps
+
+- [STT Providers →](/integrations/stt-providers) - Compare STT providers
+- [Voice →](/basics/voice) - Learn about voice streaming
+- [Configuration →](/getting-started/configuration) - Complete configuration guide
+

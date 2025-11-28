@@ -1,0 +1,175 @@
+---
+title: "Function Calling"
+---
+
+
+Function calling is how your AI Voice Agent executes tools to perform actions, not just respond with text.
+
+## What is Function Calling?
+
+Function calling allows your agent to:
+
+1. **Identify when a tool is needed** - Analyze user request
+2. **Select the right tool** - Choose appropriate function
+3. **Call the function** - Execute with correct parameters
+4. **Use the result** - Incorporate result into response
+
+## How It Works
+
+### Basic Flow
+
+```
+User: "What's the weather in London?"
+  ↓
+Agent: Analyzes request → Identifies need for weather tool
+  ↓
+Agent: Calls get_weather(location="London")
+  ↓
+Tool: Returns "Weather in London: sunny, 22°C"
+  ↓
+Agent: "The weather in London is sunny, 22°C."
+```
+
+### Automatic Tool Selection
+
+The agent automatically:
+
+- **Understands function signatures** - From type hints and docstrings
+- **Maps user intent to functions** - Matches requests to available tools
+- **Extracts parameters** - Parses user input to function parameters
+- **Handles errors** - Manages tool execution errors
+
+## Function Requirements
+
+### Type Hints
+
+Functions should have type hints:
+
+<CodeGroup>
+```python
+def get_weather(location: str) -> str:
+    """Get weather for a location."""
+    return f"Weather in {location}: sunny, 22°C"
+```
+</CodeGroup>
+
+### Docstrings
+
+Docstrings help the agent understand the function:
+
+<CodeGroup>
+```python
+def calculate(expression: str) -> str:
+    """Calculate a mathematical expression.
+    
+    Args:
+        expression: A string containing a mathematical expression
+                   (e.g., "15 * 23 + 10")
+    
+    Returns:
+        The result of the calculation as a string
+    """
+    try:
+        result = eval(expression)
+        return str(result)
+    except Exception as e:
+        return f"Error: {str(e)}"
+```
+</CodeGroup>
+
+## Tool Execution
+
+### Single Tool Call
+
+<CodeGroup>
+```python
+# User: "What's the weather in London?"
+# Agent calls: get_weather(location="London")
+# Result: "Weather in London: sunny, 22°C"
+# Agent responds: "The weather in London is sunny, 22°C."
+```
+</CodeGroup>
+
+### Multiple Tool Calls
+
+<CodeGroup>
+```python
+# User: "What's the weather in London and convert 100 USD to EUR?"
+# Agent calls:
+#   1. get_weather(location="London")
+#   2. convert_currency(amount=100, from_currency="USD", to_currency="EUR")
+# Agent combines results into response
+```
+</CodeGroup>
+
+### Tool Chaining
+
+<CodeGroup>
+```python
+# User: "Get the weather in London and then create a calendar event for tomorrow"
+# Agent calls:
+#   1. get_weather(location="London")
+#   2. add_event(title="Check weather", date="tomorrow", time="10:00")
+# Agent provides complete response with both results
+```
+</CodeGroup>
+
+## Best Practices
+
+### Clear Function Names
+
+<CodeGroup>
+```python
+# ✅ Good
+def get_weather(location: str) -> str:
+    """Get weather for a location."""
+
+# ❌ Bad
+def w(loc: str) -> str:
+    """Get weather."""
+```
+</CodeGroup>
+
+### Descriptive Docstrings
+
+<CodeGroup>
+```python
+# ✅ Good
+def convert_currency(amount: float, from_currency: str, to_currency: str) -> str:
+    """Convert currency from one type to another.
+    
+    Args:
+        amount: The amount to convert
+        from_currency: Source currency code (e.g., "USD")
+        to_currency: Target currency code (e.g., "EUR")
+    
+    Returns:
+        Converted amount as formatted string
+    """
+
+# ❌ Bad
+def convert(a: float, f: str, t: str) -> str:
+    """Convert currency."""
+```
+</CodeGroup>
+
+### Error Handling
+
+<CodeGroup>
+```python
+def get_weather(location: str) -> str:
+    """Get weather for a location."""
+    try:
+        result = weather_api.get(location)
+        return f"Weather in {location}: {result}"
+    except Exception as e:
+        return f"Sorry, I couldn't get weather for {location}: {str(e)}"
+```
+</CodeGroup>
+
+## Next Steps
+
+- [Custom Functions →](/basics/tools/custom-functions) - Create your own tools
+- [REST API Tools →](/basics/tools/rest-api-tools) - Connect to external APIs
+- [Toolkits →](/basics/tools/toolkits) - Organize your tools
+

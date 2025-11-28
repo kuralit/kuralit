@@ -1,0 +1,125 @@
+---
+title: "Multilingual Turn Detector Plugin"
+description: "Multilingual turn detection plugin - supports multiple languages, no API keys needed"
+---
+Multilingual Turn Detector provides end-of-turn detection for multiple languages with no API keys required.
+
+## Overview
+
+Multilingual Turn Detector offers:
+
+- **Multiple languages** - Supports many languages
+- **No API keys** - Works offline, no authentication needed
+- **Context-aware** - Analyzes conversation context
+- **Dynamic endpointing** - Adjusts delay based on probability
+
+## Setup and Installation
+
+Multilingual Turn Detector is included with Kuralit. No additional installation required.
+
+### No API Keys Needed
+
+Multilingual Turn Detector works completely offline - no API keys or external services required!
+
+## Environment Variables
+
+**None required!** Multilingual Turn Detector works without any environment variables.
+
+## Configuration
+
+### Basic Usage
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+
+# Using Multilingual Turn Detector
+agent = AgentSession(
+    turn_detection="multilingual/v1",  # Multilingual turn detector
+    # ...
+)
+```
+</CodeGroup>
+
+### String Format
+
+The string format is: `multilingual/{version}`
+
+- `multilingual` - Plugin name
+- `{version}` - Model version (e.g., `v1`)
+
+## Configuration Options
+
+### Threshold
+
+Control end-of-turn detection sensitivity:
+
+- **Lower (0.5-0.6)** - Faster turn detection, may cut off speech
+- **Default (0.6)** - Balanced
+- **Higher (0.7-0.8)** - More conservative, waits longer
+
+## How It Works
+
+The Multilingual Turn Detector:
+
+1. **Analyzes conversation** - Considers conversation history
+2. **Evaluates transcript** - Analyzes current user transcript
+3. **Predicts probability** - Calculates end-of-turn probability
+4. **Applies delay** - Uses dynamic endpointing:
+   - High probability (≥ threshold) → 0.5s delay
+   - Low probability (< threshold) → 3.0s delay
+5. **Commits turn** - When conditions are met
+
+## Usage Examples
+
+### Basic Setup
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    vad="silero/v3",
+    turn_detection="multilingual/v1",  # Multilingual turn detection
+    instructions="You are a helpful assistant."
+)
+```
+</CodeGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Turn detection too fast">
+    - Increase threshold (e.g., 0.7-0.8)
+    - Check conversation context is being maintained
+    - Verify transcript quality
+  </Accordion>
+  
+  <Accordion title="Turn detection too slow">
+    - Decrease threshold (e.g., 0.5-0.6)
+    - Check VAD configuration
+    - Verify audio quality
+  </Accordion>
+  
+  <Accordion title="Incorrect turn detection">
+    - Adjust threshold based on use case
+    - Check conversation context
+    - Verify STT transcript quality
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+- **Adjust threshold** - Fine-tune based on your use case
+- **Monitor performance** - Test with real conversations
+- **Consider context** - Ensure conversation history is maintained
+- **Test languages** - Verify performance for your target languages
+
+## Next Steps
+
+- [Turn Detection Providers →](/integrations/turn-detection-providers) - Learn about turn detection
+- [Voice →](/basics/voice) - Learn about voice streaming
+- [Configuration →](/getting-started/configuration) - Complete configuration guide
+

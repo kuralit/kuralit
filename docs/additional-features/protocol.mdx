@@ -1,0 +1,80 @@
+---
+title: "WebSocket Protocol"
+description: "Learn about the WebSocket protocol used for real-time communication"
+---
+Kuralit uses WebSocket for real-time bidirectional communication between clients and AI Voice Agent servers.
+
+## Protocol Overview
+
+The protocol supports:
+
+- **Text messages** - Send and receive text
+- **Audio streaming** - Stream audio in real-time
+- **Event notifications** - Connection, tool calls, errors
+- **Session management** - Session IDs and state
+
+## Message Types
+
+### Client Messages
+
+- `client_text` - Text message from client
+- `client_audio_start` - Begin audio streaming
+- `client_audio_chunk` - Audio data chunks
+- `client_audio_end` - End audio streaming
+
+### Server Messages
+
+- `server_connected` - Connection confirmation
+- `server_text` - Final text response
+- `server_partial` - Streaming text response
+- `server_stt` - Speech-to-text transcription
+- `server_tool_call` - Tool execution notification
+- `server_tool_result` - Tool execution result
+- `server_error` - Error messages
+
+## Connection Flow
+
+```
+1. Client connects to WebSocket
+   ↓
+2. Client sends authentication (API key in headers)
+   ↓
+3. Server sends server_connected (with session ID)
+   ↓
+4. Client sends messages (text or audio)
+   ↓
+5. Server processes and responds
+   ↓
+6. Client receives responses
+```
+
+## Message Format
+
+All messages follow JSON format:
+
+<CodeGroup>
+```json
+{
+  "type": "client_text",
+  "session_id": "uuid-here",
+  "data": {
+    "text": "Hello!"
+  }
+}
+```
+</CodeGroup>
+
+## Audio Streaming
+
+Audio is streamed via WebSocket:
+
+1. **client_audio_start** - Begin stream (with sample rate, encoding)
+2. **client_audio_chunk** - Audio data (base64 encoded, continuous)
+3. **client_audio_end** - End stream (optional final chunk)
+
+## Next Steps
+
+- [Streaming →](/additional-features/streaming) - Real-time streaming
+- [Error Handling →](/additional-features/error-handling) - Error handling
+- [Connection Management →](/additional-features/connection-management) - Connection management
+

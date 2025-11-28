@@ -1,0 +1,186 @@
+---
+title: "Templates"
+description: "API reference for KuralitPopupChat and KuralitAgentOverlay templates"
+---
+Ready-made UI templates for quick integration with AI Voice Agents.
+
+## KuralitPopupChat
+
+A ready-to-use chat dialog template.
+
+### Class
+
+<ParamField path="class" type="KuralitPopupChat">
+  Popup chat dialog template.
+</ParamField>
+
+### Static Methods
+
+#### show()
+
+<ParamField path="show" type="void">
+  Show the popup chat dialog.
+  
+  **Parameters:**
+  - `context` (BuildContext): Build context
+  - `sessionId` (String): Session ID for conversation
+  - `config` (KuralitPopupChatConfig?, optional): Configuration
+  
+  **Example:**
+  ```dart
+  KuralitPopupChat.show(
+    context,
+    sessionId: sessionId,
+  );
+  ```
+</ParamField>
+
+### Constructor
+
+<ParamField path="constructor" type="KuralitPopupChat()">
+  Create a popup chat widget.
+  
+  **Parameters:**
+  - `sessionId` (String, required): Session ID
+  - `config` (KuralitPopupChatConfig?, optional): Configuration
+  - `key` (Key?, optional): Widget key
+</ParamField>
+
+## KuralitPopupChatConfig
+
+Configuration for KuralitPopupChat.
+
+### Class
+
+<ParamField path="class" type="KuralitPopupChatConfig">
+  Configuration class for popup chat template.
+</ParamField>
+
+### Parameters
+
+<ParamField path="primaryColor" type="Color?">
+  Primary theme color.
+</ParamField>
+
+<ParamField path="backgroundColor" type="Color?">
+  Background color.
+</ParamField>
+
+<ParamField path="enableAudioMode" type="bool" default="true">
+  Enable voice input mode.
+</ParamField>
+
+<ParamField path="enableToolCalls" type="bool" default="true">
+  Show tool calls in UI.
+</ParamField>
+
+<ParamField path="onClose" type="VoidCallback?">
+  Callback when chat is closed.
+</ParamField>
+
+<ParamField path="width" type="double?">
+  Dialog width.
+</ParamField>
+
+<ParamField path="height" type="double?">
+  Dialog height.
+</ParamField>
+
+### Custom Builders
+
+<ParamField path="messageBuilder" type="Widget Function(ChatMessage)?">
+  Custom message widget builder.
+</ParamField>
+
+<ParamField path="textInputBuilder" type="Widget Function(...)?">
+  Custom text input widget builder.
+</ParamField>
+
+<ParamField path="audioInputBuilder" type="Widget Function(...)?">
+  Custom audio input widget builder.
+</ParamField>
+
+## KuralitAgentOverlay
+
+A full-screen animated overlay for voice-first interaction.
+
+### Class
+
+<ParamField path="class" type="KuralitAgentOverlay">
+  Agent overlay template.
+</ParamField>
+
+### Static Methods
+
+#### show()
+
+<ParamField path="show" type="void">
+  Show the agent overlay.
+  
+  **Parameters:**
+  - `context` (BuildContext): Build context
+  - `sessionId` (String): Session ID for conversation
+  
+  **Example:**
+  ```dart
+  KuralitAgentOverlay.show(
+    context,
+    sessionId: sessionId,
+  );
+  ```
+</ParamField>
+
+### Constructor
+
+<ParamField path="constructor" type="KuralitAgentOverlay()">
+  Create an agent overlay widget.
+  
+  **Parameters:**
+  - `sessionId` (String, required): Session ID
+  - `key` (Key?, optional): Widget key
+</ParamField>
+
+## Usage Examples
+
+### Popup Chat
+
+<CodeGroup>
+```dart
+// Basic usage
+KuralitPopupChat.show(
+  context,
+  sessionId: sessionId,
+);
+
+// With configuration
+KuralitPopupChat.show(
+  context,
+  sessionId: sessionId,
+  config: KuralitPopupChatConfig(
+    primaryColor: Colors.blue,
+    enableAudioMode: true,
+    enableToolCalls: true,
+    onClose: () => print('Chat closed'),
+  ),
+);
+```
+</CodeGroup>
+
+### Agent Overlay
+
+<CodeGroup>
+```dart
+// Basic usage
+KuralitAgentOverlay.show(
+  context,
+  sessionId: sessionId,
+);
+```
+</CodeGroup>
+
+## Related
+
+- [Using Templates →](/flutter-sdk/guides/using-templates) - Complete templates guide
+- [Popup Chat Example →](/flutter-sdk/examples/popup-chat) - Complete example
+- [Agent Overlay Example →](/flutter-sdk/examples/agent-overlay) - Complete example
+

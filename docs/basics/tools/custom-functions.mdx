@@ -1,0 +1,181 @@
+---
+title: "Custom Functions"
+---
+
+
+Create custom Python functions that your AI Voice Agent can call to perform actions.
+
+## Creating Custom Functions
+
+### Basic Function
+
+Any Python function can become a tool:
+
+<CodeGroup>
+```python
+def get_weather(location: str) -> str:
+    """Get weather for a location."""
+    return f"Weather in {location}: sunny, 22°C"
+```
+</CodeGroup>
+
+### Convert to Tool
+
+<CodeGroup>
+```python
+from kuralit.tools.function import Function
+
+# Convert function to tool
+weather_tool = Function.from_callable(get_weather)
+```
+</CodeGroup>
+
+### Use with Agent
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+from kuralit.tools import Toolkit
+
+# Create toolkit
+weather_tools = Toolkit(tools=[get_weather])
+
+# Use with agent
+agent = AgentSession(
+    tools=[weather_tools],
+    # ...
+)
+```
+</CodeGroup>
+
+## Function Design
+
+### Type Hints
+
+Always use type hints:
+
+<CodeGroup>
+```python
+# ✅ Good
+def calculate(expression: str) -> str:
+    """Calculate a mathematical expression."""
+    pass
+
+# ❌ Bad
+def calculate(expression):
+    """Calculate."""
+    pass
+```
+</CodeGroup>
+
+### Docstrings
+
+Write clear docstrings:
+
+<CodeGroup>
+```python
+def convert_currency(amount: float, from_currency: str, to_currency: str) -> str:
+    """Convert currency from one type to another.
+    
+    Args:
+        amount: The amount to convert
+        from_currency: Source currency code (e.g., "USD")
+        to_currency: Target currency code (e.g., "EUR")
+    
+    Returns:
+        Converted amount as formatted string
+    
+    Example:
+        convert_currency(100, "USD", "EUR") returns "100 USD = 85.00 EUR"
+    """
+    # Implementation
+```
+</CodeGroup>
+
+## Examples
+
+### Calculator Tool
+
+<CodeGroup>
+```python
+def calculate(expression: str) -> str:
+    """Calculate a mathematical expression.
+    
+    Supports basic arithmetic: +, -, *, /, and parentheses.
+    
+    Args:
+        expression: Mathematical expression (e.g., "15 * 23 + 10")
+    
+    Returns:
+        Calculation result as string
+    """
+    try:
+        result = eval(expression)  # In production, use a proper parser
+        return str(result)
+    except Exception as e:
+        return f"Error: {str(e)}"
+```
+</CodeGroup>
+
+### Time Tool
+
+<CodeGroup>
+```python
+from datetime import datetime
+
+def get_current_time() -> str:
+    """Get the current time.
+    
+    Returns:
+        Current time in HH:MM:SS format
+    """
+    return datetime.now().strftime("%H:%M:%S")
+```
+</CodeGroup>
+
+### Weather Tool
+
+<CodeGroup>
+```python
+def get_weather(location: str) -> str:
+    """Get weather information for a location.
+    
+    Args:
+        location: City name or location
+    
+    Returns:
+        Weather information as formatted string
+    """
+    # In production, call a real weather API
+    mock_weather = {
+        "london": "Cloudy, 15°C",
+        "new york": "Sunny, 22°C",
+    }
+    return f"Weather in {location}: {mock_weather.get(location.lower(), 'Partly cloudy, 20°C')}"
+```
+</CodeGroup>
+
+## Best Practices
+
+### Function Design
+
+- ✅ **Clear names** - Use descriptive function names
+- ✅ **Type hints** - Always include type hints
+- ✅ **Docstrings** - Explain what the function does
+- ✅ **Error handling** - Return helpful error messages
+- ✅ **Idempotent** - Safe to call multiple times when possible
+
+### Parameter Design
+
+- ✅ **Simple types** - Use str, int, float, bool
+- ✅ **Clear names** - Descriptive parameter names
+- ✅ **Optional parameters** - Use Optional for optional params
+- ✅ **Defaults** - Provide sensible defaults
+
+## Next Steps
+
+- [Function Calling →](/basics/tools/function-calling) - Understand how it works
+- [REST API Tools →](/basics/tools/rest-api-tools) - Connect to APIs
+- [Toolkits →](/basics/tools/toolkits) - Organize your tools
+- [Python SDK →](/sdks/python) - Implementation details
+

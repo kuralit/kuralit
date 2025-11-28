@@ -1,0 +1,73 @@
+---
+title: "Model Providers"
+description: "Large Language Model providers for your AI Voice Agents"
+---
+Choose the best Large Language Model (LLM) provider for your AI Voice Agents.
+
+## What are Model Providers?
+
+Model providers supply the AI intelligence that powers your agents:
+
+- **Generate responses** - Create natural language responses
+- **Understand context** - Process conversation history
+- **Use tools** - Decide when and how to call tools
+- **Maintain personality** - Follow instructions and guidelines
+
+## Available Providers
+
+<CardGroup cols={2}>
+  <Card
+    title="Gemini"
+    icon="robot"
+    href="/integrations/model-providers/gemini"
+  >
+    Google's Gemini models for fast, accurate responses
+  </Card>
+</CardGroup>
+
+## Choosing a Provider
+
+### Gemini
+
+**Best for:**
+- Fast response times
+- Google ecosystem integration
+- Cost-effective solutions
+- Real-time conversations
+
+**Requirements:**
+- `GEMINI_API_KEY` or `GOOGLE_API_KEY` environment variable
+
+[Learn more →](/integrations/model-providers/gemini)
+
+## Configuration
+
+### Basic Configuration
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+
+# Using Gemini
+agent = AgentSession(
+    llm="gemini/gemini-2.0-flash-001",
+    # ...
+)
+```
+</CodeGroup>
+
+### Environment Variables
+
+```bash
+# Gemini
+GEMINI_API_KEY=your-gemini-api-key
+# OR
+GOOGLE_API_KEY=your-google-api-key
+```
+
+## Next Steps
+
+- [Gemini →](/integrations/model-providers/gemini) - Gemini provider documentation
+- [Agents →](/basics/agents) - Learn about agents
+- [Creating Agents →](/basics/agents/creating-agents) - Create your first agent
+

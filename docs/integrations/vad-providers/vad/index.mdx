@@ -1,0 +1,70 @@
+---
+title: "VAD (Voice Activity Detection) Plugins"
+description: "VAD plugins for detecting when users are speaking"
+---
+VAD plugins detect when speech starts and ends in the audio stream.
+
+## What is VAD?
+
+Voice Activity Detection (VAD) analyzes audio to determine:
+
+- **START_OF_SPEECH** - User has started speaking
+- **END_OF_SPEECH** - User has stopped speaking
+- **CONTINUING** - Speech is ongoing
+
+VAD helps your AI Voice Agent know when to listen and when to respond.
+
+## Available VAD Plugins
+
+<Card
+  title="Silero"
+  icon="waveform"
+  href="/integrations/vad-providers/silero"
+>
+  On-device VAD, no API keys needed, works offline
+</Card>
+
+## How VAD Works
+
+VAD processes audio frames:
+
+```
+Audio Frame
+    ↓
+VAD Plugin
+    ↓
+Speech Detection
+    ↓
+Event: START_OF_SPEECH / END_OF_SPEECH / CONTINUING
+    ↓
+Audio Recognition Handler
+```
+
+## Configuration
+
+### Basic Configuration
+
+<CodeGroup>
+```python
+from kuralit.server.agent_session import AgentSession
+
+# Using Silero VAD
+agent = AgentSession(
+    vad="silero/v3",  # Silero VAD v3
+    # ...
+)
+```
+</CodeGroup>
+
+### Sample Rates
+
+VAD requires specific sample rates:
+
+- **8000 Hz** - Telephone quality
+- **16000 Hz** - Standard quality (recommended)
+
+## Next Steps
+
+- [Silero →](/integrations/vad-providers/silero) - Silero provider documentation
+- [Voice →](/basics/voice) - Learn about voice streaming
+
