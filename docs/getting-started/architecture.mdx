@@ -1,0 +1,63 @@
+---
+title: "Architecture"
+description: "Understanding the Kuralit architecture and system components"
+---
+
+Learn about the internal architecture of Kuralit and how all components work together.
+
+## System Architecture
+
+The Kuralit system consists of three main components working together:
+
+![System Architecture](/images/architecture/system-architecture.png)
+
+## Detailed Architecture Components
+
+### Flutter App Layer
+
+![Flutter App Details](/images/architecture/flutter-app-layer.jpg)
+
+The Flutter application layer handles:
+- User interface and interactions
+- Real-time WebSocket communication
+- Audio capture and streaming
+- UI templates and overlays
+
+### Kuralit Framework
+
+![Framework Details](/images/architecture/kuralit-framework.jpg)
+
+The Kuralit Framework provides:
+- Real-time WebSocket communication
+- Protocol handling
+- Event management
+- Connection management
+
+### AI Voice Agent Server
+
+![Server Architecture](/images/architecture/server-architecture.png)
+
+The Python-based AI Voice Agent Server includes:
+- **Voice Processing**: Speech-to-text, voice activity detection, turn detection
+- **AI Agent**: Large language model integration and conversation management
+- **Tools**: Function calling and API integration capabilities
+
+## Data Flow
+
+1. **User Input** → Flutter app captures voice/text input
+2. **WebSocket** → Real-time communication via Kuralit Framework
+3. **Server Processing** → AI Voice Agent processes with Voice + Agent + Tools
+4. **Response** → Server sends response back through WebSocket
+5. **Display** → Flutter app displays response to user
+
+## Component Interactions
+
+- **Voice ↔ Agent**: Voice input is transcribed and sent to the agent
+- **Agent ↔ Tools**: Agent can call tools (like REST APIs) to perform actions
+- **Agent ↔ Voice**: Agent responses can be converted to voice output
+
+## Next Steps
+
+- **[Quickstart →](/getting-started/quickstart)** - Get started with API integration
+- **[What is Kuralit? →](/getting-started/what-is-kuralit)** - Learn more about Kuralit
+

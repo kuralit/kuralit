@@ -30,7 +30,7 @@
             "pages": [
               "getting-started/what-is-kuralit",
               "getting-started/quickstart",
-              "getting-started/quickstart-api-integration",
+              "getting-started/architecture",
               "getting-started/features"
             ]
           },

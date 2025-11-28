@@ -1,48 +1,75 @@
 ---
 title: "Quickstart"
-description: "Connect an AI Voice Agent to your mobile app in 10 minutes"
+description: "Connect your existing API to an AI Voice Agent and Flutter app in minutes"
 ---
 
-This guide shows you how to connect an AI Voice Agent to your mobile app. You'll build:
-- **Python Server** - AI Voice Agent backend
-- **Flutter Mobile App** - Mobile app frontend
-- **Connection** - How they communicate
-
-## Overview
-
-```
-┌─────────────────────┐
-│  Flutter Mobile App │
-│  (Your App)         │
-└──────────┬──────────┘
-           │ WebSocket
-           │ (Real-time)
-           ↓
-┌─────────────────────┐
-│  Python Server      │
-│  (AI Voice Agent)   │
-└─────────────────────┘
-```
+Connect your existing API to an AI Voice Agent and integrate it into a Flutter app using ready-made templates.
 
 ## Prerequisites
 
-- Python 3.8+ installed
-- Flutter SDK 3.0+ installed
-- API keys:
-  - **Deepgram STT**: [Get from Deepgram](https://deepgram.com)
-  - **Gemini LLM**: [Get from Google AI Studio](https://makersuite.google.com/app/apikey)
+- Python 3.8+ and Flutter SDK 3.0+
+- API keys: `DEEPGRAM_API_KEY`, `GEMINI_API_KEY`
+- Existing API documentation (OpenAPI, codebase, or API endpoints)
 
-## Part 1: Python Server (Backend)
+## Step 1: Generate Postman Collection
 
-### Step 1: Install Python SDK
+Use Cursor, Windsurf, Antigravity, or Claude code to generate a Postman collection from your API. Copy the prompt below and paste it along with your API documentation:
 
-```bash
-pip install kuralit
+<CodeGroup>
+```text
+You are an API documentation extraction wizard.
+
+Objective: Generate a complete Postman Collection (schema v2.1) in **raw JSON** for this project. The collection should represent every HTTP, GraphQL, gRPC, or WebSocket endpoint you can infer from the codebase, including request/response details and example payloads when available.
+
+Guidelines:
+1. Inspect source files for routing definitions, controllers, services, schemas, DTOs, GraphQL resolvers, RPC service definitions, etc.
+2. For each endpoint include:
+   • Name (human-readable)
+   • Method and full path (e.g. GET /api/v1/users/:id)
+   • Description – populate the Postman description field with a concise summary (use inline comments, annotations, or best inference)
+   • Request details: params, query, headers, body schema/example
+   • Response examples with status codes and body schema
+3. Group related endpoints into folders that mirror their module/domain structure.
+4. If the project already contains an OpenAPI/Swagger or Postman file, merge and enrich it rather than starting from scratch.
+5. Follow the official Postman Collection v2.1 JSON schema exactly—no extra keys.
+6. Output **only** the JSON. Do not wrap in markdown fences, do not add commentary.
+
+URL Format Requirements:
+- ALWAYS use {{base_url}} as a Postman variable instead of hardcoded URLs
+- Structure URLs in the following format:
+  "url": {
+    "raw": "{{base_url}}/path/to/endpoint",
+    "protocol": "https",
+    "host": ["example", "com"],
+    "path": ["path", "to", "endpoint"]
+  }
+- The raw field should always start with {{base_url}} followed by the path
+- Extract the host from the codebase if available, otherwise use a placeholder like ["api", "example", "com"]
+- Path segments should be split into the path array
+
+Collection Structure:
+- Include info object with _postman_id, name, description, and schema fields
+- Use nested item arrays for folders and requests:
+  - Folders are items with a name, item array (containing requests), and optional description
+  - Requests are items with name, request object, and optional response array
+- Include description fields at collection level (in info), folder level, and request level
+- Response examples should include:
+  - name (e.g., "Successful Response")
+  - originalRequest (copy of the request)
+  - status (e.g., "OK")
+  - code (HTTP status code, e.g., 200)
+  - _postman_previewlanguage (e.g., "json")
+  - header array with Content-Type
+  - cookie array (empty if none)
+  - body with example response JSON as a string
 ```
+</CodeGroup>
 
-### Step 2: Set Up Environment Variables
+**Action:** Paste your API documentation/codebase into the LLM with the prompt above, save the output as `postman.json`.
 
-Create a `.env` file:
+## Step 2: Set Up Environment Variables
+
+Create a `.env` file in your project directory:
 
 ```bash
 # STT (Speech-to-Text)
@@ -51,11 +78,16 @@ DEEPGRAM_API_KEY=your-deepgram-api-key-here
 # LLM (Large Language Model)
 GEMINI_API_KEY=your-gemini-api-key-here
 
-# Server Authentication
+# Server Authentication (optional, defaults to "demo-api-key")
 KURALIT_API_KEY=demo-api-key
+
+# API Base URL (optional, defaults to "http://localhost:35814")
+API_BASE_URL=http://localhost:35814
 ```
 
-### Step 3: Create Server
+**Action:** Replace the placeholder values with your actual API keys.
+
+## Step 3: Configure Python Server
 
 Create `server.py`:
 
@@ -63,118 +95,112 @@ Create `server.py`:
 ```python
 import os
 import uvicorn
+from pathlib import Path
 from kuralit.server.agent_session import AgentSession
 from kuralit.server.websocket_server import create_app
+from kuralit.tools.api import RESTAPIToolkit
 
-# Validate API key from mobile app
 def validate_api_key(api_key: str) -> bool:
-    expected_key = os.getenv("KURALIT_API_KEY", "demo-api-key")
-    return api_key == expected_key
+    return api_key == os.getenv("KURALIT_API_KEY", "demo-api-key")
 
-# Create AI Voice Agent
+# Load Postman collection
+collection_path = Path("postman.json")
+tools = []
+
+if collection_path.exists():
+    api_toolkit = RESTAPIToolkit.from_postman_collection(
+        collection_path=str(collection_path),
+        base_url=os.getenv("API_BASE_URL", "http://localhost:35814")
+    )
+    tools.append(api_toolkit)
+    print(f"✅ Loaded {len(api_toolkit.get_functions())} API tools")
+
+# Create agent with API tools
 agent = AgentSession(
-    stt="deepgram/nova-2:en-US",        # Speech-to-Text
-    llm="gemini/gemini-2.0-flash-001",  # Large Language Model
-    vad="silero/v3",                     # Voice Activity Detection
-    turn_detection="multilingual/v1",     # Turn Detection
-    instructions="You are a helpful assistant for mobile app users.",
-    name="Mobile App AI Voice Agent",
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    vad="silero/v3",
+    turn_detection="multilingual/v1",
+    tools=tools if tools else None,
+    instructions="You have access to REST API tools. Use them when users make API-related requests.",
 )
 
-# Create WebSocket server
 app = create_app(
     api_key_validator=validate_api_key,
     agent_session=agent,
 )
 
-# Run server
 if __name__ == "__main__":
-    print("🚀 Starting AI Voice Agent server...")
-    print(f"   Server: ws://localhost:8000/ws")
-    print(f"   API Key: {os.getenv('KURALIT_API_KEY', 'demo-api-key')}")
-    print("\n   Your mobile app can now connect to this server!")
-    print("   Press Ctrl+C to stop\n")
-    
     uvicorn.run(app, host="0.0.0.0", port=8000)
 ```
 </CodeGroup>
 
-### Step 4: Run Server
+**Action:** Run `python server.py` - your server is now running at `ws://localhost:8000/ws`
 
-```bash
-python server.py
-```
+## Step 4: Integrate Flutter App
 
-Your server is now running at `ws://localhost:8000/ws`
-
-## Part 2: Flutter Mobile App (Frontend)
-
-### Step 1: Add Flutter SDK
-
-Add to `pubspec.yaml`:
-
-```yaml
-dependencies:
-  kuralit_sdk: ^1.0.0
-```
-
-Install:
-
-```bash
-flutter pub get
-```
-
-### Step 2: Configure Permissions
-
-**Android** (`android/app/src/main/AndroidManifest.xml`):
-
-```xml
-<uses-permission android:name="android.permission.RECORD_AUDIO" />
-<uses-permission android:name="android.permission.INTERNET" />
-```
-
-**iOS** (`ios/Runner/Info.plist`):
-
-```xml
-<key>NSMicrophoneUsageDescription</key>
-<string>This app needs microphone access for voice chat with AI Voice Agents</string>
-```
-
-### Step 3: Connect to AI Voice Agent
+Use Cursor, Windsurf, Antigravity, or Claude code to integrate the Kuralit Agent Overlay into your Flutter app. Copy the prompt below and paste it:
 
 <CodeGroup>
-```dart
+```text
+I need to integrate the Kuralit Agent Overlay into my Flutter app. Please:
+
+1. **Add the kuralit_sdk dependency** to my pubspec.yaml:
+   dependencies:
+     kuralit_sdk: ^0.1.0
+   
+   Then run flutter pub get to install the package.
+
+2. **Initialize the Kuralit SDK** in my screen/widget's initState():
+   - Use Kuralit.init() with KuralitConfig (serverUrl, apiKey, appId, debug)
+   - Generate a session ID using Kuralit.generateSessionId()
+   - Optionally connect to the server with Kuralit.connect() (or let the overlay handle connection)
+   - Set an _isInitialized flag to track initialization status
+
+3. **Add a button/trigger** that calls KuralitAgentOverlay.show(context, sessionId: sessionId) - it's just one line to open the full-screen overlay!
+
+4. **Handle connection errors** gracefully (try-catch around Kuralit.connect())
+
+The overlay automatically handles everything:
+- WebSocket connection management
+- Audio recording and streaming (with automatic permission requests)
+- Real-time transcription display
+- Conversation history with beautiful animated UI
+- Voice and text input modes (switchable)
+- Golden animated borders and visual effects
+- Error handling with user-friendly messages
+
+**Key benefit:** Opening the overlay is just one line - KuralitAgentOverlay.show(context, sessionId: sessionId)
+
+**Implementation requirements:**
+- Follow Flutter best practices
+- Add all necessary imports (package:kuralit_sdk/kuralit.dart)
+- Make configuration values (API key, App ID, server URL) easily configurable
+- Add proper error handling for connection failures
+- Ensure it works on both iOS and Android
+- Handle microphone permissions gracefully
+
+Please implement this integration and show me where to add my API credentials.
+
+---
+
+## Reference Implementation
+
+Here's the complete reference code you can use:
+
 import 'package:flutter/material.dart';
 import 'package:kuralit_sdk/kuralit.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'My Mobile App',
-      home: const ChatScreen(),
-    );
-  }
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
-
-  @override
-  State<ChatScreen> createState() => _ChatScreenState();
-}
-
-class _ChatScreenState extends State<ChatScreen> {
-  final TextEditingController _textController = TextEditingController();
-  final List<String> _messages = [];
-  bool _isConnected = false;
+class _HomeScreenState extends State<HomeScreen> {
   String? _sessionId;
+  bool _isInitialized = false;
 
   @override
   void initState() {
@@ -183,147 +209,65 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _initializeSDK() {
-    // Initialize SDK
     Kuralit.init(KuralitConfig(
-      serverUrl: 'ws://localhost:8000/ws',  // Your Python server
-      apiKey: 'demo-api-key',               // Match server API key
-      appId: 'my-mobile-app',
+      serverUrl: 'ws://10.0.2.2:8000/ws',  // Replace with your server URL
+      apiKey: 'demo-api-key',                // Replace with your API key
+      appId: 'my-app',                        // Replace with your App ID
       debug: true,
     ));
 
-    // Generate session ID
     _sessionId = Kuralit.generateSessionId();
-
-    // Listen to events
-    Kuralit.events.listen((event) {
-      if (event is KuralitConnectedEvent) {
-        setState(() => _isConnected = true);
-        _addMessage('✅ Connected to AI Voice Agent');
-      } else if (event is KuralitServerTextEvent) {
-        _addMessage('Agent: ${event.text}');
-      } else if (event is KuralitErrorEvent) {
-        _addMessage('❌ Error: ${event.message}');
-      }
-    });
-
-    // Connect to server
     _connect();
+    setState(() => _isInitialized = true);
   }
 
   Future<void> _connect() async {
     try {
       await Kuralit.connect();
     } catch (e) {
-      _addMessage('❌ Connection failed: $e');
+      print('Connection failed: $e');
     }
   }
 
-  void _sendMessage() {
-    final text = _textController.text.trim();
-    if (text.isEmpty || !_isConnected || _sessionId == null) return;
-
-    _addMessage('You: $text');
-    Kuralit.sendText(_sessionId!, text);
-    _textController.clear();
-  }
-
-  void _addMessage(String message) {
-    setState(() {
-      _messages.add(message);
-    });
+  void _openOverlay() {
+    if (_sessionId == null) return;
+    // Open agent overlay - just one line!
+    KuralitAgentOverlay.show(
+      context,
+      sessionId: _sessionId!,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Mobile App'),
-        actions: [
-          Icon(
-            _isConnected ? Icons.check_circle : Icons.error,
-            color: _isConnected ? Colors.green : Colors.red,
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Text(_messages[index]),
-                );
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _textController,
-                    decoration: const InputDecoration(
-                      hintText: 'Type a message...',
-                      border: OutlineInputBorder(),
-                    ),
-                    onSubmitted: (_) => _sendMessage(),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(Icons.send),
-                  onPressed: _sendMessage,
-                ),
-              ],
-            ),
-          ),
-        ],
+      appBar: AppBar(title: const Text('Agent Overlay Example')),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: _isInitialized ? _openOverlay : null,
+          child: const Text('Open Agent Overlay'),
+        ),
       ),
     );
   }
 }
+
+**Note:** Replace the serverUrl, apiKey, and appId values with your actual Kuralit credentials.
 ```
 </CodeGroup>
 
-### Step 4: Run Mobile App
+**Action:** Paste this prompt into your LLM along with your Flutter app code, and it will generate the complete integration for you!
 
-```bash
-flutter run
-```
+## What You've Built
 
-## Testing the Connection
-
-1. **Start Python server** - Run `python server.py`
-2. **Run Flutter app** - Run `flutter run`
-3. **Send a message** - Type a message in the mobile app
-4. **See response** - AI Voice Agent responds in real-time!
-
-## What's Happening?
-
-1. **Mobile app connects** - Flutter app connects to Python server via WebSocket
-2. **User sends message** - Message sent from mobile app to server
-3. **AI Voice Agent processes** - Server processes with AI (LLM)
-4. **Response sent back** - AI response sent back to mobile app
-5. **User sees response** - Response displayed in mobile app
+✅ **AI Voice Agent** with access to your API endpoints  
+✅ **WebSocket server** running and ready  
+✅ **Flutter app** with ready-made agent overlay template  
+✅ **Voice & text** interaction with your API-powered agent
 
 ## Next Steps
 
-- **[API Integration Quickstart →](/getting-started/quickstart-api-integration)** - Connect your existing API to an AI Voice Agent
-- **[What are AI Voice Agents? →](/getting-started/features)** - Understand the three pillars
-- **[Basics: Agents →](/basics/agents)** - Learn about agents
-- **[Basics: Tools →](/basics/tools)** - Add capabilities
-- **[Basics: Voice →](/basics/voice)** - Enable voice conversations
-- **[Python SDK →](/sdks/python)** - Server implementation details
-- **[Flutter SDK →](/sdks/flutter)** - Mobile app implementation details
-
-## Need Help?
-
-- **[Installation & Setup →](/help/installation-setup)** - Detailed installation guide
-- **[Configuration →](/help/configuration)** - Complete configuration reference
-- **[Troubleshooting →](/help/troubleshooting)** - Common issues and solutions
-- **[FAQ →](/help/faq)** - Frequently asked questions
+- **[REST API Tools Guide →](/basics/tools/rest-api-tools)** - Learn more about API tools
+- **[Using Templates →](/flutter-sdk/guides/using-templates)** - Explore other templates
+- **[Postman API Example →](/python-sdk/examples/postman-api)** - See complete example
 
