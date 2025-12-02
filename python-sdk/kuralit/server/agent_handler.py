@@ -55,6 +55,13 @@ class AgentHandler:
             self.tools = agent_session.tools or []
             self.instructions = agent_session.instructions
             self.name = agent_session.name
+            
+            # Log instructions status
+            if self.instructions:
+                logger.info(f"AgentHandler: Instructions loaded from AgentSession (length: {len(self.instructions)} chars)")
+                logger.debug(f"AgentHandler: Instructions preview: {self.instructions[:150]}...")
+            else:
+                logger.warning("AgentHandler: No instructions provided in AgentSession")
         elif config:
             # Fallback to old config-based approach
             self.config = config
@@ -171,10 +178,27 @@ class AgentHandler:
         # Check if messages already have a system message
         has_system_message = any(msg.role == "system" for msg in messages)
         
+        # Check if there are tool results in the messages
+        has_tool_results = any(msg.role == "tool" for msg in messages)
+        
         # Add system instructions if provided and not already present
         if self.instructions and not has_system_message:
-            system_message = Message(role="system", content=self.instructions)
+            instructions = self.instructions
+            
+            # If tool results are present, add an extra reminder to convert them to natural language
+            if has_tool_results:
+                reminder = "\n\nREMINDER: You have just received tool/API results. You MUST convert these results into natural, conversational English. NEVER output the raw JSON, code blocks, or technical data structures. Extract the meaningful information and present it as if you're telling a friend about it."
+                instructions = instructions + reminder
+                logger.debug("AgentHandler: Added tool result conversion reminder to instructions")
+            
+            system_message = Message(role="system", content=instructions)
+            logger.info(f"AgentHandler: Adding system instructions to messages (length: {len(instructions)} chars)")
+            logger.debug(f"AgentHandler: System instructions preview: {instructions[:100]}...")
             return [system_message] + messages
+        elif has_system_message:
+            logger.debug("AgentHandler: System message already present in conversation history")
+        elif not self.instructions:
+            logger.debug("AgentHandler: No instructions provided, using default behavior")
         return messages
     
     async def process_text_async(
@@ -234,6 +258,12 @@ class AgentHandler:
             
             # Prepare messages with system instructions
             messages_with_instructions = self._prepare_messages_with_instructions(messages[:-1])
+            
+            # Log message structure for debugging
+            message_roles = [msg.role for msg in messages_with_instructions]
+            logger.debug(f"AgentHandler: Sending {len(messages_with_instructions)} messages to LLM with roles: {message_roles}")
+            if messages_with_instructions and messages_with_instructions[0].role == "system":
+                logger.info(f"AgentHandler: System instructions included in LLM request (first message is system)")
             
             accumulated_text = ""
             collected_tool_calls = []
@@ -316,12 +346,21 @@ class AgentHandler:
                                 success=True,
                             )
                             
+                            # Format tool result - add a note to help LLM understand it should process this
+                            tool_result_content = str(result)
+                            # If the result looks like JSON, add a processing hint
+                            if (tool_result_content.strip().startswith('{') or 
+                                tool_result_content.strip().startswith('[')):
+                                # Add a note that this is tool data that needs to be converted to natural language
+                                # The LLM should process this according to system instructions
+                                pass  # Let the system instructions handle the conversion
+                            
                             function_call_results.append(Message(
                                 role="tool",
-                                content=str(result),
+                                content=tool_result_content,
                                 tool_calls=[{
                                     "tool_name": func_name,
-                                    "content": str(result)
+                                    "content": tool_result_content
                                 }]
                             ))
                         except Exception as e:
@@ -359,6 +398,19 @@ class AgentHandler:
                     
                     # Prepare messages with system instructions
                     messages_with_instructions = self._prepare_messages_with_instructions(messages[:-1])
+                    
+                    # Add a reminder message after tool results to reinforce instructions
+                    # This helps ensure the LLM converts tool results to natural language
+                    if messages_with_instructions and any(msg.role == "tool" for msg in messages_with_instructions):
+                        # Check if the last tool message is present
+                        tool_messages = [msg for msg in messages_with_instructions if msg.role == "tool"]
+                        if tool_messages:
+                            # The system instructions should already handle this, but we log it for debugging
+                            logger.debug("AgentHandler: Tool results present in conversation - LLM should convert to natural language per instructions")
+                    
+                    # Log message structure for debugging (second round after tool execution)
+                    message_roles = [msg.role for msg in messages_with_instructions]
+                    logger.debug(f"AgentHandler: Sending {len(messages_with_instructions)} messages to LLM (after tool execution) with roles: {message_roles}")
                     
                     # Stream the final response after tool execution
                     final_text = ""
