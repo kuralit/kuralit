@@ -159,6 +159,24 @@ class AgentHandler:
         else:
             logger.warning("AgentHandler: Agent has NO registered functions despite tools being provided")
     
+    def _prepare_messages_with_instructions(self, messages: List[Message]) -> List[Message]:
+        """Prepare messages with system instructions if provided.
+        
+        Args:
+            messages: List of conversation messages
+            
+        Returns:
+            List of messages with system instructions prepended if available
+        """
+        # Check if messages already have a system message
+        has_system_message = any(msg.role == "system" for msg in messages)
+        
+        # Add system instructions if provided and not already present
+        if self.instructions and not has_system_message:
+            system_message = Message(role="system", content=self.instructions)
+            return [system_message] + messages
+        return messages
+    
     async def process_text_async(
         self,
         session: Session,
@@ -214,12 +232,15 @@ class AgentHandler:
             assistant_message = Message(role="assistant")
             messages.append(assistant_message)
             
+            # Prepare messages with system instructions
+            messages_with_instructions = self._prepare_messages_with_instructions(messages[:-1])
+            
             accumulated_text = ""
             collected_tool_calls = []
             
             # Stream response with tool support
             async for response_chunk in self.model.ainvoke_stream(
-                messages=messages[:-1],
+                messages=messages_with_instructions,
                 assistant_message=assistant_message,
                 tools=tool_definitions if tool_definitions else None,
                 tool_choice="auto" if tool_definitions else None,
@@ -336,10 +357,13 @@ class AgentHandler:
                     assistant_message = Message(role="assistant")
                     messages.append(assistant_message)
                     
+                    # Prepare messages with system instructions
+                    messages_with_instructions = self._prepare_messages_with_instructions(messages[:-1])
+                    
                     # Stream the final response after tool execution
                     final_text = ""
                     async for response_chunk in self.model.ainvoke_stream(
-                        messages=messages[:-1],
+                        messages=messages_with_instructions,
                         assistant_message=assistant_message,
                         tools=tool_definitions if tool_definitions else None,
                         tool_choice="auto" if tool_definitions else None,
