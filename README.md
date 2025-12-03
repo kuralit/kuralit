@@ -1,5 +1,13 @@
 <div align="center">
-  <img src="docs/logo/kuralit-w.jpeg" alt="Kuralit Logo" width="200"/>
+  <a href="https://kuralit.com">
+    <img src="docs/logo/kuralit-w.jpeg" alt="Kuralit Logo" width="200"/>
+  </a>
+</div>
+
+<div align="center">
+
+[Documentation](https://docs.kuralit.com) • [Examples](docs/python-sdk/examples/) • [Website](https://kuralit.com)
+
 </div>
 
 # Kuralit - World's 1<sup>st</sup> AI Agent for Mobile Apps

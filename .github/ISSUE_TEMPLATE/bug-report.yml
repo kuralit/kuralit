@@ -1,0 +1,168 @@
+name: Bug Report
+description: Report an issue to help us fix bugs and improve Kuralit.
+title: "[Bug] "
+labels: ["bug"]
+assignees:
+  - ""
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report! Your feedback helps us improve Kuralit.
+        
+        **Before submitting:**
+        - Check if the issue has already been reported
+        - Review the [documentation](https://docs.kuralit.com) and [troubleshooting guide](docs/help/troubleshooting.mdx)
+        - For questions, use [GitHub Discussions](https://github.com/kuralit/kuralit/discussions)
+  - type: dropdown
+    id: affected-component
+    attributes:
+      label: Affected Component
+      description: Which part of Kuralit is affected?
+      options:
+        - Python SDK (Server)
+        - Flutter SDK (Client)
+        - Documentation
+        - Examples
+        - Tool System
+        - WebSocket Server
+        - Audio/STT/VAD
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Briefly describe the issue you're experiencing or the bug you've found.
+      placeholder: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: List the exact steps needed to encounter this bug or issue.
+      placeholder: |
+        1. Initialize Kuralit with...
+        2. Call the following method...
+        3. Send a message/audio...
+        4. See error
+    validations:
+      required: true
+  - type: textarea
+    id: code-example
+    attributes:
+      label: Code Example (if applicable)
+      description: Provide a minimal code example that reproduces the issue.
+      placeholder: |
+        ```python
+        # Python SDK example
+        from kuralit.server import create_app
+        # Your code here
+        ```
+        
+        OR
+        
+        ```dart
+        // Flutter SDK example
+        import 'package:kuralit_sdk/kuralit.dart';
+        // Your code here
+        ```
+    validations:
+      required: false
+  - type: textarea
+    id: agent-config
+    attributes:
+      label: Agent/SDK Configuration (if applicable)
+      description: If the bug relates to a specific agent or SDK setup, provide relevant configuration details.
+      placeholder: |
+        ```python
+        # Python SDK configuration
+        agent = AgentSession(
+          llm="gemini/gemini-2.0-flash-001",
+          stt="deepgram/nova-2:en-US",
+          # Your configuration
+        )
+        ```
+        
+        OR
+        
+        ```dart
+        // Flutter SDK configuration
+        await Kuralit.init(KuralitConfig(
+          serverUrl: 'wss://...',
+          apiKey: '...',
+          // Your configuration
+        ));
+        ```
+    validations:
+      required: false
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+      placeholder: A clear description of what you expected.
+    validations:
+      required: true
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual Behavior
+      description: What actually happened instead?
+      placeholder: A clear description of what happened.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error Logs or Screenshots
+      description: Include any relevant error logs, stack traces, or screenshots that demonstrate the issue. Use code blocks for logs.
+      placeholder: |
+        ```log
+        Paste your error logs or stack trace here
+        ```
+        (You can also drag and drop images)
+    validations:
+      required: false
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Please provide details about the environment where you encountered the bug.
+      placeholder: |
+        **Python SDK (if applicable):**
+        - OS: [e.g. macOS Sonoma, Windows 11, Linux]
+        - Python Version: [e.g. Python 3.10, 3.11, 3.12]
+        - Kuralit Version: [e.g. v0.1.0]
+        - Package Manager: [e.g. pip, uv, poetry]
+        
+        **Flutter SDK (if applicable):**
+        - OS: [e.g. Android, IOS]
+        - Flutter Version: [e.g. Flutter 3.0.0]
+        - Dart Version: [e.g. Dart 2.17.0]
+        - Platform: [e.g. Android, iOS, Web, Windows]
+        - Kuralit SDK Version: [e.g. kuralit_sdk: ^1.0.0]
+        
+        **Additional Details:**
+        - LLM Provider: [e.g. Gemini, OpenAI]
+        - STT Provider: [e.g. Deepgram, Google]
+        - Other relevant dependencies
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: possible-solutions
+    attributes:
+      label: Possible Solutions (optional)
+      description: Suggest any ideas you might have to fix or address the issue.
+    validations:
+      required: false
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context or details about the problem here (e.g., related issues, workarounds).
+    validations:
+      required: false
