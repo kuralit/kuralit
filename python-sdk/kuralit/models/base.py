@@ -1,4 +1,4 @@
-"""Standalone base Model class for KuralIt."""
+"""Standalone base Model class for Kuralit."""
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
@@ -13,7 +13,7 @@ from kuralit.utils.log import log_debug, log_error
 
 @dataclass
 class Model(ABC):
-    """Base class for all models in KuralIt."""
+    """Base class for all models in Kuralit."""
     
     # ID of the model to use
     id: str

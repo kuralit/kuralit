@@ -1,6 +1,6 @@
-# Contributing to KuralIt
+# Contributing to Kuralit
 
-Thank you for your interest in contributing to KuralIt! This document provides guidelines and instructions for contributing to the project.
+Thank you for your interest in contributing to Kuralit! This document provides guidelines and instructions for contributing to the project.
 
 ## Code of Conduct
 
@@ -8,7 +8,7 @@ This project adheres to a Code of Conduct. By participating, you are expected to
 
 ## How to Contribute
 
-There are many ways to contribute to KuralIt:
+There are many ways to contribute to Kuralit:
 
 - **Bug Reports**: Report bugs and issues
 - **Feature Requests**: Suggest new features or improvements
@@ -303,5 +303,5 @@ Contributors will be recognized in:
 - Release notes for significant contributions
 - Project documentation
 
-Thank you for contributing to KuralIt!
+Thank you for contributing to Kuralit!
 

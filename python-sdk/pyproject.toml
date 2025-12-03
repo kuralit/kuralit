@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kuralit"
-version = "0.1.0"  # Managed in kuralit/version.py - keep in sync
-description = "Standalone AI agent framework for KuralIt"
+version = "0.1.1"  # Managed in kuralit/version.py - keep in sync
+description = "World's 1st AI agent for mobile apps"
 readme = "README.md"
 requires-python = ">=3.10"
-authors = [{ name = "KuralIt" }]
+authors = [{ name = "Kuralit" }]
 license = { text = "Non-Commercial" }
 keywords = [
     "ai",
@@ -42,10 +42,34 @@ classifiers = [
     "Topic :: Communications :: Chat",
     "Typing :: Typed",
 ]
-# Core dependencies - required for basic functionality
+# All dependencies - installed by default with pip install kuralit
 dependencies = [
+    # Core dependencies
     "pydantic>=2.5.0",
     "docstring-parser>=0.15.0",
+    # Google Gemini LLM support
+    "google-genai>=0.2.0",
+    # REST API tools support
+    "requests>=2.31.0",
+    # WebSocket server support
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "websockets>=12.0",
+    "python-multipart>=0.0.6",
+    # Speech-to-Text support
+    "google-cloud-speech>=2.19.0",
+    "aiohttp>=3.9.0",
+    # Audio processing support
+    "numpy>=1.24.0",
+    # Structured logging support
+    "structlog>=23.2.0",
+    # Environment variable loading support
+    "python-dotenv>=1.0.0",
+    # Voice Activity Detection support
+    "onnxruntime>=1.16.0",
+    "transformers>=4.35.0",
+    "huggingface-hub>=0.19.0",
+    "jinja2>=3.1.0",
 ]
 
 [project.urls]

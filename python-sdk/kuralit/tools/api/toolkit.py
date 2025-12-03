@@ -1,5 +1,5 @@
 """
-REST API Toolkit for KuralIt.
+REST API Toolkit for Kuralit.
 
 Dynamically creates tools from REST API endpoints.
 Supports Postman collections and can be extended for OpenAPI/Swagger.

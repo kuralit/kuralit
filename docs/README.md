@@ -1,13 +1,13 @@
-# KuralIt Documentation
+# Kuralit Documentation
 
-This directory contains the source files for the KuralIt documentation site, built with [Mintlify](https://mintlify.com).
+This directory contains the source files for the Kuralit documentation site, built with [Mintlify](https://mintlify.com).
 
 ## Documentation Structure
 
 The documentation is organized into the following main sections:
 
 ### Getting Started
-- Introduction to KuralIt
+- Introduction to Kuralit
 - Quickstart guides for Python and Flutter SDKs
 - Architecture overview
 - Configuration guides

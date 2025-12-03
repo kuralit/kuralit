@@ -55,7 +55,7 @@ We will acknowledge receipt of your report within **48 hours** and provide an in
 ### For Users
 
 1. **Keep Dependencies Updated**
-   - Regularly update the KuralIt SDKs
+   - Regularly update the Kuralit SDKs
    - Keep Python, Flutter, and other dependencies up to date
    - Monitor for security advisories
 
@@ -169,5 +169,5 @@ For general support and questions, please use GitHub Issues or Discussions.
 
 ---
 
-**Thank you for helping keep KuralIt secure!**
+**Thank you for helping keep Kuralit secure!**
 

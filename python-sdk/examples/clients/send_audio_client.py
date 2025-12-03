@@ -1,6 +1,6 @@
-"""Audio Client Example - Stream Audio to KuralIt WebSocket Server
+"""Audio Client Example - Stream Audio to Kuralit WebSocket Server
 
-This is a CLIENT example that connects to a KuralIt WebSocket server and streams
+This is a CLIENT example that connects to a Kuralit WebSocket server and streams
 audio from your microphone. This is different from the server examples which
 create WebSocket servers.
 
@@ -23,7 +23,7 @@ Or with custom server URL:
     python examples/clients/send_audio_client.py --server ws://localhost:8000/ws --api-key demo-api-key
 
 Prerequisites:
-    - A KuralIt WebSocket server must be running (use one of the server examples)
+    - A Kuralit WebSocket server must be running (use one of the server examples)
     - pip install websockets pyaudio
 
 Configuration:
@@ -68,7 +68,7 @@ FORMAT = pyaudio.paInt16
 
 
 class AudioStreamClient:
-    """Client for streaming audio to KuralIt WebSocket server.
+    """Client for streaming audio to Kuralit WebSocket server.
     
     This client connects to a WebSocket server, captures audio from the microphone,
     and streams it to the server while receiving transcriptions and responses.
@@ -207,7 +207,7 @@ class AudioStreamClient:
         }
         
         print(f"🔌 Connecting to {self.server_url}...")
-        print(f"   Make sure a KuralIt server is running at this URL!")
+        print(f"   Make sure a Kuralit server is running at this URL!")
         print()
         
         async with websockets.connect(self.server_url, additional_headers=headers) as websocket:
@@ -239,7 +239,7 @@ class AudioStreamClient:
 if __name__ == "__main__":
     # Parse command-line arguments
     parser = argparse.ArgumentParser(
-        description="KuralIt Audio Client - Stream audio to WebSocket server"
+        description="Kuralit Audio Client - Stream audio to WebSocket server"
     )
     parser.add_argument(
         "--server",
@@ -264,6 +264,6 @@ if __name__ == "__main__":
         client.stop_recording()
     except Exception as e:
         print(f"\n❌ Error: {e}")
-        print("   Make sure a KuralIt server is running at the specified URL.")
+        print("   Make sure a Kuralit server is running at the specified URL.")
         client.stop_recording()
 

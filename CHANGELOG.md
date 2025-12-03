@@ -10,8 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 #### Python SDK
-- Initial release of KuralIt Python SDK
-- Standalone AI agent framework with no external dependencies
+- Initial release of Kuralit Python SDK
+- World's 1<sup>st</sup> AI agent for mobile apps with no external dependencies
 - Agent system with customizable instructions and tool support
 - Tool system with Functions and Toolkits
 - Plugin architecture for LLM, STT, VAD, and turn detection
@@ -34,7 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Audio client example
 
 #### Flutter SDK
-- Initial release of KuralIt SDK for Flutter
+- Initial release of Kuralit SDK for Flutter
 - WebSocket-based real-time communication
 - Text messaging with streaming support
 - Audio streaming with multiple sample rate and encoding support

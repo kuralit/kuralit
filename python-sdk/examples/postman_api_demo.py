@@ -1,7 +1,7 @@
 """Postman API Demo - REST API Tools from Postman Collections
 
 This example demonstrates how to load REST API tools from a Postman collection
-and use them with a KuralIt agent. The agent can then make API calls based on
+and use them with a Kuralit agent. The agent can then make API calls based on
 user requests.
 
 Usage:
@@ -34,6 +34,9 @@ Example interactions:
 import os
 import argparse
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Step 1: Import required modules
 from kuralit.server.agent_session import AgentSession
@@ -53,7 +56,7 @@ if __name__ == "__main__":
     
     # Step 5: Parse command-line arguments
     parser = argparse.ArgumentParser(
-        description="KuralIt WebSocket Server with Postman API Tools"
+        description="Kuralit WebSocket Server with Postman API Tools"
     )
     parser.add_argument(
         "--collection",

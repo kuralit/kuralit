@@ -2,8 +2,8 @@
   "$schema": "https://mintlify.com/schema.json",
   "name": "Kuralit",
   "logo": {
-    "dark": "/logo/dark.svg",
-    "light": "/logo/light.svg"
+    "dark": "/logo/kuralit-w.jpeg",
+    "light": "/logo/kuralit-b.jpeg"
   },
   "favicon": "/favicon.svg",
   "colors": {

@@ -1,4 +1,4 @@
-"""Standalone Toolkit class for managing tools in KuralIt."""
+"""Standalone Toolkit class for managing tools in Kuralit."""
 
 from collections import OrderedDict
 from typing import Any, Callable, Dict, List, Optional, Union

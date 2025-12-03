@@ -1,5 +1,5 @@
 @echo off
-REM KuralIt Python SDK Publishing Script for Windows
+REM Kuralit Python SDK Publishing Script for Windows
 REM This script automates the process of publishing the kuralit package to PyPI
 
 setlocal enabledelayedexpansion
@@ -13,7 +13,7 @@ set PYPI_REPO=pypi
 :menu
 cls
 echo.
-echo KuralIt Publishing Script
+echo Kuralit Publishing Script
 echo ========================
 echo.
 

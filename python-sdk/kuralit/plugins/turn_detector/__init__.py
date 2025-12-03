@@ -1,4 +1,4 @@
-"""Turn Detector plugins for KuralIt.
+"""Turn Detector plugins for Kuralit.
 
 This module provides access to all Turn Detector plugins.
 """

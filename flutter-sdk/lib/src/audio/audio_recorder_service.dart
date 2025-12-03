@@ -6,7 +6,7 @@ import 'package:permission_handler/permission_handler.dart';
 /// Audio recording service for real-time audio streaming
 /// 
 /// Handles microphone permissions, audio recording, and streaming audio chunks
-/// in the format required by the KuralIt WebSocket API.
+/// in the format required by the Kuralit WebSocket API.
 class AudioRecorderService {
   final AudioRecorder _recorder = AudioRecorder();
   StreamSubscription<Uint8List>? _audioStreamSubscription;

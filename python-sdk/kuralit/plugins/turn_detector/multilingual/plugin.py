@@ -1,4 +1,4 @@
-"""Multilingual Turn Detector Plugin for KuralIt.
+"""Multilingual Turn Detector Plugin for Kuralit.
 
 This plugin provides Turn Detector integration as a plugin.
 """

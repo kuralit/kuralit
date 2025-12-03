@@ -1,4 +1,4 @@
-"""Standalone Metrics class for KuralIt."""
+"""Standalone Metrics class for Kuralit."""
 
 from dataclasses import dataclass, field
 from time import time

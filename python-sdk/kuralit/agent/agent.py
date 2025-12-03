@@ -1,4 +1,4 @@
-"""Standalone Agent class for KuralIt - independent of agno package."""
+"""Standalone Agent class for Kuralit - independent of agno package."""
 
 from typing import Any, Dict, List, Optional, Union
 from uuid import uuid4

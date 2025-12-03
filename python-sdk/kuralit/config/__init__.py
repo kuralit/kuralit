@@ -1,4 +1,4 @@
-"""Configuration management for KuralIt."""
+"""Configuration management for Kuralit."""
 
 from kuralit.config.schema import (
     Config,

@@ -1,14 +1,14 @@
-# KuralIt - AI Agent Framework
+<div align="center">
+  <img src="docs/logo/kuralit-w.jpeg" alt="Kuralit Logo" width="200"/>
+</div>
 
-[![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
-[![Dart Version](https://img.shields.io/badge/dart-2.17%2B-blue.svg)](https://dart.dev/)
-[![License](https://img.shields.io/badge/license-Non--Commercial-red.svg)](LICENSE)
+# Kuralit - World's 1<sup>st</sup> AI Agent for Mobile Apps
 
-KuralIt is a comprehensive AI agent framework that enables you to build intelligent agents with real-time communication capabilities. The framework provides both Python and Flutter SDKs for building AI-powered applications with WebSocket support, tool calling, and voice interaction.
+Kuralit is the world's 1<sup>st</sup> AI agent for mobile apps, enabling you to build intelligent agents with real-time communication capabilities. The framework provides both Python and Flutter SDKs for building AI-powered applications with WebSocket support, tool calling, and voice interaction.
 
 ## Overview
 
-KuralIt consists of two main SDKs:
+Kuralit consists of two main SDKs:
 
 - **Python SDK** - Server-side framework for building AI agents with WebSocket servers, tool integration, and plugin architecture
 - **Flutter SDK** - Client-side SDK for Flutter applications with real-time communication, audio streaming, and pre-built UI components
@@ -17,16 +17,16 @@ KuralIt consists of two main SDKs:
 
 ### Core Capabilities
 
-- 🤖 **AI Agent Framework** - Create intelligent agents with customizable instructions and tool support
-- 🛠️ **Tool System** - Build and organize tools using Functions and Toolkits
-- 🔌 **Plugin Architecture** - Modular plugins for LLM, STT, VAD, and turn detection
-- 🌐 **WebSocket Server** - Real-time bidirectional communication for text and audio
-- 📡 **REST API Tools** - Automatically generate tools from Postman collections or OpenAPI specs
-- 🎤 **Speech-to-Text** - Support for multiple STT providers (Deepgram, Google Cloud Speech)
-- 🔊 **Voice Activity Detection** - Built-in VAD support with Silero
-- 🎯 **Turn Detection** - Multilingual turn detection for natural conversations
-- 🔧 **Type-Safe** - Full type hints and Pydantic validation
-- ⚡ **Minimal Dependencies** - Core packages have only essential dependencies
+- **World's 1<sup>st</sup> AI Agent for Mobile Apps** - Create intelligent agents with customizable instructions and tool support
+- **Tool System** - Build and organize tools using Functions and Toolkits
+- **Plugin Architecture** - Modular plugins for LLM, STT, VAD, and turn detection
+- **WebSocket Server** - Real-time bidirectional communication for text and audio
+- **REST API Tools** - Automatically generate tools from Postman collections or OpenAPI specs
+- **Speech-to-Text** - Support for multiple STT providers (Deepgram, Google Cloud Speech)
+- **Voice Activity Detection** - Built-in VAD support with Silero
+- **Turn Detection** - Multilingual turn detection for natural conversations
+- **Type-Safe** - Full type hints and Pydantic validation
+- **Minimal Dependencies** - Core packages have only essential dependencies
 
 ### Python SDK Features
 
@@ -51,11 +51,8 @@ KuralIt consists of two main SDKs:
 ### Python SDK
 
 ```bash
-# Install the Python SDK
+# Install the Python SDK (includes all features)
 pip install kuralit
-
-# Or with optional features
-pip install kuralit[all]
 ```
 
 ```python
@@ -110,33 +107,62 @@ See the [Flutter SDK README](flutter-sdk/README.md) for more details.
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    KuralIt Framework                     │
-├─────────────────────────────────────────────────────────┤
-│                                                           │
-│  ┌──────────────┐              ┌──────────────┐         │
-│  │  Python SDK  │              │ Flutter SDK  │         │
-│  │  (Server)    │◄──WebSocket──►│  (Client)    │         │
-│  └──────┬───────┘              └──────────────┘         │
-│         │                                                 │
-│         ▼                                                 │
-│  ┌──────────────┐                                         │
-│  │    Agent     │  ← Main interface for AI agents        │
-│  └──────┬───────┘                                         │
-│         │ uses                                            │
-│         ▼                                                 │
-│  ┌──────────────┐                                         │
-│  │   Toolkit    │  ← Groups related tools                │
-│  └──────┬───────┘                                         │
-│         │ contains                                        │
-│         ▼                                                 │
-│  ┌──────────────┐                                         │
-│  │  Function    │  ← Individual tools                    │
-│  └──────────────┘                                         │
-│                                                           │
-│  Plugins: LLM, STT, VAD, Turn Detection                  │
-└─────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph PythonSDK
+        subgraph Core
+            PluginRegistry
+            PluginResolver
+        end
+        subgraph Models
+            Message
+            Model
+            ModelResponse
+            Metrics
+        end
+        subgraph Agent_
+            Agent
+        end
+        subgraph Tools
+            Function
+            Toolkit
+        end
+        subgraph Config
+            ConfigManager
+            LLMConfig
+            STTConfig
+            VADConfig
+            TurnDetectorConfig
+            AgentConfig
+            ToolsConfig
+            ServerConfig
+        end
+    end
+
+    subgraph FlutterSDK
+        subgraph Templates
+            KuralitPopupChat
+            KuralitAgentOverlay
+        end
+        subgraph Audio
+            AudioRecorderService
+            AudioStreamer
+        end
+        subgraph Core
+            KuralitClient
+            KuralitConfig
+            KuralitEvents
+        end
+    end
+
+    PythonSDK --> FlutterSDK
+    Core --> Models
+    Core --> Agent
+    Core --> Tools
+    Core --> Config
+    FlutterSDK --> Templates
+    FlutterSDK --> Audio
+    FlutterSDK --> Core
 ```
 
 ## Documentation
@@ -251,6 +277,13 @@ For security vulnerabilities, please see [SECURITY.md](SECURITY.md) for informat
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for a list of changes and version history.
+
+## What's Next
+
+We're continuously working on expanding Kuralit's capabilities. Here's what's coming soon:
+
+1. **React Native SDK** - Native mobile app support for React Native applications
+2. **Firebase Integration** - Seamless integration with Firebase services for enhanced functionality
 
 ---
 

@@ -346,23 +346,61 @@ class AgentHandler:
                                 success=True,
                             )
                             
-                            # Format tool result - add a note to help LLM understand it should process this
-                            tool_result_content = str(result)
-                            # If the result looks like JSON, add a processing hint
-                            if (tool_result_content.strip().startswith('{') or 
-                                tool_result_content.strip().startswith('[')):
-                                # Add a note that this is tool data that needs to be converted to natural language
-                                # The LLM should process this according to system instructions
-                                pass  # Let the system instructions handle the conversion
+                            # Format tool result properly for Gemini function response
+                            # REST API tools return json.dumps() which is already a JSON string
+                            # We need to ensure it's clean and properly formatted
+                            import json
                             
-                            function_call_results.append(Message(
+                            # Log raw result for debugging
+                            result_preview = str(result)[:200] + "..." if len(str(result)) > 200 else str(result)
+                            logger.debug(f"AgentHandler: Raw tool result from '{func_name}': {result_preview}")
+                            logger.debug(f"AgentHandler: Tool result type: {type(result)}")
+                            
+                            # Format tool result content
+                            if isinstance(result, str):
+                                # Result is already a string - could be JSON string or plain text
+                                tool_result_content = result
+                                # Try to parse and re-serialize to ensure it's valid JSON
+                                # This helps catch nested JSON strings (double-encoded)
+                                try:
+                                    parsed = json.loads(result)
+                                    # If it parses successfully, re-serialize to ensure clean format
+                                    # This handles cases where JSON might be nested as a string
+                                    tool_result_content = json.dumps(parsed, ensure_ascii=False)
+                                    logger.debug(f"AgentHandler: Tool result parsed and re-serialized as JSON")
+                                except (json.JSONDecodeError, TypeError):
+                                    # Not JSON, use as-is (plain text result)
+                                    tool_result_content = result
+                                    logger.debug(f"AgentHandler: Tool result is plain text, using as-is")
+                            elif isinstance(result, (dict, list)):
+                                # Result is a dict/list - serialize to JSON
+                                tool_result_content = json.dumps(result, ensure_ascii=False)
+                                logger.debug(f"AgentHandler: Tool result is dict/list, serialized to JSON")
+                            else:
+                                # Other types - convert to string
+                                tool_result_content = str(result)
+                                logger.debug(f"AgentHandler: Tool result is {type(result)}, converted to string")
+                            
+                            # Log formatted content preview
+                            content_preview = tool_result_content[:200] + "..." if len(tool_result_content) > 200 else tool_result_content
+                            logger.debug(f"AgentHandler: Formatted tool result content: {content_preview}")
+                            
+                            # Create Message with proper structure for Gemini function response
+                            # Gemini expects: role="tool" with tool_calls containing tool_name and content
+                            tool_result_message = Message(
                                 role="tool",
                                 content=tool_result_content,
                                 tool_calls=[{
                                     "tool_name": func_name,
                                     "content": tool_result_content
                                 }]
-                            ))
+                            )
+                            
+                            # Log the Message structure for debugging
+                            logger.debug(f"AgentHandler: Created tool result Message - role={tool_result_message.role}, "
+                                       f"tool_calls count={len(tool_result_message.tool_calls) if tool_result_message.tool_calls else 0}")
+                            
+                            function_call_results.append(tool_result_message)
                         except Exception as e:
                             error_msg = str(e)
                             if self.config.debug:
@@ -390,6 +428,11 @@ class AgentHandler:
                     # Add tool results to conversation
                     for result in function_call_results:
                         session.add_message(result)
+                        # Log each tool result message structure
+                        logger.debug(f"AgentHandler: Added tool result message to session - "
+                                   f"role={result.role}, "
+                                   f"has_tool_calls={result.tool_calls is not None and len(result.tool_calls) > 0}, "
+                                   f"content_length={len(str(result.content)) if result.content else 0}")
                     
                     # Continue with another round - get final response with tool results
                     messages = session.get_conversation_history()
@@ -399,18 +442,27 @@ class AgentHandler:
                     # Prepare messages with system instructions
                     messages_with_instructions = self._prepare_messages_with_instructions(messages[:-1])
                     
-                    # Add a reminder message after tool results to reinforce instructions
-                    # This helps ensure the LLM converts tool results to natural language
-                    if messages_with_instructions and any(msg.role == "tool" for msg in messages_with_instructions):
-                        # Check if the last tool message is present
-                        tool_messages = [msg for msg in messages_with_instructions if msg.role == "tool"]
-                        if tool_messages:
-                            # The system instructions should already handle this, but we log it for debugging
-                            logger.debug("AgentHandler: Tool results present in conversation - LLM should convert to natural language per instructions")
-                    
-                    # Log message structure for debugging (second round after tool execution)
+                    # Log detailed message structure for debugging (second round after tool execution)
                     message_roles = [msg.role for msg in messages_with_instructions]
-                    logger.debug(f"AgentHandler: Sending {len(messages_with_instructions)} messages to LLM (after tool execution) with roles: {message_roles}")
+                    logger.info(f"AgentHandler: Sending {len(messages_with_instructions)} messages to LLM (after tool execution) with roles: {message_roles}")
+                    
+                    # Log tool messages specifically
+                    tool_messages = [msg for msg in messages_with_instructions if msg.role == "tool"]
+                    if tool_messages:
+                        logger.info(f"AgentHandler: Found {len(tool_messages)} tool result message(s) in conversation")
+                        for i, tool_msg in enumerate(tool_messages):
+                            tool_calls_info = "has tool_calls" if tool_msg.tool_calls else "no tool_calls"
+                            content_preview = str(tool_msg.content)[:100] + "..." if tool_msg.content and len(str(tool_msg.content)) > 100 else str(tool_msg.content)
+                            logger.debug(f"AgentHandler: Tool message {i+1}: role={tool_msg.role}, {tool_calls_info}, "
+                                       f"content_preview={content_preview}")
+                            if tool_msg.tool_calls:
+                                for j, tc in enumerate(tool_msg.tool_calls):
+                                    logger.debug(f"AgentHandler:   Tool call {j+1}: tool_name={tc.get('tool_name')}, "
+                                               f"content_length={len(str(tc.get('content', '')))}")
+                    
+                    # The system instructions should already handle conversion to natural language
+                    if tool_messages:
+                        logger.debug("AgentHandler: Tool results present in conversation - LLM should convert to natural language per instructions")
                     
                     # Stream the final response after tool execution
                     final_text = ""

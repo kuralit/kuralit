@@ -1,4 +1,4 @@
-"""Core plugin infrastructure for KuralIt."""
+"""Core plugin infrastructure for Kuralit."""
 
 from kuralit.core.interfaces import (
     LLMPlugin,

@@ -1,4 +1,4 @@
-"""VAD plugins for KuralIt.
+"""VAD plugins for Kuralit.
 
 This module provides access to all VAD plugins.
 """

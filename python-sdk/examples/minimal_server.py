@@ -1,6 +1,6 @@
-"""Minimal Server Example - Simplest KuralIt WebSocket Server Setup
+"""Minimal Server Example - Simplest Kuralit WebSocket Server Setup
 
-This example demonstrates the absolute minimum setup required to run a KuralIt
+This example demonstrates the absolute minimum setup required to run a Kuralit
 WebSocket server. This is the simplest possible configuration with no tools,
 just basic STT, LLM, VAD, and turn detection.
 

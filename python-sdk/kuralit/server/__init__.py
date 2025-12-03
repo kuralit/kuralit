@@ -1,4 +1,4 @@
-"""KuralIt WebSocket Server Package.
+"""Kuralit WebSocket Server Package.
 
 This package provides a production-grade WebSocket server for realtime
 text and audio communication with Android clients.

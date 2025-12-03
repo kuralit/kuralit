@@ -1,4 +1,4 @@
-"""LLM plugins for KuralIt.
+"""LLM plugins for Kuralit.
 
 This module provides access to all LLM plugins.
 """

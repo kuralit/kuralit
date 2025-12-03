@@ -471,7 +471,12 @@ class Gemini(Model):
                 continue
 
             # Set the role for the message according to Gemini's requirements
+            original_role = role
             role = self.reverse_role_map.get(role, role)
+            
+            # Log role mapping for tool messages to debug
+            if original_role == "tool":
+                log_debug(f"Gemini: Mapping tool message role '{original_role}' to '{role}' for Gemini API")
 
             # Add content to the message for the model
             content = message.content
@@ -492,12 +497,40 @@ class Gemini(Model):
                     )
             # Function call results
             elif message.tool_calls is not None and len(message.tool_calls) > 0:
+                log_debug(f"Gemini: Formatting function response message - role={message.role}, tool_calls count={len(message.tool_calls)}")
                 for tool_call in message.tool_calls:
+                    tool_name = tool_call.get("tool_name", "unknown")
+                    tool_content = tool_call.get("content", "")
+                    content_preview = str(tool_content)[:100] + "..." if len(str(tool_content)) > 100 else str(tool_content)
+                    log_debug(f"Gemini: Formatting function response - tool_name={tool_name}, content_length={len(str(tool_content))}, content_preview={content_preview}")
+                    
+                    # Ensure response is properly formatted for Gemini
+                    # Gemini expects: Part.from_function_response(name=..., response={"result": ...})
+                    # The response should contain the actual result data
+                    # If tool_content is a JSON string, we should parse it so Gemini receives structured data
+                    # Otherwise, pass it as-is
+                    try:
+                        # Try to parse as JSON - if it's valid JSON, use the parsed object
+                        # This ensures Gemini receives structured data instead of a JSON string
+                        if isinstance(tool_content, str) and (tool_content.strip().startswith('{') or tool_content.strip().startswith('[')):
+                            parsed_content = json.loads(tool_content)
+                            response_data = {"result": parsed_content}
+                            log_debug(f"Gemini: Parsed tool content as JSON for structured response")
+                        else:
+                            # Not JSON or already an object - use as-is
+                            response_data = {"result": tool_content}
+                            log_debug(f"Gemini: Using tool content as-is (not JSON string)")
+                    except (json.JSONDecodeError, TypeError):
+                        # Not valid JSON - use as string
+                        response_data = {"result": tool_content}
+                        log_debug(f"Gemini: Tool content is not JSON, using as string")
+                    
                     message_parts.append(
                         Part.from_function_response(
-                            name=tool_call["tool_name"], response={"result": tool_call["content"]}
+                            name=tool_name, response=response_data
                         )
                     )
+                    log_debug(f"Gemini: Created function response Part for tool '{tool_name}' with response structure: {list(response_data.keys())}")
             # Regular text content
             else:
                 if isinstance(content, str):

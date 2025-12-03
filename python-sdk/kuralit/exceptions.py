@@ -1,4 +1,4 @@
-"""Standalone exception classes for KuralIt."""
+"""Standalone exception classes for Kuralit."""
 from typing import Optional
 
 class ModelProviderError(Exception):

@@ -1,7 +1,7 @@
 """Simple Tools Demo - Custom Python Functions as Tools
 
 This example demonstrates how to create custom Python functions as tools and
-use them with a KuralIt agent. It shows:
+use them with a Kuralit agent. It shows:
 - Creating simple utility functions (calculator, time, weather, currency)
 - Converting functions to tools using Function.from_callable()
 - Creating a Toolkit to group related tools

@@ -1,4 +1,4 @@
-"""KuralIt Models - Standalone model implementations."""
+"""Kuralit Models - Standalone model implementations."""
 
 from kuralit.models.base import Model
 from kuralit.models.message import Message, Citations, UrlCitation

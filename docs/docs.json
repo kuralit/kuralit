@@ -9,8 +9,8 @@
   },
   "favicon": "/favicon.svg",
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/logo/kuralit-b.jpeg",
+    "dark": "/logo/kuralit-w.jpeg"
   },
   "navbar": {
     "links": [
@@ -183,11 +183,6 @@
     ],
     "global": {
       "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://docs.kuralit.com",
-          "icon": "book-open-cover"
-        },
         {
           "anchor": "GitHub",
           "href": "https://github.com/kuralit/kuralit",

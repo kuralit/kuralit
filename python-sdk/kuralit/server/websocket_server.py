@@ -1,4 +1,4 @@
-"""FastAPI WebSocket server for KuralIt."""
+"""FastAPI WebSocket server for Kuralit."""
 
 import asyncio
 import json
@@ -91,7 +91,7 @@ def create_app(
         config.validate()
     
     app = FastAPI(
-        title="KuralIt WebSocket Server",
+        title="Kuralit WebSocket Server",
         description="Realtime text and audio communication server",
         version="1.0.0",
     )

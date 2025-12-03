@@ -1,4 +1,4 @@
-"""Standalone Function class for representing tools in KuralIt."""
+"""Standalone Function class for representing tools in Kuralit."""
 
 from dataclasses import dataclass
 from functools import partial
