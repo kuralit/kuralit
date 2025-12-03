@@ -1,4 +1,4 @@
-"""Standalone Gemini utility functions for KuralIt."""
+"""Standalone Gemini utility functions for Kuralit."""
 
 import json
 from typing import Any, Dict, List, Optional, Union

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# KuralIt Python SDK Publishing Script
+# Kuralit Python SDK Publishing Script
 # This script automates the process of publishing the kuralit package to PyPI
 
 set -e  # Exit on error
@@ -273,7 +273,7 @@ test_installation() {
 # Main menu
 show_menu() {
     echo ""
-    echo "KuralIt Publishing Script"
+    echo "Kuralit Publishing Script"
     echo "========================"
     echo ""
     CURRENT_VERSION=$(get_current_version)

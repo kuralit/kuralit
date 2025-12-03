@@ -1,4 +1,4 @@
-"""Plugin system for KuralIt."""
+"""Plugin system for Kuralit."""
 
 __all__ = []
 

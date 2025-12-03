@@ -1,4 +1,4 @@
-"""Deepgram STT Plugin for KuralIt.
+"""Deepgram STT Plugin for Kuralit.
 
 This module provides the Deepgram STT plugin and auto-registers it with the plugin registry.
 """

@@ -1,4 +1,4 @@
-"""STT plugins for KuralIt.
+"""STT plugins for Kuralit.
 
 This module provides access to all STT plugins.
 """

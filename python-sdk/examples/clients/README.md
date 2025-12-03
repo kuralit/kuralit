@@ -1,11 +1,11 @@
 # Client Examples
 
-This directory contains client examples that connect to KuralIt WebSocket servers.
+This directory contains client examples that connect to Kuralit WebSocket servers.
 
 ## Available Clients
 
 ### `send_audio_client.py`
-A client that streams audio from your microphone to a KuralIt WebSocket server.
+A client that streams audio from your microphone to a Kuralit WebSocket server.
 
 **Usage:**
 ```bash

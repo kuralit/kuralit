@@ -1,0 +1,350 @@
+---
+title: "Dashboard"
+description: "Real-time monitoring and debugging tool for Kuralit servers"
+---
+
+The Kuralit Dashboard is a real-time monitoring and debugging tool that provides visibility into your AI Voice Agent server. Monitor conversations, track metrics, and debug agent interactions as they happen.
+
+<Frame>
+  <img src="/logo/kuralit-dashboard.png" alt="Kuralit Dashboard Interface" style={{ width: '100%', borderRadius: '0.5rem' }} />
+</Frame>
+
+## Overview
+
+The Kuralit Dashboard connects to your Python WebSocket server via a dedicated dashboard endpoint (`/ws/dashboard`) and provides:
+
+- **Real-time Monitoring**: Watch conversations and agent interactions as they happen
+- **Metrics Tracking**: Monitor server-wide metrics (messages, tool calls, errors, latency)
+- **Debugging Tools**: Inspect conversation history and agent responses
+- **Session Management**: View and manage active conversation sessions
+- **Connection Status**: Monitor WebSocket connection health
+
+> **Note**: The dashboard is an optional tool. The core SDKs work independently without it.
+
+**Repository**: [kuralit-ui](https://github.com/kuralit/kuralit-ui) (separate repository)
+
+## Features
+
+<CardGroup cols={3}>
+  <Card
+    title="Real-time Monitoring"
+    icon="wifi"
+  >
+    Watch conversations and agent responses as they happen, with live updates via WebSocket
+  </Card>
+  <Card
+    title="Metrics Dashboard"
+    icon="chart-line"
+  >
+    Track server-wide metrics including messages, tool calls, errors, and latency
+  </Card>
+  <Card
+    title="Debugging Tools"
+    icon="bug"
+  >
+    Inspect conversation history, view detailed event payloads, and troubleshoot issues
+  </Card>
+  <Card
+    title="Session Management"
+    icon="layer-group"
+  >
+    View and navigate between multiple conversation sessions
+  </Card>
+  <Card
+    title="Timeline View"
+    icon="clock"
+  >
+    Chronological view of all interactions with timestamps and latency information
+  </Card>
+  <Card
+    title="Connection Status"
+    icon="signal"
+  >
+    Monitor WebSocket connection health and automatic reconnection
+  </Card>
+</CardGroup>
+
+## Installation
+
+### Prerequisites
+
+- **Node.js** 18+ and npm
+- **Python Server**: A running Kuralit Python WebSocket server
+  - Server must be running on `localhost:8000` (default) or your configured URL
+  - Server must have the dashboard endpoint enabled (automatically available with `create_app()`)
+
+### Step 1: Clone the Repository
+
+```bash
+git clone https://github.com/kuralit/kuralit-ui.git
+cd kuralit-ui
+```
+
+### Step 2: Install Dependencies
+
+```bash
+npm install
+```
+
+### Step 3: Configure Environment Variables
+
+Create a `.env` file in the `kuralit-ui` directory:
+
+```env
+# WebSocket URL for connecting to the Python server
+VITE_WEBSOCKET_URL=ws://localhost:8000/ws/dashboard
+
+# Optional: API key for authentication (if your server requires it)
+VITE_API_KEY=your-api-key-here
+```
+
+**Configuration Options**:
+
+- **Default WebSocket URL**: `ws://localhost:8000/ws/dashboard` (if not specified)
+- **API Key**: Optional - only required if your server enforces authentication
+- **Production**: Use `wss://` (WebSocket Secure) instead of `ws://`
+
+### Step 4: Start the Dashboard
+
+```bash
+npm run dev
+```
+
+The dashboard will be available at `http://localhost:3000` (or the port shown in the terminal).
+
+## Connecting to Your Python Server
+
+### Step 1: Start Your Python Server
+
+First, ensure your Kuralit Python WebSocket server is running. For example:
+
+```bash
+# Navigate to your Python SDK directory
+cd python-sdk
+
+# Run the minimal server example
+python examples/minimal_server.py
+```
+
+Or using uvicorn directly:
+
+```bash
+uvicorn examples.minimal_server:app --host 0.0.0.0 --port 8000
+```
+
+The server should display:
+
+```
+🚀 Starting minimal WebSocket server...
+   Host: 0.0.0.0
+   Port: 8000
+   Connect at: ws://0.0.0.0:8000/ws
+```
+
+### Step 2: Verify Dashboard Endpoint
+
+The dashboard connects to the `/ws/dashboard` endpoint. This endpoint is automatically available when you use `create_app()` from `kuralit.server.websocket_server`:
+
+```python
+from kuralit.server.websocket_server import create_app
+from kuralit.server.agent_session import AgentSession
+
+# Create agent session
+agent = AgentSession(
+    stt="deepgram/nova-2:en-US",
+    llm="gemini/gemini-2.0-flash-001",
+    vad="silero/v3",
+    turn_detection="multilingual/v1",
+    instructions="You are a helpful assistant."
+)
+
+# Create FastAPI app (includes /ws/dashboard endpoint)
+app = create_app(
+    api_key_validator=lambda key: key == "your-secret-key",
+    agent_session=agent
+)
+```
+
+### Step 3: Configure Dashboard Connection
+
+#### Option A: Using Environment Variables (Recommended)
+
+Create a `.env` file in the `kuralit-ui` directory:
+
+```env
+VITE_WEBSOCKET_URL=ws://localhost:8000/ws/dashboard
+VITE_API_KEY=demo-api-key
+```
+
+#### Option B: Using Default Values
+
+If you don't create a `.env` file, the dashboard will use:
+- WebSocket URL: `ws://localhost:8000/ws/dashboard`
+- API Key: None (if your server allows unauthenticated connections)
+
+#### Option C: Custom Server URL
+
+If your server is running on a different host or port:
+
+```env
+VITE_WEBSOCKET_URL=ws://your-server-host:8000/ws/dashboard
+VITE_API_KEY=your-api-key
+```
+
+For production servers with SSL:
+
+```env
+VITE_WEBSOCKET_URL=wss://api.yourdomain.com/ws/dashboard
+VITE_API_KEY=your-production-api-key
+```
+
+### Step 4: Start the Dashboard
+
+```bash
+npm run dev
+```
+
+The dashboard will automatically connect to your Python server when it loads.
+
+## Usage
+
+### Connection Status
+
+- **Green "AGENT ACTIVE"** indicator: Dashboard is connected to the server
+- **Red/Disconnected**: Check that your Python server is running and the WebSocket URL is correct
+
+### Viewing Conversations
+
+1. **History Panel** (Left): Lists all conversation sessions with timestamps
+2. **Timeline View** (Center): Shows the conversation flow with timestamps and latency
+3. **Details Panel** (Right): Displays detailed information about selected events, including JSON payloads
+
+### Metrics
+
+The telemetry bar shows server-wide metrics:
+
+- **Messages**: Total messages processed by the server (user messages + agent responses + tool messages)
+- **Tool Calls**: Total tool invocations
+- **Errors**: Total errors encountered
+- **Latency (p95)**: 95th percentile response latency
+
+### Filtering
+
+Use the filter checkboxes to show/hide:
+- **USER**: User messages
+- **AGENT**: Agent responses
+- **TOOLS**: Tool call outputs
+
+### Event Details
+
+Click on any event in the timeline to view:
+- **TRACE**: Event type, status, and payload
+- **SYSTEM**: System-level information
+- **LLM**: LLM-specific details (if applicable)
+
+## Architecture
+
+### WebSocket Connection
+
+The dashboard connects to your Python server via WebSocket:
+
+```
+Dashboard (React) → WebSocket → Python Server (/ws/dashboard)
+```
+
+### Event Flow
+
+1. **Connection**: Dashboard connects to `/ws/dashboard` endpoint
+2. **Initial State**: Server sends current sessions, metrics, and configuration
+3. **Real-time Events**: Server publishes events via event bus:
+   - `message_received`: User messages
+   - `agent_response_start`: Agent response begins
+   - `agent_response_chunk`: Streaming response chunks
+   - `agent_response_complete`: Agent response finished
+   - `tool_call_start`: Tool execution begins
+   - `tool_call_complete`: Tool execution finished
+   - `metrics_updated`: Metrics changed
+   - `error`: Error occurred
+4. **Dashboard Updates**: Dashboard receives events and updates UI in real-time
+
+### Data Flow
+
+```
+Python Server
+    ↓ (Event Bus)
+Dashboard WebSocket Endpoint (/ws/dashboard)
+    ↓ (WebSocket)
+Dashboard Client (React)
+    ↓ (State Management)
+UI Components (Timeline, Metrics, etc.)
+```
+
+## Building for Production
+
+```bash
+npm run build
+```
+
+The built files will be in the `dist/` directory, ready to be deployed to any static hosting service.
+
+## Troubleshooting
+
+### Dashboard Won't Connect
+
+1. **Check Python Server**: Ensure your Python server is running
+   ```bash
+   # Check if server is running
+   curl http://localhost:8000/docs  # Should return FastAPI docs
+   ```
+
+2. **Verify WebSocket URL**: Check your `.env` file matches your server configuration
+   ```env
+   VITE_WEBSOCKET_URL=ws://localhost:8000/ws/dashboard
+   ```
+
+3. **Check API Key**: If your server requires authentication, ensure the API key matches
+   ```env
+   VITE_API_KEY=your-api-key
+   ```
+
+4. **Browser Console**: Open browser DevTools (F12) and check for WebSocket connection errors
+
+5. **CORS Issues**: If connecting to a remote server, ensure CORS is properly configured
+
+### No Data Showing
+
+- **Check Server Logs**: Verify the server is receiving connections
+- **Refresh Dashboard**: Try refreshing the browser
+- **Check Filters**: Ensure USER, AGENT, and TOOLS filters are enabled
+- **Verify Events**: Check server logs for event publications
+
+### Connection Drops
+
+- The dashboard automatically attempts to reconnect with exponential backoff
+- Check server logs for disconnection reasons
+- Verify network stability
+- Check if server is restarting or experiencing issues
+
+### Metrics Not Updating
+
+- Metrics update after agent responses complete
+- Verify `metrics_updated` events are being published from server
+- Check browser console for event reception
+- Ensure server is processing messages correctly
+
+## Related Documentation
+
+- **[Sessions](/basics/sessions)** - Learn about session management
+- **[Python SDK](/python-sdk)** - Python server setup and configuration
+- **[WebSocket Server](/python-sdk/api-reference/websocket-server)** - WebSocket server API reference
+- **[Architecture](/getting-started/architecture)** - System architecture overview
+
+## Repository
+
+- **GitHub**: [kuralit/kuralit-ui](https://github.com/kuralit/kuralit-ui)
+- **Issues**: [Report Issues](https://github.com/kuralit/kuralit-ui/issues)
+
+## License
+
+The dashboard uses the same licensing terms as the main Kuralit repository. See the [LICENSE](https://github.com/kuralit/kuralit-ui/blob/main/LICENSE) file for details.
+

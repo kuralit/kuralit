@@ -1,8 +1,8 @@
-# KuralIt Server Architecture
+# Kuralit Server Architecture
 
 ## Overview
 
-The KuralIt server provides a WebSocket-based interface for real-time voice agent interactions. It implements a continuous streaming audio pipeline inspired by LiveKit's proven architecture, coordinating Voice Activity Detection (VAD), Speech-to-Text (STT), Turn Detection, and Large Language Model (LLM) processing.
+The Kuralit server provides a WebSocket-based interface for real-time voice agent interactions. It implements a continuous streaming audio pipeline inspired by LiveKit's proven architecture, coordinating Voice Activity Detection (VAD), Speech-to-Text (STT), Turn Detection, and Large Language Model (LLM) processing.
 
 ## Architecture Components
 

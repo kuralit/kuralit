@@ -1,4 +1,4 @@
-"""Plugin interfaces for KuralIt.
+"""Plugin interfaces for Kuralit.
 
 This module defines the abstract base classes that all plugins must implement.
 These interfaces ensure that plugins provide the required functionality while
@@ -19,7 +19,7 @@ class LLMPlugin(ABC):
     """Base class for LLM (Language Model) plugins.
     
     All LLM plugins must implement this interface to be compatible with
-    the KuralIt plugin system.
+    the Kuralit plugin system.
     
     The plugin creates Model instances that implement the Model interface
     from kuralit.models.base.Model, which includes methods like:

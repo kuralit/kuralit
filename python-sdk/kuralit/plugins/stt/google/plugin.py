@@ -1,4 +1,4 @@
-"""Google STT Plugin for KuralIt.
+"""Google STT Plugin for Kuralit.
 
 This plugin provides Google Cloud Speech-to-Text integration as a plugin.
 """

@@ -1,4 +1,4 @@
-"""Gemini LLM Plugin for KuralIt.
+"""Gemini LLM Plugin for Kuralit.
 
 This plugin provides Google Gemini model integration as a plugin.
 """

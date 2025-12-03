@@ -1,4 +1,4 @@
-"""KuralIt - Standalone AI Agent Framework."""
+"""Kuralit - World's 1st AI Agent for Mobile Apps."""
 
 from kuralit.version import __version__
 

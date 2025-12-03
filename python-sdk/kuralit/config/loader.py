@@ -1,4 +1,4 @@
-"""Configuration loader for KuralIt.
+"""Configuration loader for Kuralit.
 
 This module provides functionality to load configuration from environment
 variables, with support for provider-based variable prefixes (e.g., GEMINI_*,
@@ -71,7 +71,7 @@ def _load_env_file(root_path: Optional[str] = None) -> None:
 
 
 class ConfigManager:
-    """Manages loading and validation of KuralIt configuration."""
+    """Manages loading and validation of Kuralit configuration."""
     
     def __init__(self, load_env: bool = True):
         """Initialize ConfigManager.

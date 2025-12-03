@@ -1,4 +1,4 @@
-"""Standalone media classes for KuralIt."""
+"""Standalone media classes for Kuralit."""
 
 from dataclasses import dataclass
 from pathlib import Path

@@ -17,6 +17,7 @@ from kuralit.tools.api import RESTAPIToolkit
 
 from kuralit.server.agent_session import AgentSession
 from kuralit.server.config import ServerConfig
+from kuralit.server.event_bus import EventBus
 from kuralit.server.exceptions import AgentError
 from kuralit.server.metrics import MetricsCollector
 from kuralit.server.protocol import (
@@ -37,6 +38,7 @@ class AgentHandler:
         agent_session: Optional[AgentSession] = None,
         config: Optional[ServerConfig] = None,
         metrics: Optional[MetricsCollector] = None,
+        event_bus: Optional[EventBus] = None,
     ):
         """Initialize agent handler.
         
@@ -44,7 +46,11 @@ class AgentHandler:
             agent_session: Optional AgentSession configuration (takes precedence)
             config: Optional server configuration (fallback if agent_session not provided)
             metrics: Optional metrics collector
+            event_bus: Optional event bus for broadcasting events
         """
+        # Store event bus
+        self.event_bus = event_bus
+        
         # Use AgentSession if provided, otherwise use config
         if agent_session:
             self.config = agent_session._config.server if agent_session._config else (config or ServerConfig())
@@ -55,6 +61,13 @@ class AgentHandler:
             self.tools = agent_session.tools or []
             self.instructions = agent_session.instructions
             self.name = agent_session.name
+            
+            # Log instructions status
+            if self.instructions:
+                logger.info(f"AgentHandler: Instructions loaded from AgentSession (length: {len(self.instructions)} chars)")
+                logger.debug(f"AgentHandler: Instructions preview: {self.instructions[:150]}...")
+            else:
+                logger.warning("AgentHandler: No instructions provided in AgentSession")
         elif config:
             # Fallback to old config-based approach
             self.config = config
@@ -159,6 +172,41 @@ class AgentHandler:
         else:
             logger.warning("AgentHandler: Agent has NO registered functions despite tools being provided")
     
+    def _prepare_messages_with_instructions(self, messages: List[Message]) -> List[Message]:
+        """Prepare messages with system instructions if provided.
+        
+        Args:
+            messages: List of conversation messages
+            
+        Returns:
+            List of messages with system instructions prepended if available
+        """
+        # Check if messages already have a system message
+        has_system_message = any(msg.role == "system" for msg in messages)
+        
+        # Check if there are tool results in the messages
+        has_tool_results = any(msg.role == "tool" for msg in messages)
+        
+        # Add system instructions if provided and not already present
+        if self.instructions and not has_system_message:
+            instructions = self.instructions
+            
+            # If tool results are present, add an extra reminder to convert them to natural language
+            if has_tool_results:
+                reminder = "\n\nREMINDER: You have just received tool/API results. You MUST convert these results into natural, conversational English. NEVER output the raw JSON, code blocks, or technical data structures. Extract the meaningful information and present it as if you're telling a friend about it."
+                instructions = instructions + reminder
+                logger.debug("AgentHandler: Added tool result conversion reminder to instructions")
+            
+            system_message = Message(role="system", content=instructions)
+            logger.info(f"AgentHandler: Adding system instructions to messages (length: {len(instructions)} chars)")
+            logger.debug(f"AgentHandler: System instructions preview: {instructions[:100]}...")
+            return [system_message] + messages
+        elif has_system_message:
+            logger.debug("AgentHandler: System message already present in conversation history")
+        elif not self.instructions:
+            logger.debug("AgentHandler: No instructions provided, using default behavior")
+        return messages
+    
     async def process_text_async(
         self,
         session: Session,
@@ -214,12 +262,21 @@ class AgentHandler:
             assistant_message = Message(role="assistant")
             messages.append(assistant_message)
             
+            # Prepare messages with system instructions
+            messages_with_instructions = self._prepare_messages_with_instructions(messages[:-1])
+            
+            # Log message structure for debugging
+            message_roles = [msg.role for msg in messages_with_instructions]
+            logger.debug(f"AgentHandler: Sending {len(messages_with_instructions)} messages to LLM with roles: {message_roles}")
+            if messages_with_instructions and messages_with_instructions[0].role == "system":
+                logger.info(f"AgentHandler: System instructions included in LLM request (first message is system)")
+            
             accumulated_text = ""
             collected_tool_calls = []
             
             # Stream response with tool support
             async for response_chunk in self.model.ainvoke_stream(
-                messages=messages[:-1],
+                messages=messages_with_instructions,
                 assistant_message=assistant_message,
                 tools=tool_definitions if tool_definitions else None,
                 tool_choice="auto" if tool_definitions else None,
@@ -265,6 +322,23 @@ class AgentHandler:
                                 tool_call_id=tool_call_id,
                             )
                             
+                            # Emit tool_call_start event
+                            if self.event_bus:
+                                await self.event_bus.publish(
+                                    event_type="tool_call_start",
+                                    session_id=session.session_id,
+                                    data={
+                                        "tool_name": func_name,
+                                        "tool_arguments": func_args,
+                                        "tool_call_id": tool_call_id,
+                                    }
+                                )
+                            
+                            # Record tool call in metrics
+                            if self.metrics:
+                                self.metrics.record_tool_call(session.session_id)
+                                # Note: metrics_updated will be emitted after agent response completes
+                            
                             # Execute the function in a thread pool to avoid blocking the event loop
                             # Tool execution (HTTP requests) is synchronous and can take time
                             logger.info(f"AgentHandler: Executing tool '{func_name}' with args: {func_args}")
@@ -281,9 +355,41 @@ class AgentHandler:
                                     timeout=30.0  # 30 second timeout for tool execution
                                 )
                                 logger.info(f"AgentHandler: Tool '{func_name}' completed successfully")
+                                
+                                # Emit tool_call_complete event
+                                if self.event_bus:
+                                    # Format result preview for event (truncate if too long)
+                                    result_preview = str(result)
+                                    if len(result_preview) > 500:
+                                        result_preview = result_preview[:500] + "..."
+                                    
+                                    await self.event_bus.publish(
+                                        event_type="tool_call_complete",
+                                        session_id=session.session_id,
+                                        data={
+                                            "tool_name": func_name,
+                                            "tool_call_id": tool_call_id,
+                                            "result_preview": result_preview,
+                                            "success": True,
+                                        }
+                                    )
                             except asyncio.TimeoutError:
                                 error_msg = f"Tool '{func_name}' execution timed out after 30 seconds"
                                 logger.error(error_msg)
+                                
+                                # Emit tool_call_error event
+                                if self.event_bus:
+                                    await self.event_bus.publish(
+                                        event_type="tool_call_error",
+                                        session_id=session.session_id,
+                                        data={
+                                            "tool_name": func_name,
+                                            "tool_call_id": tool_call_id,
+                                            "error": error_msg,
+                                            "error_type": "timeout",
+                                        }
+                                    )
+                                
                                 raise TimeoutError(error_msg)
                             
                             # Notify client of tool result
@@ -295,18 +401,78 @@ class AgentHandler:
                                 success=True,
                             )
                             
-                            function_call_results.append(Message(
+                            # Format tool result properly for Gemini function response
+                            # REST API tools return json.dumps() which is already a JSON string
+                            # We need to ensure it's clean and properly formatted
+                            import json
+                            
+                            # Log raw result for debugging
+                            result_preview = str(result)[:200] + "..." if len(str(result)) > 200 else str(result)
+                            logger.debug(f"AgentHandler: Raw tool result from '{func_name}': {result_preview}")
+                            logger.debug(f"AgentHandler: Tool result type: {type(result)}")
+                            
+                            # Format tool result content
+                            if isinstance(result, str):
+                                # Result is already a string - could be JSON string or plain text
+                                tool_result_content = result
+                                # Try to parse and re-serialize to ensure it's valid JSON
+                                # This helps catch nested JSON strings (double-encoded)
+                                try:
+                                    parsed = json.loads(result)
+                                    # If it parses successfully, re-serialize to ensure clean format
+                                    # This handles cases where JSON might be nested as a string
+                                    tool_result_content = json.dumps(parsed, ensure_ascii=False)
+                                    logger.debug(f"AgentHandler: Tool result parsed and re-serialized as JSON")
+                                except (json.JSONDecodeError, TypeError):
+                                    # Not JSON, use as-is (plain text result)
+                                    tool_result_content = result
+                                    logger.debug(f"AgentHandler: Tool result is plain text, using as-is")
+                            elif isinstance(result, (dict, list)):
+                                # Result is a dict/list - serialize to JSON
+                                tool_result_content = json.dumps(result, ensure_ascii=False)
+                                logger.debug(f"AgentHandler: Tool result is dict/list, serialized to JSON")
+                            else:
+                                # Other types - convert to string
+                                tool_result_content = str(result)
+                                logger.debug(f"AgentHandler: Tool result is {type(result)}, converted to string")
+                            
+                            # Log formatted content preview
+                            content_preview = tool_result_content[:200] + "..." if len(tool_result_content) > 200 else tool_result_content
+                            logger.debug(f"AgentHandler: Formatted tool result content: {content_preview}")
+                            
+                            # Create Message with proper structure for Gemini function response
+                            # Gemini expects: role="tool" with tool_calls containing tool_name and content
+                            tool_result_message = Message(
                                 role="tool",
-                                content=str(result),
+                                content=tool_result_content,
                                 tool_calls=[{
                                     "tool_name": func_name,
-                                    "content": str(result)
+                                    "content": tool_result_content
                                 }]
-                            ))
+                            )
+                            
+                            # Log the Message structure for debugging
+                            logger.debug(f"AgentHandler: Created tool result Message - role={tool_result_message.role}, "
+                                       f"tool_calls count={len(tool_result_message.tool_calls) if tool_result_message.tool_calls else 0}")
+                            
+                            function_call_results.append(tool_result_message)
                         except Exception as e:
                             error_msg = str(e)
                             if self.config.debug:
                                 print(f"Error executing tool {func_name}: {error_msg}")
+                            
+                            # Emit tool_call_error event
+                            if self.event_bus:
+                                await self.event_bus.publish(
+                                    event_type="tool_call_error",
+                                    session_id=session.session_id,
+                                    data={
+                                        "tool_name": func_name,
+                                        "tool_call_id": tool_call_id,
+                                        "error": error_msg,
+                                        "error_type": "execution_error",
+                                    }
+                                )
                             
                             # Notify client of tool error
                             yield ServerToolResultMessage.create(
@@ -330,16 +496,46 @@ class AgentHandler:
                     # Add tool results to conversation
                     for result in function_call_results:
                         session.add_message(result)
+                        # Log each tool result message structure
+                        logger.debug(f"AgentHandler: Added tool result message to session - "
+                                   f"role={result.role}, "
+                                   f"has_tool_calls={result.tool_calls is not None and len(result.tool_calls) > 0}, "
+                                   f"content_length={len(str(result.content)) if result.content else 0}")
                     
                     # Continue with another round - get final response with tool results
                     messages = session.get_conversation_history()
                     assistant_message = Message(role="assistant")
                     messages.append(assistant_message)
                     
+                    # Prepare messages with system instructions
+                    messages_with_instructions = self._prepare_messages_with_instructions(messages[:-1])
+                    
+                    # Log detailed message structure for debugging (second round after tool execution)
+                    message_roles = [msg.role for msg in messages_with_instructions]
+                    logger.info(f"AgentHandler: Sending {len(messages_with_instructions)} messages to LLM (after tool execution) with roles: {message_roles}")
+                    
+                    # Log tool messages specifically
+                    tool_messages = [msg for msg in messages_with_instructions if msg.role == "tool"]
+                    if tool_messages:
+                        logger.info(f"AgentHandler: Found {len(tool_messages)} tool result message(s) in conversation")
+                        for i, tool_msg in enumerate(tool_messages):
+                            tool_calls_info = "has tool_calls" if tool_msg.tool_calls else "no tool_calls"
+                            content_preview = str(tool_msg.content)[:100] + "..." if tool_msg.content and len(str(tool_msg.content)) > 100 else str(tool_msg.content)
+                            logger.debug(f"AgentHandler: Tool message {i+1}: role={tool_msg.role}, {tool_calls_info}, "
+                                       f"content_preview={content_preview}")
+                            if tool_msg.tool_calls:
+                                for j, tc in enumerate(tool_msg.tool_calls):
+                                    logger.debug(f"AgentHandler:   Tool call {j+1}: tool_name={tc.get('tool_name')}, "
+                                               f"content_length={len(str(tc.get('content', '')))}")
+                    
+                    # The system instructions should already handle conversion to natural language
+                    if tool_messages:
+                        logger.debug("AgentHandler: Tool results present in conversation - LLM should convert to natural language per instructions")
+                    
                     # Stream the final response after tool execution
                     final_text = ""
                     async for response_chunk in self.model.ainvoke_stream(
-                        messages=messages[:-1],
+                        messages=messages_with_instructions,
                         assistant_message=assistant_message,
                         tools=tool_definitions if tool_definitions else None,
                         tool_choice="auto" if tool_definitions else None,

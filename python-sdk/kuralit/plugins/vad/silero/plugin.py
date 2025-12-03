@@ -1,4 +1,4 @@
-"""Silero VAD Plugin for KuralIt.
+"""Silero VAD Plugin for Kuralit.
 
 This plugin provides Silero Voice Activity Detection integration as a plugin.
 """

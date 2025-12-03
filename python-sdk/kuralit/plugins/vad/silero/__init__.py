@@ -1,4 +1,4 @@
-"""Silero VAD Plugin for KuralIt.
+"""Silero VAD Plugin for Kuralit.
 
 This module provides the Silero VAD plugin and auto-registers it with the plugin registry.
 """

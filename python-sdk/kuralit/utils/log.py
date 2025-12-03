@@ -1,4 +1,4 @@
-"""Standalone logging utilities for KuralIt."""
+"""Standalone logging utilities for Kuralit."""
 
 import logging
 from typing import Any, Optional

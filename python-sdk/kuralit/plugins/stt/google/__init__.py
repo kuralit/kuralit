@@ -1,4 +1,4 @@
-"""Google STT Plugin for KuralIt.
+"""Google STT Plugin for Kuralit.
 
 This module provides the Google STT plugin and auto-registers it with the plugin registry.
 """

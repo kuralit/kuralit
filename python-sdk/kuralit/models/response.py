@@ -1,4 +1,4 @@
-"""Standalone ModelResponse class for KuralIt."""
+"""Standalone ModelResponse class for Kuralit."""
 
 from dataclasses import dataclass, field
 from time import time

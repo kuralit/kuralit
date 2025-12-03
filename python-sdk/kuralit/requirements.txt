@@ -1,4 +1,4 @@
-# Core dependencies for KuralIt package
+# Core dependencies for Kuralit package
 # These are required for the base functionality
 
 # Data validation and modeling

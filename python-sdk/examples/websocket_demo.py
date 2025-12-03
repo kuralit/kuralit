@@ -1,4 +1,4 @@
-"""Demo: Running KuralIt WebSocket Server
+"""Demo: Running Kuralit WebSocket Server
 
 This example demonstrates how to start the WebSocket server with the new AgentSession API.
 
@@ -89,7 +89,7 @@ if __name__ == "__main__":
         turn_detection="multilingual/v1",
         instructions="You are a helpful assistant with access to realtime communication. "
                     "Provide clear, concise, and helpful responses.",
-        name="KuralIt Demo Agent",
+        name="Kuralit Demo Agent",
         tools=tools if tools else None,
     )
     

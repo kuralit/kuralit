@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "KuralIt WebSocket Server",
-    "description": "Postman collection for testing KuralIt WebSocket server",
+    "name": "Kuralit WebSocket Server",
+    "description": "Postman collection for testing Kuralit WebSocket server",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [

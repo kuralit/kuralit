@@ -1,9 +1,9 @@
-# KuralIt - Standalone AI Agent Framework
+# Kuralit - World's 1<sup>st</sup> AI Agent for Mobile Apps
 
 [![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-Non--Commercial-red.svg)](LICENSE)
 
-A standalone, flexible AI agent framework that enables you to create intelligent agents with tool-calling capabilities. KuralIt provides a clean architecture for building AI assistants that can interact with models, use tools, and handle real-time communication.
+The world's 1<sup>st</sup> AI agent for mobile apps, enabling you to create intelligent agents with tool-calling capabilities. Kuralit provides a clean architecture for building AI assistants that can interact with models, use tools, and handle real-time communication.
 
 ## Features
 
@@ -19,25 +19,33 @@ A standalone, flexible AI agent framework that enables you to create intelligent
 
 ## Installation
 
-### Basic Installation
+### Standard Installation
 
 ```bash
 pip install kuralit
 ```
 
-### With Optional Features
+This installs all dependencies including:
+- Google Gemini LLM support
+- WebSocket server support
+- Speech-to-Text support
+- Voice Activity Detection
+- REST API tools support
+- And all other features
+
+### Optional: Install Specific Feature Groups
+
+If you only need specific features, you can install them individually:
 
 ```bash
-# Install with all optional dependencies
-pip install kuralit[all]
-
-# Or install specific feature groups
-pip install kuralit[gemini]      # Google Gemini LLM support
-pip install kuralit[websocket]   # WebSocket server support
-pip install kuralit[stt]         # Speech-to-Text support
-pip install kuralit[vad]         # Voice Activity Detection
-pip install kuralit[rest]         # REST API tools support
+pip install kuralit[gemini]      # Only Google Gemini LLM support
+pip install kuralit[websocket]    # Only WebSocket server support
+pip install kuralit[stt]         # Only Speech-to-Text support
+pip install kuralit[vad]         # Only Voice Activity Detection
+pip install kuralit[rest]         # Only REST API tools support
 ```
+
+Note: The standard `pip install kuralit` includes all features by default.
 
 ## Quick Start
 

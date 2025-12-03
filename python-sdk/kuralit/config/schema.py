@@ -1,6 +1,6 @@
-"""Configuration schema for KuralIt.
+"""Configuration schema for Kuralit.
 
-This module defines the configuration dataclasses used throughout KuralIt.
+This module defines the configuration dataclasses used throughout Kuralit.
 Configurations are organized by component (LLM, STT, VAD, etc.) and support
 provider-based settings.
 """

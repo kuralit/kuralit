@@ -1,6 +1,6 @@
 name: kuralit_sdk
 description: A Flutter SDK for Kuralit realtime communication with WebSocket support for text and audio streaming.
-version: 0.1.0
+version: 0.1.1
 homepage: https://github.com/kuralit/kuralit_sdk
 repository: https://github.com/kuralit/kuralit_sdk
 license: Personal Use License (Commercial Use Restricted)

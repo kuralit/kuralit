@@ -7,10 +7,10 @@
     "light": "#818CF8",
     "dark": "#4F46E5"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/logo/kuralit-b.jpeg",
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/logo/kuralit-b.jpeg",
+    "dark": "/logo/kuralit-w.jpeg"
   },
   "navbar": {
     "links": [
@@ -72,7 +72,8 @@
                   "basics/sessions/index",
                   "basics/sessions/session-management",
                   "basics/sessions/conversation-history",
-                  "basics/sessions/multi-turn"
+                  "basics/sessions/multi-turn",
+                  "basics/sessions/dashboard"
                 ]
               }
             ]
@@ -183,11 +184,6 @@
     ],
     "global": {
       "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://docs.kuralit.com",
-          "icon": "book-open-cover"
-        },
         {
           "anchor": "GitHub",
           "href": "https://github.com/kuralit/kuralit",

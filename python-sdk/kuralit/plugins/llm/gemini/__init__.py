@@ -1,4 +1,4 @@
-"""Gemini LLM Plugin for KuralIt.
+"""Gemini LLM Plugin for Kuralit.
 
 This module provides the Gemini plugin and auto-registers it with the plugin registry.
 """

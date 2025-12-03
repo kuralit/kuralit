@@ -1,4 +1,4 @@
-# KuralIt - Standalone Agent and Tools Framework
+# Kuralit - Standalone Agent and Tools Framework
 
 A standalone implementation of agents and tools, independent of the agno package. This framework allows you to create AI agents that can use tools to perform actions.
 

@@ -1,4 +1,4 @@
-"""Deepgram STT Plugin for KuralIt.
+"""Deepgram STT Plugin for Kuralit.
 
 This plugin provides Deepgram Speech-to-Text integration as a plugin.
 """
