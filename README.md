@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://kuralit.com">
-    <img src="docs/logo/kuralit-dashboard.png" alt="Kuralit Dashboard" width="800"/>
+    <img src="docs/logo/kuralit-w.jpeg" alt="Kuralit Logo" width="200"/>
   </a>
 </div>
 
@@ -218,6 +218,10 @@ The **Kuralit Dashboard** is a real-time monitoring and debugging tool for your 
 - **Metrics Tracking**: Monitor messages, tool calls, errors, and latency
 - **Debugging Tools**: Inspect conversation history and agent responses
 - **Session Management**: View and manage active sessions
+
+<div align="center">
+  <img src="docs/logo/kuralit-dashboard.png" alt="Kuralit Dashboard Interface" width="800"/>
+</div>
 
 **Repository**: [kuralit-ui](https://github.com/kuralit/kuralit-ui) (separate repository)
 
