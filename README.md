@@ -23,7 +23,7 @@ Kuralit consists of two main SDKs:
 
 Here's what the Kuralit Dashboard looks like in action:
 
-<video src="https://github.com/user-attachments/assets/9272677c-0322-4991-9717-61be2bb45563" controls width="800"></video>
+<video src="https://github.com/user-attachments/assets/08c5a624-0f6e-4811-ab1a-d7ec8789917d" controls width="800"></video>
 
 ## Features
 
