@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://kuralit.com">
-    <img src="docs/logo/kuralit-w.jpeg" alt="Kuralit Logo" width="200"/>
+    <img src="docs/logo/kuralit-dashboard.png" alt="Kuralit Dashboard" width="800"/>
   </a>
 </div>
 
@@ -20,6 +20,10 @@ Kuralit consists of two main SDKs:
 
 - **Python SDK** - Server-side framework for building AI agents with WebSocket servers, tool integration, and plugin architecture
 - **Flutter SDK** - Client-side SDK for Flutter applications with real-time communication, audio streaming, and pre-built UI components
+
+Here's what the Kuralit Dashboard looks like in action:
+
+<video src="https://github.com/user-attachments/assets/9272677c-0322-4991-9717-61be2bb45563" controls width="800"></video>
 
 ## Features
 
