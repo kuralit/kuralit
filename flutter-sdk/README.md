@@ -18,6 +18,8 @@ A Flutter SDK for Kuralit realtime communication with WebSocket support for text
 
 ## Installation
 
+Install from [pub.dev](https://pub.dev/packages/kuralit_sdk):
+
 Add this to your package's `pubspec.yaml` file:
 
 ```yaml
@@ -289,6 +291,7 @@ Contributions are welcome! However, please note that this package is subject to 
 
 For issues, questions, or commercial licensing inquiries:
 
+- Package: [pub.dev/packages/kuralit_sdk](https://pub.dev/packages/kuralit_sdk)
 - Website: [https://kuralit.com](https://kuralit.com)
 - GitHub: [https://github.com/kuralit/kuralit_sdk](https://github.com/kuralit/kuralit_sdk)
 

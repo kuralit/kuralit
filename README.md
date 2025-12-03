@@ -87,6 +87,8 @@ dependencies:
   kuralit_sdk: ^1.0.0
 ```
 
+Or install from [pub.dev](https://pub.dev/packages/kuralit_sdk):
+
 ```dart
 import 'package:kuralit_sdk/kuralit.dart';
 
@@ -190,6 +192,7 @@ The Python SDK provides server-side capabilities for building AI agents:
 
 The Flutter SDK provides client-side capabilities for mobile and web applications:
 
+- **Package**: [kuralit_sdk on pub.dev](https://pub.dev/packages/kuralit_sdk)
 - **Location**: [`flutter-sdk/`](flutter-sdk/)
 - **Installation**: Add to `pubspec.yaml`
 - **Documentation**: [Flutter SDK README](flutter-sdk/README.md)
