@@ -225,7 +225,7 @@ The **Kuralit Dashboard** is a real-time monitoring and debugging tool for your 
 
 **Repository**: [kuralit-ui](https://github.com/kuralit/kuralit-ui) (separate repository)
 
-**Documentation**: [Dashboard Guide →](docs/basics/sessions/dashboard)
+**Documentation**: [Dashboard Guide →](https://docs.kuralit.com/basics/sessions/dashboard)
 
 > **Note**: The dashboard is an optional tool. The core SDKs work independently without it.
 
