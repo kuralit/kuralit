@@ -36,6 +36,12 @@ from kuralit.server.protocol import (
     ServerSTTMessage,
 )
 from kuralit.server.session import Session
+from kuralit.server.event_bus import EventBus, get_event_bus, Event
+from kuralit.server.dashboard_utils import (
+    get_all_sessions,
+    get_agent_config,
+    metrics_to_ui_format,
+)
 from kuralit.core.plugin_registry import PluginRegistry
 from kuralit.plugins.stt.deepgram import DeepgramSTTHandler
 from kuralit.plugins.stt.google import GoogleSTTHandler
@@ -55,6 +61,7 @@ logger = logging.getLogger(__name__)
 sessions: Dict[str, Session] = {}
 connections: Dict[str, WebSocket] = {}
 metrics_collector = MetricsCollector()
+event_bus: EventBus = get_event_bus()  # Global event bus for dashboard updates
 
 
 def create_app(
@@ -172,9 +179,9 @@ def create_app(
     
     # Initialize AgentHandler - use AgentSession if provided
     if agent_session:
-        agent_handler = AgentHandler(agent_session=agent_session, config=config, metrics=metrics_collector)
+        agent_handler = AgentHandler(agent_session=agent_session, config=config, metrics=metrics_collector, event_bus=event_bus)
     else:
-        agent_handler = AgentHandler(config=config, metrics=metrics_collector)
+        agent_handler = AgentHandler(config=config, metrics=metrics_collector, event_bus=event_bus)
     
     @app.get("/health")
     async def health_check():
@@ -194,6 +201,101 @@ def create_app(
                 content={"error": "Metrics disabled"}
             )
         return metrics_collector.server_metrics.to_dict()
+    
+    # Dashboard API endpoints
+    @app.get("/api/sessions")
+    async def get_sessions():
+        """Get list of active sessions."""
+        try:
+            # Authenticate (optional - can add API key check here)
+            sessions_list = get_all_sessions(sessions)
+            return {
+                "sessions": sessions_list,
+                "count": len(sessions_list),
+            }
+        except Exception as e:
+            logger.error(f"[API] Error getting sessions: {e}", exc_info=True)
+            return JSONResponse(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content={"error": "Failed to get sessions", "message": str(e)}
+            )
+    
+    @app.get("/api/sessions/{session_id}")
+    async def get_session(session_id: str):
+        """Get details of a specific session."""
+        try:
+            if session_id not in sessions:
+                return JSONResponse(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    content={"error": "Session not found"}
+                )
+            
+            session = sessions[session_id]
+            from kuralit.server.dashboard_utils import session_to_conversation
+            conversation = session_to_conversation(session)
+            
+            return conversation
+        except Exception as e:
+            logger.error(f"[API] Error getting session {session_id}: {e}", exc_info=True)
+            return JSONResponse(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content={"error": "Failed to get session", "message": str(e)}
+            )
+    
+    @app.get("/api/sessions/{session_id}/history")
+    async def get_session_history(session_id: str):
+        """Get conversation history for a session."""
+        try:
+            if session_id not in sessions:
+                return JSONResponse(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    content={"error": "Session not found"}
+                )
+            
+            session = sessions[session_id]
+            from kuralit.server.dashboard_utils import session_to_conversation
+            conversation = session_to_conversation(session)
+            
+            return {
+                "session_id": session_id,
+                "history": conversation["items"],
+                "count": len(conversation["items"]),
+            }
+        except Exception as e:
+            logger.error(f"[API] Error getting session history {session_id}: {e}", exc_info=True)
+            return JSONResponse(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content={"error": "Failed to get session history", "message": str(e)}
+            )
+    
+    @app.get("/api/dashboard/metrics")
+    async def get_dashboard_metrics():
+        """Get metrics in dashboard format."""
+        try:
+            metrics = metrics_to_ui_format(metrics_collector)
+            return {
+                "metrics": metrics,
+                "server_metrics": metrics_collector.server_metrics.to_dict(),
+            }
+        except Exception as e:
+            logger.error(f"[API] Error getting dashboard metrics: {e}", exc_info=True)
+            return JSONResponse(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content={"error": "Failed to get metrics", "message": str(e)}
+            )
+    
+    @app.get("/api/config")
+    async def get_config():
+        """Get agent configuration."""
+        try:
+            config_dict = get_agent_config(agent_handler)
+            return config_dict
+        except Exception as e:
+            logger.error(f"[API] Error getting config: {e}", exc_info=True)
+            return JSONResponse(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content={"error": "Failed to get config", "message": str(e)}
+            )
     
     @app.websocket("/ws")
     async def websocket_endpoint(websocket: WebSocket):
@@ -284,15 +386,43 @@ def create_app(
                         )
                         sessions[client_message.session_id] = session
                         metrics_collector.create_session_metrics(client_message.session_id)
+                        
+                        # Emit session_created event
+                        await event_bus.publish(
+                            event_type="session_created",
+                            session_id=session.session_id,
+                            data={
+                                "session_id": session.session_id,
+                                "created_at": session.created_at,
+                                "user_metadata": session.user_metadata,
+                            }
+                        )
                     else:
                         session = sessions[client_message.session_id]
                     
                     session.update_activity()
-                    metrics_collector.record_message(session.session_id)
                     
                     # Handle message by type
+                    # Note: metrics_updated will be emitted after agent response completes
                     if isinstance(client_message, ClientTextMessage):
+                        # Record user text message in metrics (only actual messages, not audio signals)
+                        metrics_collector.record_message(session.session_id)
+                        
                         logger.info(f"[WS] Text message: session={session.session_id}, length={len(client_message.text)}")
+                        
+                        # Emit message_received event
+                        logger.info(f"[WS] Publishing message_received event: session={session.session_id}, subscribers={event_bus.get_subscriber_count()}")
+                        await event_bus.publish(
+                            event_type="message_received",
+                            session_id=session.session_id,
+                            data={
+                                "text": client_message.text,
+                                "metadata": client_message.metadata or {},
+                                "message_length": len(client_message.text),
+                            }
+                        )
+                        logger.debug(f"[WS] message_received event published: session={session.session_id}")
+                        
                         await handle_text_message(
                             websocket,
                             session,
@@ -354,6 +484,214 @@ def create_app(
             metrics_collector.decrement_connection()
             
             logger.info(f"[WS] Connection closed: connection={connection_id}")
+    
+    @app.websocket("/ws/dashboard")
+    async def dashboard_endpoint(websocket: WebSocket):
+        """WebSocket endpoint for dashboard/monitoring interface.
+        
+        This endpoint allows dashboard clients to:
+        - Subscribe to real-time events
+        - Receive initial state (sessions, metrics, config)
+        - Monitor agent activity
+        """
+        dashboard_id = str(uuid4())
+        
+        try:
+            # Accept connection
+            await websocket.accept()
+            logger.info(f"[Dashboard] Connection accepted: dashboard={dashboard_id}")
+            
+            # Authenticate (optional - can use same API key or separate dashboard key)
+            api_key = websocket.headers.get("x-api-key") or websocket.headers.get("X-Api-Key")
+            if api_key and config.api_key_validator:
+                if not config.api_key_validator(api_key):
+                    logger.warning(f"[Dashboard] Invalid API key: dashboard={dashboard_id}")
+                    await websocket.close(code=status.WS_1008_POLICY_VIOLATION, reason="Invalid API key")
+                    return
+            elif not api_key:
+                logger.warning(f"[Dashboard] No API key provided: dashboard={dashboard_id}")
+                # Allow connection without auth for development (can be restricted later)
+                logger.info(f"[Dashboard] Allowing connection without auth (development mode): dashboard={dashboard_id}")
+            
+            # Subscribe to event bus
+            event_callback_ref = None  # Store reference for cleanup
+            connection_active = True  # Track if connection is still active
+            
+            async def event_callback(event: Event) -> None:
+                """Callback to send events to dashboard client."""
+                nonlocal connection_active
+                logger.debug(f"[Dashboard] Event callback invoked: {event.event_type}, connection_active={connection_active}")
+                
+                if not connection_active:
+                    logger.debug(f"[Dashboard] Skipping event (connection inactive): {event.event_type}")
+                    return  # Connection closed, don't try to send
+                    
+                try:
+                    event_json = event.to_json()
+                    logger.info(f"[Dashboard] Sending event to {dashboard_id}: {event.event_type} (session={event.session_id})")
+                    await websocket.send_text(event_json)
+                    logger.info(f"[Dashboard] ✓ Event sent successfully: {event.event_type} (session={event.session_id})")
+                except WebSocketDisconnect as e:
+                    logger.warning(f"[Dashboard] WebSocket disconnected while sending event: {event.event_type}, error={e}")
+                    connection_active = False
+                except Exception as e:
+                    logger.error(f"[Dashboard] Error sending event to dashboard {dashboard_id}: {e}", exc_info=True)
+                    connection_active = False
+                    # Don't unsubscribe here - let finally block handle it
+                    # This prevents trying to send more events to a closed connection
+            
+            event_callback_ref = event_callback
+            event_bus.subscribe(event_callback)
+            logger.info(f"[Dashboard] Subscribed to events: dashboard={dashboard_id}, subscribers={event_bus.get_subscriber_count()}")
+            
+            # Test the callback immediately with a test event
+            try:
+                test_event = Event(
+                    event_type="dashboard_test",
+                    session_id=None,
+                    timestamp=time.time(),
+                    data={"message": "Testing event callback", "dashboard_id": dashboard_id}
+                )
+                logger.info(f"[Dashboard] Testing event callback for {dashboard_id}")
+                await event_callback(test_event)
+                logger.info(f"[Dashboard] Test event sent successfully for {dashboard_id}")
+            except Exception as e:
+                logger.error(f"[Dashboard] Test event failed for {dashboard_id}: {e}", exc_info=True)
+            
+            # Send initial state
+            try:
+                initial_state = {
+                    "type": "initial_state",
+                    "sessions": get_all_sessions(sessions),
+                    "metrics": metrics_to_ui_format(metrics_collector),
+                    "config": get_agent_config(agent_handler),
+                }
+                await websocket.send_text(json.dumps(initial_state))
+                logger.info(f"[Dashboard] Sent initial state: dashboard={dashboard_id}, sessions={len(sessions)}")
+                
+                # Send a test event to verify real-time updates work
+                await asyncio.sleep(0.1)  # Small delay to ensure initial state is processed
+                test_event = Event(
+                    event_type="dashboard_connected",
+                    session_id=None,
+                    timestamp=time.time(),
+                    data={"dashboard_id": dashboard_id, "message": "Dashboard connected successfully"}
+                )
+                await websocket.send_text(test_event.to_json())
+                logger.info(f"[Dashboard] Sent test event to verify connection: dashboard={dashboard_id}")
+            except Exception as e:
+                logger.error(f"[Dashboard] Error sending initial state: {e}", exc_info=True)
+                connection_active = False
+            
+            # Handle incoming messages in a separate task so it doesn't block event sending
+            async def handle_incoming_messages():
+                """Handle incoming messages from dashboard client."""
+                nonlocal connection_active
+                while connection_active:
+                    try:
+                        raw_message = await websocket.receive_text()
+                        message_data = json.loads(raw_message)
+                        message_type = message_data.get("type")
+                        
+                        if message_type == "subscribe":
+                            # Handle subscription filters (future enhancement)
+                            filters = message_data.get("filters", {})
+                            logger.info(f"[Dashboard] Subscription filters updated: dashboard={dashboard_id}, filters={filters}")
+                            # For now, we subscribe to all events
+                            # In future, can filter by session_id, event_type, etc.
+                        
+                        elif message_type == "ping":
+                            # Heartbeat/ping
+                            await websocket.send_text(json.dumps({"type": "pong"}))
+                        
+                        elif message_type == "inject_message":
+                            # Inject test message (for playground)
+                            session_id = message_data.get("session_id")
+                            text = message_data.get("text")
+                            if session_id and text and session_id in sessions:
+                                # Create a fake client message and process it
+                                # This is a simplified version - in production, might want more validation
+                                logger.info(f"[Dashboard] Injecting message: dashboard={dashboard_id}, session={session_id}, text={text[:50]}")
+                                # Note: This would require access to agent_handler, which we have in scope
+                                # For now, just emit an event - actual processing would need more setup
+                                await event_bus.publish(
+                                    event_type="message_received",
+                                    session_id=session_id,
+                                    data={
+                                        "text": text,
+                                        "metadata": {"source": "dashboard_playground"},
+                                        "message_length": len(text),
+                                    }
+                                )
+                                await websocket.send_text(json.dumps({
+                                    "type": "inject_message_response",
+                                    "success": True,
+                                    "message": "Message injected (event emitted)"
+                                }))
+                            else:
+                                await websocket.send_text(json.dumps({
+                                    "type": "inject_message_response",
+                                    "success": False,
+                                    "error": "Invalid session_id or text"
+                                }))
+                        
+                        else:
+                            logger.warning(f"[Dashboard] Unknown message type: {message_type}, dashboard={dashboard_id}")
+                    
+                    except WebSocketDisconnect:
+                        logger.info(f"[Dashboard] Disconnected: dashboard={dashboard_id}")
+                        connection_active = False
+                        break
+                    except json.JSONDecodeError as e:
+                        logger.error(f"[Dashboard] Invalid JSON: {e}, dashboard={dashboard_id}")
+                        try:
+                            await websocket.send_text(json.dumps({
+                                "type": "error",
+                                "error": "Invalid JSON",
+                                "message": str(e)
+                            }))
+                        except:
+                            connection_active = False
+                            break
+                    except Exception as e:
+                        logger.error(f"[Dashboard] Error processing message: {e}, dashboard={dashboard_id}", exc_info=True)
+                        try:
+                            await websocket.send_text(json.dumps({
+                                "type": "error",
+                                "error": "Internal error",
+                                "message": str(e)
+                            }))
+                        except:
+                            connection_active = False
+                            break
+            
+            # Start message handling task
+            message_task = asyncio.create_task(handle_incoming_messages())
+            
+            # Wait for the task to complete (when connection closes)
+            try:
+                await message_task
+            except asyncio.CancelledError:
+                pass
+        
+        except Exception as e:
+            logger.error(f"[Dashboard] Connection error: {e}, dashboard={dashboard_id}", exc_info=True)
+            if 'connection_active' in locals():
+                connection_active = False
+            try:
+                await websocket.close(code=status.WS_1011_INTERNAL_ERROR, reason="Internal server error")
+            except:
+                pass
+        finally:
+            # Unsubscribe from event bus
+            try:
+                if 'event_callback_ref' in locals() and event_callback_ref:
+                    event_bus.unsubscribe(event_callback_ref)
+                    logger.info(f"[Dashboard] Unsubscribed from events: dashboard={dashboard_id}, remaining subscribers={event_bus.get_subscriber_count()}")
+            except Exception as e:
+                logger.warning(f"[Dashboard] Error unsubscribing: {e}, dashboard={dashboard_id}")
+            
+            logger.info(f"[Dashboard] Connection closed: dashboard={dashboard_id}")
     
     return app
 
@@ -458,8 +796,19 @@ async def handle_text_message(
         keepalive_task = asyncio.create_task(send_keepalive_pings())
         
         try:
+            # Emit agent_response_start event
+            await event_bus.publish(
+                event_type="agent_response_start",
+                session_id=session.session_id,
+                data={
+                    "user_message": message.text,
+                }
+            )
+            
             response_count = 0
             agent_start_time = time.time()
+            accumulated_response_text = ""
+            
             async for response in agent_handler.process_text_async(
                 session,
                 message.text,
@@ -468,6 +817,39 @@ async def handle_text_message(
                 response_count += 1
                 chunk_arrival_time = time.time()
                 logger.debug(f"[Text] Agent response #{response_count}: type={response.type}, session={session.session_id}")
+                
+                # Track response content for events
+                # Use the text property which accesses data["text"]
+                try:
+                    response_text = response.text if hasattr(response, 'text') else ""
+                except:
+                    response_text = response.data.get("text", "") if hasattr(response, 'data') else ""
+                
+                if response.type == "server_partial":
+                    if response_text:
+                        accumulated_response_text += response_text
+                        logger.debug(f"[Text] Accumulated text length: {len(accumulated_response_text)}, chunk: {len(response_text)}")
+                        # Emit streaming chunk event (throttled - only every few chunks to avoid spam)
+                        if response_count % 5 == 0:  # Emit every 5th chunk
+                            await event_bus.publish(
+                                event_type="agent_response_chunk",
+                                session_id=session.session_id,
+                                data={
+                                    "chunk_index": response_count,
+                                    "text_so_far": accumulated_response_text,
+                                }
+                            )
+                elif response.type == "server_text":
+                    if response_text:
+                        accumulated_response_text = response_text
+                        logger.debug(f"[Text] Final text set from server_text, length: {len(accumulated_response_text)}")
+                    # If we have accumulated text but server_text is empty, keep accumulated
+                    # This handles cases where server_text is sent but text is in accumulated
+                    elif accumulated_response_text:
+                        logger.debug(f"[Text] server_text empty, keeping accumulated text, length: {len(accumulated_response_text)}")
+                    else:
+                        logger.warning(f"[Text] No text in server_text response and no accumulated text, response_count={response_count}")
+                
                 try:
                     send_start_time = time.time()
                     await send_message(websocket, response, config)
@@ -479,6 +861,19 @@ async def handle_text_message(
                         logger.debug(f"[Text] Streaming: chunk_arrival_to_send={arrival_to_send_ms:.1f}ms, send_latency={send_latency_ms:.1f}ms, session={session.session_id}")
                 except Exception as send_error:
                     logger.error(f"[Text] Failed to send response #{response_count}: {send_error}, type={response.type}, session={session.session_id}", exc_info=True)
+                    
+                    # Emit error event
+                    await event_bus.publish(
+                        event_type="error",
+                        session_id=session.session_id,
+                        data={
+                            "error_type": "message_send_error",
+                            "error_code": "MESSAGE_SEND_ERROR",
+                            "message": str(send_error),
+                            "retriable": True,
+                        }
+                    )
+                    
                     # Try to send error message to client
                     try:
                         await send_message(
@@ -498,6 +893,46 @@ async def handle_text_message(
             
             agent_total_time = (time.time() - agent_start_time) * 1000
             logger.info(f"[Text] Complete: {response_count} responses, total_time={agent_total_time:.0f}ms, session={session.session_id}")
+            
+            # Get final text from session conversation history (source of truth)
+            # This ensures we get the same text that's shown in initial state
+            final_text = accumulated_response_text if 'accumulated_response_text' in locals() else ""
+            
+            # Try to get the latest assistant message from conversation history
+            conversation_history = session.get_conversation_history()
+            if conversation_history:
+                # Find the last assistant message
+                for msg in reversed(conversation_history):
+                    if msg.role == "assistant" and msg.content:
+                        history_text = str(msg.content)
+                        if history_text and len(history_text) > len(final_text):
+                            final_text = history_text
+                            logger.debug(f"[Text] Using text from conversation history, length: {len(final_text)}")
+                        break
+            
+            logger.info(f"[Text] Sending agent_response_complete: response_count={response_count}, final_text_length={len(final_text)}")
+            await event_bus.publish(
+                event_type="agent_response_complete",
+                session_id=session.session_id,
+                data={
+                    "response_count": response_count,
+                    "total_time_ms": agent_total_time,
+                    "final_text": final_text,
+                }
+            )
+            
+            # Emit metrics_updated event with server-level totals
+            server_metrics = metrics_collector.server_metrics
+            await event_bus.publish(
+                event_type="metrics_updated",
+                session_id=None,  # Global event, not session-specific
+                data={
+                    "total_messages": server_metrics.total_messages,
+                    "total_tool_calls": server_metrics.total_tool_calls,
+                    "total_errors": server_metrics.total_errors,
+                    "average_latency_ms": server_metrics.average_latency_ms,
+                }
+            )
         finally:
             # Stop keepalive task
             keepalive_active = False
@@ -509,6 +944,19 @@ async def handle_text_message(
                     pass
     except Exception as e:
         logger.error(f"[Text] Error: {e}, session={session.session_id}", exc_info=True)
+        
+        # Emit error event
+        await event_bus.publish(
+            event_type="error",
+            session_id=session.session_id,
+            data={
+                "error_type": "text_processing_error",
+                "error_code": "TEXT_PROCESSING_ERROR",
+                "message": str(e),
+                "retriable": True,
+            }
+        )
+        
         # Try to send error message to client instead of raising
         try:
             await send_message(
@@ -719,6 +1167,25 @@ async def handle_user_turn_committed(
     try:
         logger.info(f"[Audio] Processing user turn with agent: session={session.session_id}")
         
+        # Record message in metrics
+        session.update_activity()
+        metrics_collector.record_message(session.session_id)
+        
+        # Note: metrics_updated will be emitted after agent response completes
+        
+        # Emit message_received event for audio transcript
+        logger.info(f"[Audio] Publishing message_received event: session={session.session_id}, subscribers={event_bus.get_subscriber_count()}")
+        await event_bus.publish(
+            event_type="message_received",
+            session_id=session.session_id,
+            data={
+                "text": transcript,
+                "metadata": {"source": "audio", "transcription": True},
+                "message_length": len(transcript),
+            }
+        )
+        logger.debug(f"[Audio] message_received event published: session={session.session_id}")
+        
         # Start keepalive ping task during agent processing to prevent connection timeout
         keepalive_task = None
         keepalive_active = True
@@ -750,8 +1217,18 @@ async def handle_user_turn_committed(
         keepalive_task = asyncio.create_task(send_keepalive_pings())
         
         try:
+            # Emit agent_response_start event
+            await event_bus.publish(
+                event_type="agent_response_start",
+                session_id=session.session_id,
+                data={
+                    "user_message": transcript,
+                }
+            )
+            
             response_count = 0
             agent_start_time = time.time()
+            accumulated_response_text = ""
             
             async for response in agent_handler.process_transcription_async(
                 session,
@@ -760,10 +1237,54 @@ async def handle_user_turn_committed(
                 response_count += 1
                 logger.debug(f"[Audio] Agent response #{response_count}: type={response.type}, session={session.session_id}")
                 
+                # Track response content for events
+                # Use the text property which accesses data["text"]
+                try:
+                    response_text = response.text if hasattr(response, 'text') else ""
+                except:
+                    response_text = response.data.get("text", "") if hasattr(response, 'data') else ""
+                
+                if response.type == "server_partial":
+                    if response_text:
+                        accumulated_response_text += response_text
+                        logger.debug(f"[Audio] Accumulated text length: {len(accumulated_response_text)}, chunk: {len(response_text)}")
+                        # Emit streaming chunk event (throttled - only every few chunks to avoid spam)
+                        if response_count % 5 == 0:  # Emit every 5th chunk
+                            await event_bus.publish(
+                                event_type="agent_response_chunk",
+                                session_id=session.session_id,
+                                data={
+                                    "chunk_index": response_count,
+                                    "text_so_far": accumulated_response_text,
+                                }
+                            )
+                elif response.type == "server_text":
+                    if response_text:
+                        accumulated_response_text = response_text
+                        logger.debug(f"[Audio] Final text set from server_text, length: {len(accumulated_response_text)}")
+                    # If we have accumulated text but server_text is empty, keep accumulated
+                    # This handles cases where server_text is sent but text is in accumulated
+                    elif accumulated_response_text:
+                        logger.debug(f"[Audio] server_text empty, keeping accumulated text, length: {len(accumulated_response_text)}")
+                    else:
+                        logger.warning(f"[Audio] No text in server_text response and no accumulated text, response_count={response_count}")
+                
                 try:
                     await send_message(websocket, response, config)
                 except Exception as send_error:
                     logger.error(f"[Audio] Failed to send response #{response_count}: {send_error}, session={session.session_id}", exc_info=True)
+                    
+                    # Emit error event
+                    await event_bus.publish(
+                        event_type="error",
+                        session_id=session.session_id,
+                        data={
+                            "error_type": "message_send_error",
+                            "error_code": "MESSAGE_SEND_ERROR",
+                            "message": str(send_error),
+                        }
+                    )
+                    
                     await send_message(
                         websocket,
                         ServerErrorMessage.create(
@@ -777,6 +1298,46 @@ async def handle_user_turn_committed(
             
             agent_total_time = (time.time() - agent_start_time) * 1000
             logger.info(f"[Audio] Agent processing complete: {response_count} responses, total_time={agent_total_time:.0f}ms, session={session.session_id}")
+            
+            # Get final text from session conversation history (source of truth)
+            # This ensures we get the same text that's shown in initial state
+            final_text = accumulated_response_text if 'accumulated_response_text' in locals() else ""
+            
+            # Try to get the latest assistant message from conversation history
+            conversation_history = session.get_conversation_history()
+            if conversation_history:
+                # Find the last assistant message
+                for msg in reversed(conversation_history):
+                    if msg.role == "assistant" and msg.content:
+                        history_text = str(msg.content)
+                        if history_text and len(history_text) > len(final_text):
+                            final_text = history_text
+                            logger.debug(f"[Audio] Using text from conversation history, length: {len(final_text)}")
+                        break
+            
+            logger.info(f"[Audio] Sending agent_response_complete: response_count={response_count}, final_text_length={len(final_text)}")
+            await event_bus.publish(
+                event_type="agent_response_complete",
+                session_id=session.session_id,
+                data={
+                    "response_count": response_count,
+                    "total_time_ms": agent_total_time,
+                    "final_text": final_text,
+                }
+            )
+            
+            # Emit metrics_updated event with server-level totals
+            server_metrics = metrics_collector.server_metrics
+            await event_bus.publish(
+                event_type="metrics_updated",
+                session_id=None,  # Global event, not session-specific
+                data={
+                    "total_messages": server_metrics.total_messages,
+                    "total_tool_calls": server_metrics.total_tool_calls,
+                    "total_errors": server_metrics.total_errors,
+                    "average_latency_ms": server_metrics.average_latency_ms,
+                }
+            )
         
         finally:
             # Stop keepalive task
@@ -790,6 +1351,18 @@ async def handle_user_turn_committed(
     
     except Exception as e:
         logger.error(f"[Audio] Error processing user turn: {e}, session={session.session_id}", exc_info=True)
+        
+        # Emit error event
+        await event_bus.publish(
+            event_type="error",
+            session_id=session.session_id,
+            data={
+                "error_type": "audio_processing_error",
+                "error_code": "AUDIO_PROCESSING_ERROR",
+                "message": str(e),
+            }
+        )
+        
         try:
             await send_message(
                 websocket,
@@ -876,6 +1449,19 @@ async def handle_error(
     logger.error(f"[WS] Error: code={error_code}, message={error_message}, retriable={retriable}, session={session_id}")
     
     metrics_collector.record_error(session_id)
+    
+    # Emit metrics_updated event immediately after recording error
+    server_metrics = metrics_collector.server_metrics
+    await event_bus.publish(
+        event_type="metrics_updated",
+        session_id=None,  # Global event, not session-specific
+        data={
+            "total_messages": server_metrics.total_messages,
+            "total_tool_calls": server_metrics.total_tool_calls,
+            "total_errors": server_metrics.total_errors,
+            "average_latency_ms": server_metrics.average_latency_ms,
+        }
+    )
     
     try:
         await send_message(

@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 import 'kuralit_config.dart';
 import 'kuralit_events.dart';
 import 'kuralit_client.dart';
+import 'utils/metadata.dart';
 
 /// Main Kuralit SDK class
 /// 
@@ -74,11 +75,31 @@ class Kuralit {
   /// 
   /// [sessionId] - Session ID for conversation continuity
   /// [text] - Text message to send (max 4KB)
-  /// [metadata] - Optional metadata to include
+  /// [metadata] - Optional metadata to include (will be merged with device metadata)
+  /// 
+  /// The message automatically includes device metadata:
+  /// - Platform information (iOS/Android/Web)
+  /// - OS version
+  /// - SDK version
+  /// - App state (foreground/background)
+  /// - App ID
+  /// - User ID (if set via setUser())
   /// 
   /// Returns true if message was sent, false otherwise.
   /// 
   /// Throws [ArgumentError] if text is empty or exceeds 4KB.
+  /// 
+  /// Example:
+  /// ```dart
+  /// // Basic usage
+  /// Kuralit.sendText(sessionId, 'Hello!');
+  /// 
+  /// // With custom metadata
+  /// Kuralit.sendText(sessionId, 'Hello!', metadata: {
+  ///   'custom_field': 'value',
+  ///   'source': 'chat_screen',
+  /// });
+  /// ```
   static bool sendText(
     String sessionId,
     String text, {
@@ -157,9 +178,54 @@ class Kuralit {
 
   /// Generate a new session ID
   /// 
-  /// Returns a UUID v4 string.
-  static String generateSessionId() {
-    return _uuid.v4();
+  /// [prefix] - Optional prefix for the session ID (e.g., user ID or app identifier)
+  /// 
+  /// Returns a UUID v4 string, optionally prefixed.
+  /// 
+  /// Example:
+  /// ```dart
+  /// // Simple UUID
+  /// final sessionId = Kuralit.generateSessionId();
+  /// 
+  /// // With user prefix
+  /// final sessionId = Kuralit.generateSessionId(prefix: 'user_123');
+  /// // Result: "user_123_550e8400-e29b-41d4-a716-446655440000"
+  /// ```
+  static String generateSessionId({String? prefix}) {
+    final uuid = _uuid.v4();
+    if (prefix != null && prefix.isNotEmpty) {
+      return '${prefix}_$uuid';
+    }
+    return uuid;
+  }
+  
+  /// Set app state (foreground/background)
+  /// 
+  /// This should be called when the app lifecycle changes.
+  /// The app state is included in message metadata.
+  /// 
+  /// [state] - App state: 'foreground' or 'background'
+  /// 
+  /// Example:
+  /// ```dart
+  /// // In your app lifecycle observer
+  /// AppLifecycleListener(
+  ///   onStateChange: (state) {
+  ///     if (state == AppLifecycleState.resumed) {
+  ///       Kuralit.setAppState('foreground');
+  ///     } else {
+  ///       Kuralit.setAppState('background');
+  ///     }
+  ///   },
+  /// )
+  /// ```
+  static void setAppState(String state) {
+    _requireInitialized();
+    if (state == 'foreground' || state == 'background') {
+      MetadataCollector.setAppState(state);
+    } else {
+      throw ArgumentError.value(state, 'state', 'Must be "foreground" or "background"');
+    }
   }
 
   /// Set user information

@@ -480,6 +480,35 @@ class KuralitClient {
     final merged = <String, dynamic>{
       ...deviceInfo,
       'appId': config.appId,
+      // Add app state
+      'app_state': MetadataCollector.getAppState(),
+      // Add platform string for UI display
+      'platform_string': MetadataCollector.getPlatformString(),
+    };
+
+    if (_userId != null) {
+      merged['userId'] = _userId;
+    }
+
+    if (_userProperties != null) {
+      merged.addAll(_userProperties!);
+    }
+
+    if (additional != null) {
+      merged.addAll(additional);
+    }
+
+    return merged;
+  }
+  
+  /// Builds enhanced metadata with async device info (if available)
+  /// This can be used when optional packages are available
+  Future<Map<String, dynamic>> _buildEnhancedMetadata([Map<String, dynamic>? additional]) async {
+    final deviceInfo = await MetadataCollector.getEnhancedDeviceInfo();
+    final merged = <String, dynamic>{
+      ...deviceInfo,
+      'appId': config.appId,
+      'app_state': MetadataCollector.getAppState(),
     };
 
     if (_userId != null) {

@@ -7,7 +7,7 @@
     "light": "#818CF8",
     "dark": "#4F46E5"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/logo/kuralit-b.jpeg",
   "logo": {
     "light": "/logo/kuralit-b.jpeg",
     "dark": "/logo/kuralit-w.jpeg"
@@ -72,7 +72,8 @@
                   "basics/sessions/index",
                   "basics/sessions/session-management",
                   "basics/sessions/conversation-history",
-                  "basics/sessions/multi-turn"
+                  "basics/sessions/multi-turn",
+                  "basics/sessions/dashboard"
                 ]
               }
             ]

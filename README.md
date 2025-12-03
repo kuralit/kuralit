@@ -206,6 +206,21 @@ The Flutter SDK provides client-side capabilities for mobile and web application
 - **Documentation**: [Flutter SDK README](flutter-sdk/README.md)
 - **Examples**: [`flutter-sdk/example/`](flutter-sdk/example/)
 
+### Kuralit Dashboard
+
+The **Kuralit Dashboard** is a real-time monitoring and debugging tool for your AI Voice Agent servers. It provides:
+
+- **Real-time Monitoring**: Watch conversations as they happen
+- **Metrics Tracking**: Monitor messages, tool calls, errors, and latency
+- **Debugging Tools**: Inspect conversation history and agent responses
+- **Session Management**: View and manage active sessions
+
+**Repository**: [kuralit-ui](https://github.com/kuralit/kuralit-ui) (separate repository)
+
+**Documentation**: [Dashboard Guide →](docs/basics/sessions/dashboard)
+
+> **Note**: The dashboard is an optional tool. The core SDKs work independently without it.
+
 ## Examples
 
 ### Python SDK Examples

@@ -14,6 +14,7 @@ class SessionMetrics:
     audio_chunks_received: int = 0
     stt_transcriptions: int = 0
     agent_responses: int = 0
+    tool_calls: int = 0
     total_latency_ms: float = 0.0
     stt_latency_ms: float = 0.0
     agent_latency_ms: float = 0.0
@@ -49,6 +50,7 @@ class ServerMetrics:
     total_audio_chunks: int = 0
     total_stt_transcriptions: int = 0
     total_agent_responses: int = 0
+    total_tool_calls: int = 0
     average_latency_ms: float = 0.0
     average_stt_latency_ms: float = 0.0
     start_time: float = field(default_factory=time.time)
@@ -64,6 +66,7 @@ class ServerMetrics:
             "total_audio_chunks": self.total_audio_chunks,
             "total_stt_transcriptions": self.total_stt_transcriptions,
             "total_agent_responses": self.total_agent_responses,
+            "total_tool_calls": self.total_tool_calls,
             "average_latency_ms": self.average_latency_ms,
             "average_stt_latency_ms": self.average_stt_latency_ms,
             "uptime_seconds": uptime_seconds,
@@ -136,7 +139,12 @@ class MetricsCollector:
                 metrics.stt_latency_ms += latency_ms
     
     def record_agent_response(self, latency_ms: float, session_id: Optional[str] = None) -> None:
-        """Record an agent response."""
+        """Record an agent response (LLM response).
+        
+        This increments both total_messages (for message count) and total_agent_responses (for agent-specific metrics).
+        """
+        # Count agent response as a message (LLM interaction)
+        self.server_metrics.total_messages += 1
         self.server_metrics.total_agent_responses += 1
         if session_id:
             metrics = self.get_session_metrics(session_id)
@@ -144,6 +152,20 @@ class MetricsCollector:
                 metrics.agent_responses += 1
                 metrics.total_latency_ms += latency_ms
                 metrics.agent_latency_ms += latency_ms
+    
+    def record_tool_call(self, session_id: Optional[str] = None) -> None:
+        """Record a tool call.
+        
+        This increments both total_tool_calls (for tool-specific metrics) and total_messages
+        (since tool calls result in tool messages being added to conversation history).
+        """
+        # Count tool call as a message (tool messages are part of conversation)
+        self.server_metrics.total_messages += 1
+        self.server_metrics.total_tool_calls += 1
+        if session_id:
+            metrics = self.get_session_metrics(session_id)
+            if metrics:
+                metrics.tool_calls += 1
     
     def get_server_metrics(self) -> ServerMetrics:
         """Get server metrics."""

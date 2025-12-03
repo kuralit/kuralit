@@ -17,6 +17,7 @@ from kuralit.tools.api import RESTAPIToolkit
 
 from kuralit.server.agent_session import AgentSession
 from kuralit.server.config import ServerConfig
+from kuralit.server.event_bus import EventBus
 from kuralit.server.exceptions import AgentError
 from kuralit.server.metrics import MetricsCollector
 from kuralit.server.protocol import (
@@ -37,6 +38,7 @@ class AgentHandler:
         agent_session: Optional[AgentSession] = None,
         config: Optional[ServerConfig] = None,
         metrics: Optional[MetricsCollector] = None,
+        event_bus: Optional[EventBus] = None,
     ):
         """Initialize agent handler.
         
@@ -44,7 +46,11 @@ class AgentHandler:
             agent_session: Optional AgentSession configuration (takes precedence)
             config: Optional server configuration (fallback if agent_session not provided)
             metrics: Optional metrics collector
+            event_bus: Optional event bus for broadcasting events
         """
+        # Store event bus
+        self.event_bus = event_bus
+        
         # Use AgentSession if provided, otherwise use config
         if agent_session:
             self.config = agent_session._config.server if agent_session._config else (config or ServerConfig())
@@ -316,6 +322,23 @@ class AgentHandler:
                                 tool_call_id=tool_call_id,
                             )
                             
+                            # Emit tool_call_start event
+                            if self.event_bus:
+                                await self.event_bus.publish(
+                                    event_type="tool_call_start",
+                                    session_id=session.session_id,
+                                    data={
+                                        "tool_name": func_name,
+                                        "tool_arguments": func_args,
+                                        "tool_call_id": tool_call_id,
+                                    }
+                                )
+                            
+                            # Record tool call in metrics
+                            if self.metrics:
+                                self.metrics.record_tool_call(session.session_id)
+                                # Note: metrics_updated will be emitted after agent response completes
+                            
                             # Execute the function in a thread pool to avoid blocking the event loop
                             # Tool execution (HTTP requests) is synchronous and can take time
                             logger.info(f"AgentHandler: Executing tool '{func_name}' with args: {func_args}")
@@ -332,9 +355,41 @@ class AgentHandler:
                                     timeout=30.0  # 30 second timeout for tool execution
                                 )
                                 logger.info(f"AgentHandler: Tool '{func_name}' completed successfully")
+                                
+                                # Emit tool_call_complete event
+                                if self.event_bus:
+                                    # Format result preview for event (truncate if too long)
+                                    result_preview = str(result)
+                                    if len(result_preview) > 500:
+                                        result_preview = result_preview[:500] + "..."
+                                    
+                                    await self.event_bus.publish(
+                                        event_type="tool_call_complete",
+                                        session_id=session.session_id,
+                                        data={
+                                            "tool_name": func_name,
+                                            "tool_call_id": tool_call_id,
+                                            "result_preview": result_preview,
+                                            "success": True,
+                                        }
+                                    )
                             except asyncio.TimeoutError:
                                 error_msg = f"Tool '{func_name}' execution timed out after 30 seconds"
                                 logger.error(error_msg)
+                                
+                                # Emit tool_call_error event
+                                if self.event_bus:
+                                    await self.event_bus.publish(
+                                        event_type="tool_call_error",
+                                        session_id=session.session_id,
+                                        data={
+                                            "tool_name": func_name,
+                                            "tool_call_id": tool_call_id,
+                                            "error": error_msg,
+                                            "error_type": "timeout",
+                                        }
+                                    )
+                                
                                 raise TimeoutError(error_msg)
                             
                             # Notify client of tool result
@@ -405,6 +460,19 @@ class AgentHandler:
                             error_msg = str(e)
                             if self.config.debug:
                                 print(f"Error executing tool {func_name}: {error_msg}")
+                            
+                            # Emit tool_call_error event
+                            if self.event_bus:
+                                await self.event_bus.publish(
+                                    event_type="tool_call_error",
+                                    session_id=session.session_id,
+                                    data={
+                                        "tool_name": func_name,
+                                        "tool_call_id": tool_call_id,
+                                        "error": error_msg,
+                                        "error_type": "execution_error",
+                                    }
+                                )
                             
                             # Notify client of tool error
                             yield ServerToolResultMessage.create(
