@@ -224,6 +224,13 @@ The Flutter SDK provides client-side capabilities for mobile and web application
 - `agent_overlay` - Agent overlay interface example
 - `protocol` - Low-level protocol usage example
 
+## What's Next
+
+We're continuously working on expanding Kuralit's capabilities. Here's what's coming soon:
+
+1. **React Native SDK** - Native mobile app support for React Native applications
+2. **Firebase Integration** - Seamless integration with Firebase services for enhanced functionality
+
 ## Requirements
 
 ### Python SDK
@@ -275,26 +282,9 @@ For security vulnerabilities, please see [SECURITY.md](SECURITY.md) for informat
 - **Questions**: Open a discussion on GitHub
 - **Commercial Licensing**: Contact hello@kuralit.com
 
-## Key Features
-
-- **Standalone**: No dependencies on other agent frameworks
-- **Simple**: Easy to understand and extend
-- **Flexible**: Works with any model that supports function calling
-- **Extensible**: Easy to add new tool types and plugins
-- **Type-Safe**: Full type hints and Pydantic validation
-- **Production-Ready**: WebSocket server with real-time audio support
-- **Multi-Platform**: Python server and Flutter client support
-
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for a list of changes and version history.
-
-## What's Next
-
-We're continuously working on expanding Kuralit's capabilities. Here's what's coming soon:
-
-1. **React Native SDK** - Native mobile app support for React Native applications
-2. **Firebase Integration** - Seamless integration with Firebase services for enhanced functionality
 
 ---
 
