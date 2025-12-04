@@ -11,7 +11,6 @@ class AudioRecorderService {
   final AudioRecorder _recorder = AudioRecorder();
   StreamSubscription<Uint8List>? _audioStreamSubscription;
   Timer? _audioReadTimer;
-  String? _recordingPath;
   bool _isRecording = false;
   bool _hasPermission = false;
 
@@ -192,8 +191,7 @@ class AudioRecorderService {
       _audioReadTimer?.cancel();
       _audioReadTimer = null;
 
-      final path = await _recorder.stop();
-      _recordingPath = path;
+      await _recorder.stop();
       
       // Note: The record package doesn't return the final chunk directly
       // You may need to read it from the file if needed

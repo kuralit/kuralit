@@ -24,7 +24,6 @@ class KuralitClient {
   Timer? _heartbeatTimer;
   Timer? _reconnectTimer;
   int _reconnectAttempts = 0;
-  DateTime? _lastRttMeasurement;
   int? _rttMs;
 
   String? _userId;
@@ -500,31 +499,6 @@ class KuralitClient {
 
     return merged;
   }
-  
-  /// Builds enhanced metadata with async device info (if available)
-  /// This can be used when optional packages are available
-  Future<Map<String, dynamic>> _buildEnhancedMetadata([Map<String, dynamic>? additional]) async {
-    final deviceInfo = await MetadataCollector.getEnhancedDeviceInfo();
-    final merged = <String, dynamic>{
-      ...deviceInfo,
-      'appId': config.appId,
-      'app_state': MetadataCollector.getAppState(),
-    };
-
-    if (_userId != null) {
-      merged['userId'] = _userId;
-    }
-
-    if (_userProperties != null) {
-      merged.addAll(_userProperties!);
-    }
-
-    if (additional != null) {
-      merged.addAll(additional);
-    }
-
-    return merged;
-  }
 
   void _startHeartbeat() {
     _stopHeartbeat();
@@ -549,7 +523,7 @@ class KuralitClient {
   }
 
   void _measureRtt() {
-    _lastRttMeasurement = DateTime.now();
+    // RTT measurement can be implemented here if needed
   }
 
   void _scheduleReconnect() {
