@@ -4,17 +4,17 @@ A Flutter SDK for Kuralit realtime communication with WebSocket support for text
 
 ## Features
 
-- 🔌 **WebSocket Communication** - Real-time bidirectional communication
-- 💬 **Text Messaging** - Send and receive text messages with streaming support
-- 🎤 **Audio Streaming** - Stream audio data with support for multiple sample rates and encodings
-- 🔄 **Automatic Reconnection** - Built-in reconnection logic with configurable retry attempts
-- 📡 **Event-Driven Architecture** - Reactive event stream for handling all SDK events
-- 🎨 **Ready-to-Use Templates** - Pre-built UI components for quick integration
+- **WebSocket Communication** - Real-time bidirectional communication
+- **Text Messaging** - Send and receive text messages with streaming support
+- **Audio Streaming** - Stream audio data with support for multiple sample rates and encodings
+- **Automatic Reconnection** - Built-in reconnection logic with configurable retry attempts
+- **Event-Driven Architecture** - Reactive event stream for handling all SDK events
+- **Ready-to-Use Templates** - Pre-built UI components for quick integration
   - Popup Chat Dialog
   - Agent Overlay Interface
-- 🛠️ **Tool Call Support** - Handle function/tool calls from the server
-- 📊 **Metadata Support** - Attach custom metadata to messages
-- 🔍 **Debug Mode** - Comprehensive logging for development
+- **Tool Call Support** - Handle function/tool calls from the server
+- **Metadata Support** - Attach custom metadata to messages
+- **Debug Mode** - Comprehensive logging for development
 
 ## Installation
 
@@ -24,7 +24,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  kuralit_sdk: ^1.0.0
+  kuralit_sdk: ^0.1.1
 ```
 
 Then run:

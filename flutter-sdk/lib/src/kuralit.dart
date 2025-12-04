@@ -31,7 +31,6 @@ import 'utils/metadata.dart';
 /// await Kuralit.sendText(sessionId, 'Hello!');
 /// ```
 class Kuralit {
-  static KuralitConfig? _config;
   static KuralitClient? _client;
   static bool _isInitialized = false;
   static final _uuid = const Uuid();
@@ -52,7 +51,6 @@ class Kuralit {
       throw StateError('Kuralit SDK is already initialized. Call dispose() first to reinitialize.');
     }
 
-    _config = config;
     _client = KuralitClient(config);
     _isInitialized = true;
   }
@@ -271,7 +269,6 @@ class Kuralit {
   static void dispose() {
     _client?.dispose();
     _client = null;
-    _config = null;
     _isInitialized = false;
   }
 
