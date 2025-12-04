@@ -100,7 +100,7 @@ def create_app(
     app = FastAPI(
         title="Kuralit WebSocket Server",
         description="Realtime text and audio communication server",
-        version="1.0.0",
+        version="0.1.1",
     )
     
     # Initialize handlers

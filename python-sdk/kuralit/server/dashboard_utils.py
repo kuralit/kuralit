@@ -281,7 +281,7 @@ def get_agent_config(agent_handler: AgentHandler) -> Dict[str, Any]:
     return {
         "identity": {
             "agentId": agent_handler.name if hasattr(agent_handler, 'name') else "agent_unknown",
-            "sdkVersion": "1.0.0",  # TODO: Get from version file
+            "sdkVersion": "0.1.1",  # TODO: Get from version file
             "environment": "development",  # TODO: Get from config
         },
         "model": {

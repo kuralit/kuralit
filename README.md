@@ -96,7 +96,7 @@ See the [Python SDK README](python-sdk/README.md) for more details.
 ```yaml
 # Add to pubspec.yaml
 dependencies:
-  kuralit_sdk: ^1.0.0
+  kuralit_sdk: ^0.1.1
 ```
 
 Or install from [pub.dev](https://pub.dev/packages/kuralit_sdk):

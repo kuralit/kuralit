@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 /// Device and platform metadata collector
 class MetadataCollector {
   /// SDK version
-  static const String sdkVersion = '1.0.0';
+  static const String sdkVersion = '0.1.1';
   
   /// Current app state (foreground/background)
   static String _appState = 'foreground';
